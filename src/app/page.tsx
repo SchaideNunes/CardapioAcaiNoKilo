@@ -56,7 +56,7 @@ export default function OrderPage() {
   });
 
   // Estados para exclusão por "segurar"
-  const [holdTimer, setHoldTimer] = useState<NodeJS.Timeout | null>(null);
+  const [holdTimer, setHoldTimer] = useState<any>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteProgress, setDeleteProgress] = useState(0);
 
