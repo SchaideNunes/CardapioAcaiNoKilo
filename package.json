@@ -20,7 +20,6 @@
     "tailwind-merge": "^3.5.0"
   },
   "devDependencies": {
-    "@tailwindcss/oxide-win32-x64-msvc": "^4.2.2",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
