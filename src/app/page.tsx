@@ -56,7 +56,8 @@ export default function OrderPage() {
   });
 
   // Estados para exclusão por "segurar"
-  const [holdTimer, setHoldTimer] = useState<any>(null);
+  const [holdTimer, setHoldTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
+  const [holdInterval, setHoldInterval] = useState<ReturnType<typeof setInterval> | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteProgress, setDeleteProgress] = useState(0);
 
@@ -116,9 +117,13 @@ export default function OrderPage() {
     // Limpar estados de deleção
     setDeletingId(null);
     setDeleteProgress(0);
+    if (holdInterval) clearInterval(holdInterval);
+    setHoldInterval(null);
   };
 
   const startHold = (category: keyof OrderState, itemId: string) => {
+    if (holdTimer || holdInterval) stopHold();
+
     setDeletingId(itemId);
     setDeleteProgress(0);
     
@@ -132,14 +137,18 @@ export default function OrderPage() {
     const timer = setTimeout(() => {
       removeItem(category, itemId);
       clearInterval(interval);
+      setHoldInterval(null);
     }, 1000);
 
     setHoldTimer(timer);
+    setHoldInterval(interval);
   };
 
   const stopHold = () => {
     if (holdTimer) clearTimeout(holdTimer);
+    if (holdInterval) clearInterval(holdInterval);
     setHoldTimer(null);
+    setHoldInterval(null);
     setDeletingId(null);
     setDeleteProgress(0);
   };
