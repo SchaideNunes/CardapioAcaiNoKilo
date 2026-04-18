@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #FFFFFF;
+  --foreground: #4B2041;
+  --font-bebas-neue: 'Bebas Neue', sans-serif;
+  --font-raleway: 'Raleway', sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #2a1224;
+    --foreground: #fcfcfc;
+  }
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-raleway), Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-bebas-neue);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
