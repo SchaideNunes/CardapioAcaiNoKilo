@@ -25,7 +25,11 @@ type OrderState = {
   fruits: MenuItem[];
   fillings: MenuItem[];
   deliveryMethod: "pickup" | "delivery" | null;
-  address: string;
+  address: {
+    street: string;
+    number: string;
+    neighborhood: string;
+  };
   paymentMethod: "pix" | "card" | "cash" | null;
   changeFor: string;
 };
@@ -56,7 +60,11 @@ export default function OrderPage() {
     fruits: [],
     fillings: [],
     deliveryMethod: null,
-    address: "",
+    address: {
+      street: "",
+      number: "",
+      neighborhood: ""
+    },
     paymentMethod: null,
     changeFor: "",
   });
@@ -154,7 +162,7 @@ export default function OrderPage() {
     const items = [...order.toppings, ...order.addons, ...order.creams, ...order.fruits, ...order.fillings].map(i => i.name).join(", ");
     if (items) message += `*Itens:* ${items}\n`;
     message += `\n*Entrega:* ${order.deliveryMethod === "delivery" ? "Receber em casa" : "Retirar na loja"}\n`;
-    if (order.deliveryMethod === "delivery") message += `*Endereço:* ${order.address}\n`;
+    if (order.deliveryMethod === "delivery") message += `*Endereço:* ${order.address.street}, ${order.address.number} - ${order.address.neighborhood}\n`;
     const paymentLabels = { pix: "Pix", card: "Cartão", cash: "Dinheiro" };
     message += `\n*Pagamento:* ${order.paymentMethod ? paymentLabels[order.paymentMethod] : "Não definido"}\n`;
     if (order.paymentMethod === "cash" && order.changeFor) {
@@ -165,7 +173,7 @@ export default function OrderPage() {
   };
 
   const sendWhatsApp = () => {
-    window.open(`https://wa.me/5575991542626?text=${formatWhatsAppMessage()}`, "_blank");
+    window.open(`https://wa.me/557591585290?text=${formatWhatsAppMessage()}`, "_blank");
   };
 
   const isStepValid = () => {
@@ -173,7 +181,7 @@ export default function OrderPage() {
     if (currentStep >= 1 && !order.flavor) return false;
     if (STEPS[currentStep].id === "delivery") {
       if (!order.deliveryMethod) return false;
-      if (order.deliveryMethod === "delivery" && order.address.trim().length < 5) return false;
+      if (order.deliveryMethod === "delivery" && (!order.address.street.trim() || !order.address.number.trim() || !order.address.neighborhood.trim())) return false;
     }
     if (STEPS[currentStep].id === "payment") {
       if (!order.paymentMethod) return false;
@@ -204,7 +212,7 @@ export default function OrderPage() {
             </button>
             <button onClick={() => setOrder(p => ({ ...p, paymentMethod: "cash" }))} className={cn("relative flex flex-col items-center justify-center p-4 sm:p-6 rounded-2xl transition-all border-0", order.paymentMethod === "cash" ? "bg-primary text-secondary shadow-lg" : "bg-white/5 text-white hover:bg-white/10")}>
               <div className="mb-2 w-10 h-10 flex items-center justify-center">
-                 <img src="/assets/cash.png" alt="Dinheiro" className="w-8 h-8 object-contain sepia-[1] hue-rotate-[70deg] saturate-[500%]" />
+                 <img src="/assets/Dinheiro.webp" alt="Dinheiro" className="w-8 h-8 object-contain" />
               </div>
               <span className="font-heading text-sm sm:text-xl uppercase">Dinheiro</span>
               {order.paymentMethod === "cash" && <div className="absolute top-2 right-2 bg-secondary text-primary w-4 h-4 rounded-full flex items-center justify-center shadow-lg"><Check size={10} strokeWidth={4} /></div>}
@@ -248,7 +256,13 @@ export default function OrderPage() {
           {order.deliveryMethod === "delivery" && (
             <div className="animate-in fade-in zoom-in-95 duration-500 space-y-4">
               <h3 className="font-heading text-xl uppercase text-white/90">Endereço de Entrega</h3>
-              <textarea placeholder="Ex: Rua Exemplo, 123 - Bairro Tal." value={order.address} onChange={(e) => setOrder(p => ({ ...p, address: e.target.value }))} className="w-full bg-white/5 border border-white/10 rounded-2xl p-6 text-white focus:outline-none focus:border-primary min-h-[120px]" />
+              <div className="flex flex-col gap-3">
+                <input type="text" placeholder="Rua" value={order.address.street} onChange={(e) => setOrder(p => ({ ...p, address: { ...p.address, street: e.target.value } }))} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-primary" />
+                <div className="grid grid-cols-3 gap-3">
+                  <input type="text" placeholder="Número" value={order.address.number} onChange={(e) => setOrder(p => ({ ...p, address: { ...p.address, number: e.target.value } }))} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-primary col-span-1" />
+                  <input type="text" placeholder="Bairro / Complemento" value={order.address.neighborhood} onChange={(e) => setOrder(p => ({ ...p, address: { ...p.address, neighborhood: e.target.value } }))} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-primary col-span-2" />
+                </div>
+              </div>
             </div>
           )}
         </div>
