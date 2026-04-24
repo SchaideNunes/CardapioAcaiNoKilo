@@ -14,9 +14,8 @@ app.use(express.json());
 
 const uri = process.env.MONGODB_URI;
 const client = new MongoClient(uri, {
-  connectTimeoutMS: 30000,
-  tls: true,
-  tlsAllowInvalidCertificates: false,
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000,
 });
 let db;
 
