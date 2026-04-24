@@ -25,8 +25,11 @@ O projeto agora suporta dois modos de funcionamento para facilitar demonstraçõ
 
 ### 1. Modo Demonstração (Ativo por Padrão)
 - **Como funciona:** O frontend tenta carregar os dados do backend local. Se o servidor estiver desligado ou o banco inacessível, o sistema carrega automaticamente os dados estáticos do arquivo `src/data/menu.ts`.
+- **Admin Demo:** É possível acessar o painel mesmo com o servidor offline usando:
+  - **Usuário:** `admin`
+  - **Senha:** `admin`
 - **Ideal para:** Mostrar o projeto em outros computadores ou quando o banco de dados não estiver rodando.
-- **Limitação:** Pedidos realizados no Modo Demo não serão salvos no Painel Admin (apenas enviados via WhatsApp).
+- **Limitação:** Pedidos e alterações de preço no Modo Demo são apenas visuais (não salvam no banco).
 
 ### 2. Modo Produção / Desenvolvimento Local
 - **Como funciona:** Requer o MongoDB e o Servidor Node.js rodando.

@@ -24,7 +24,13 @@ export default function LoginPage() {
         setError("Usuário ou senha inválidos");
       }
     } catch (err) {
-      setError("Erro ao conectar ao servidor");
+      // MODO DEMO: Se o servidor falhar (offline), permite entrar com admin/admin
+      if (username === "admin" && password === "admin") {
+        localStorage.setItem("adminToken", "demo-token-123");
+        navigate("/admin");
+      } else {
+        setError("Servidor offline. Use admin/admin para demonstração.");
+      }
     }
   };
 
