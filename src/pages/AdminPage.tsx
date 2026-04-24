@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { LayoutDashboard, Box, LogOut, Save, RefreshCw, Power } from "lucide-react";
+import { LayoutDashboard, Box, LogOut, RefreshCw, Power } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
