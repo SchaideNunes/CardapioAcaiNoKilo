@@ -210,7 +210,13 @@ export default function OrderPage() {
     }
     if (STEPS[currentStep].id === "payment") {
       if (!order.paymentMethod) return false;
-      if (order.paymentMethod === "cash" && !order.changeFor) return false;
+      if (order.paymentMethod === "cash") {
+        if (!order.changeFor) return false;
+        if (order.changeFor !== "Não preciso") {
+          const changeValue = parseFloat(order.changeFor);
+          if (isNaN(changeValue) || changeValue < totalPrice) return false;
+        }
+      }
     }
     return true;
   };
@@ -296,16 +302,55 @@ export default function OrderPage() {
     if (step.id === "summary") {
       return (
         <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-md">
-            <h3 className="font-heading text-2xl text-primary mb-4 uppercase">Itens Selecionados</h3>
-            <ul className="flex flex-col gap-3">
-              <li className="flex justify-between items-center text-white border-b border-white/5 pb-2"><span>{order.size?.name} + {order.flavor?.name}</span><span className="font-bold">R$ {order.size?.price.toFixed(2)}</span></li>
-              {[...order.toppings, ...order.addons, ...order.creams, ...order.fruits, ...order.fillings].map((i) => (<li key={i.id} className="flex justify-between items-center text-white/70 text-sm"><span>{i.name}</span><span>R$ {i.price.toFixed(2)}</span></li>))}
-              <li className="mt-2 pt-2 border-t border-white/5 flex justify-between items-center"><span className="text-white/50 text-xs uppercase font-bold">Método: {order.deliveryMethod === "delivery" ? "Entrega" : "Retirada"}</span>{order.deliveryMethod === "delivery" && <span className="text-primary text-xs font-bold">+ R$ 7,00 Frete</span>}</li>
-            </ul>
-            <div className="mt-6 pt-4 border-t border-primary/30 flex justify-between items-center"><span className="font-heading text-3xl text-primary uppercase">Total</span><span className="font-heading text-4xl text-white">R$ {totalPrice.toFixed(2)}</span></div>
+          <div className="bg-white/5 border border-white/10 rounded-3xl p-6 sm:p-8 backdrop-blur-md shadow-2xl">
+            <h3 className="font-heading text-3xl text-primary mb-6 uppercase tracking-wide border-b border-primary/20 pb-4">Resumo do Pedido</h3>
+            <div className="space-y-6">
+              <div className="flex flex-col gap-2">
+                <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">Base Escolhida</p>
+                <div className="flex justify-between items-end gap-4">
+                  <span className="text-xl font-heading text-white uppercase">{order.size?.name} + {order.flavor?.name}</span>
+                  <div className="flex-1 border-b border-dashed border-white/10 mb-1.5" />
+                  <span className="text-xl font-heading text-primary whitespace-nowrap">R$ {order.size?.price.toFixed(2)}</span>
+                </div>
+              </div>
+
+              {([...order.toppings, ...order.addons, ...order.creams, ...order.fruits, ...order.fillings].length > 0) && (
+                <div className="flex flex-col gap-3">
+                  <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">Complementos</p>
+                  <ul className="flex flex-col gap-3">
+                    {[...order.toppings, ...order.addons, ...order.creams, ...order.fruits, ...order.fillings].map((i) => (
+                      <li key={i.id} className="flex justify-between items-end gap-4 group">
+                        <span className="text-white/80 text-sm font-medium">{i.name}</span>
+                        <div className="flex-1 border-b border-dotted border-white/5 mb-1 opacity-50" />
+                        <span className="text-white font-heading text-sm whitespace-nowrap">R$ {i.price.toFixed(2)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              <div className="pt-4 border-t border-white/10 flex flex-col gap-2">
+                 <div className="flex justify-between items-center text-sm">
+                   <span className="text-white/50 uppercase font-bold tracking-wider">Método</span>
+                   <span className="text-white font-bold">{order.deliveryMethod === "delivery" ? "🚀 Entrega" : "🛍️ Retirada"}</span>
+                 </div>
+                 {order.deliveryMethod === "delivery" && (
+                   <div className="flex justify-between items-center text-sm">
+                     <span className="text-white/50 uppercase font-bold tracking-wider">Frete</span>
+                     <span className="text-primary font-bold">+ R$ 7,00</span>
+                   </div>
+                 )}
+                 <div className="flex justify-between items-center text-sm">
+                   <span className="text-white/50 uppercase font-bold tracking-wider">Pagamento</span>
+                   <span className="text-white font-bold uppercase">
+                     {order.paymentMethod === 'pix' ? 'Pix' : 
+                      order.paymentMethod === 'card' ? 'Cartão' : 
+                      order.paymentMethod === 'cash' ? 'Dinheiro' : 'Não definido'}
+                   </span>
+                 </div>
+              </div>
+            </div>
           </div>
-          <button onClick={sendWhatsApp} className="self-end bg-[#25D366] text-white font-sans font-bold px-8 py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-[#22c35e] shadow-sm"><Send size={18} />Finalizar</button>
         </div>
       );
     }
@@ -328,7 +373,7 @@ export default function OrderPage() {
 
             return (
               <button key={item.id} onClick={() => toggleItem(cat, item, step.multiple)} className={cn("relative flex items-center justify-between p-4 sm:p-5 rounded-2xl border-2 transition-all text-left", sel ? "bg-primary border-primary text-secondary shadow-lg" : "bg-white/5 border-white/10 text-white hover:border-primary/30")}>
-                <div className="flex flex-col gap-1"><span className={cn("font-heading text-xl uppercase leading-none", sel ? "text-secondary" : "text-white")}>{item.name}</span>{item.price > 0 && <span className={cn("font-sans text-sm font-black", sel ? "text-secondary" : "text-primary")}>+ R$ {item.price.toFixed(2)}</span>}</div>
+                <div className="flex flex-col gap-1"><span className={cn("font-heading text-xl uppercase leading-none", sel ? "text-secondary" : "text-white")}>{item.name}</span>{item.price > 0 && <span className={cn("font-heading text-lg", sel ? "text-secondary" : "text-primary")}>+ R$ {item.price.toFixed(2)}</span>}</div>
                 <div className={cn("w-7 h-7 rounded-full border-2 flex items-center justify-center", sel ? "bg-secondary border-secondary text-primary" : "border-white/20 text-transparent")}><Check size={16} strokeWidth={3} /></div>
               </button>
             );
@@ -378,8 +423,13 @@ export default function OrderPage() {
                 {[...order.toppings, ...order.addons, ...order.creams, ...order.fruits, ...order.fillings].map(i => {
                   const cat = Object.keys(order).find(k => Array.isArray(order[k as keyof OrderState]) && (order[k as keyof OrderState] as MenuItem[]).some(item => item.id === i.id)) as keyof OrderState;
                   return (
-                    <div key={i.id} className="relative flex justify-between items-center bg-white/5 p-3 rounded-xl overflow-hidden">
-                      {deletingId === i.id && <div className="absolute inset-0 bg-red-500/20 z-0" style={{ width: `${deleteProgress}%` }} />}
+                    <div key={i.id} className="relative flex justify-between items-center bg-white/5 p-3 rounded-xl overflow-hidden border border-white/5">
+                      {deletingId === i.id && (
+                        <div 
+                          className="absolute inset-y-0 left-0 bg-red-500/20 z-0 transition-all duration-150 ease-linear shadow-[0_0_15px_rgba(239,68,68,0.3)]" 
+                          style={{ width: `${deleteProgress}%` }} 
+                        />
+                      )}
                       <span className="text-sm z-10 flex-1">{i.name}</span>
                       <div className="flex items-center gap-3 z-10"><span className="text-xs text-white/40 italic">R$ {i.price.toFixed(2)}</span><button onMouseDown={() => startHold(cat, i.id)} onMouseUp={stopHold} onMouseLeave={stopHold} onTouchStart={() => startHold(cat, i.id)} onTouchEnd={stopHold} className={cn("bg-red-500/10 text-red-400 p-2 rounded-lg", deletingId === i.id && "bg-red-500/40 text-white")}><Trash2 size={16} /></button></div>
                     </div>
@@ -391,8 +441,32 @@ export default function OrderPage() {
           </div>
         </div>
         <div className="w-full h-1 bg-white/5 sticky top-[73px] z-40"><div className="h-full bg-primary shadow-[0_0_10px_#F6E632]" style={{ width: `${((currentStep + 1) / STEPS.length) * 100}%` }} /></div>
-        <div className="flex-1 max-w-[800px] mx-auto w-full p-6 pb-32 relative z-10"><h2 className="text-4xl font-heading text-white uppercase mb-8">{STEPS[currentStep].title}</h2>{renderStepContent()}</div>
-        <footer className="fixed bottom-0 left-0 w-full z-50 bg-[#3d1b34]/95 border-t border-white/5 p-6 flex items-center justify-between"><div className="flex flex-col"><span className="text-xs text-white/50 uppercase font-bold">Total</span><span className="font-heading text-3xl text-white">R$ {totalPrice.toFixed(2)}</span></div><div className="flex gap-4">{currentStep < STEPS.length - 1 ? <button onClick={handleNext} disabled={!isStepValid()} className={cn("px-8 py-4 rounded-2xl font-heading text-xl flex items-center gap-2 transition-all", isStepValid() ? "bg-primary text-secondary" : "bg-white/5 text-white/20 cursor-not-allowed")}>PRÓXIMO <ArrowRight size={20} /></button> : <div className="flex items-center gap-2 text-primary font-heading uppercase text-sm"><span>Pronto</span><Check size={20} /></div>}</div></footer>
+        <div className="flex-1 max-w-[800px] mx-auto w-full p-6 pb-32 relative z-10">
+          <div key={currentStep} className="animate-in fade-in slide-in-from-right-4 duration-300 ease-out">
+            <h2 className="text-4xl font-heading text-white uppercase mb-8">{STEPS[currentStep].title}</h2>
+            {renderStepContent()}
+          </div>
+        </div>
+        <footer className="fixed bottom-0 left-0 w-full z-50 bg-[#3d1b34] border-t border-white/5 p-6 flex items-center justify-between shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
+<div className="flex flex-col"><span className="text-xs text-white/50 uppercase font-bold">Total</span><span className="font-heading text-3xl text-white">R$ {totalPrice.toFixed(2)}</span></div><div className="flex gap-4">
+  {currentStep < STEPS.length - 1 ? (
+    <button 
+      onClick={handleNext} 
+      disabled={!isStepValid()} 
+      className={cn("px-8 py-4 rounded-2xl font-heading text-xl flex items-center gap-2 transition-all", isStepValid() ? "bg-primary text-secondary" : "bg-white/5 text-white/20 cursor-not-allowed")}
+    >
+      PRÓXIMO <ArrowRight size={20} />
+    </button>
+  ) : (
+    <button 
+      onClick={sendWhatsApp} 
+      className="px-8 py-4 bg-[#25D366] text-[#3d1b34] font-heading text-xl rounded-2xl flex items-center gap-2 hover:bg-[#22c35e] transition-all shadow-lg active:scale-95 uppercase"
+    >
+      <Send size={20} /> Finalizar
+    </button>
+  )}
+</div>
+</footer>
       </main>
     </SmoothScrollProvider>
   );
