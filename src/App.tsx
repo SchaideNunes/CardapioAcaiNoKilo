@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { menuData, MenuItem } from "@/data/menu";
+import { useState, useMemo, useEffect } from "react";
+import { MenuItem } from "@/data/menu";
 import { 
   ArrowLeft, 
   ArrowRight, 
@@ -34,20 +34,19 @@ type OrderState = {
   changeFor: string;
 };
 
-const STEPS = [
-  { id: "size", title: "Escolha o Tamanho", data: menuData.sizes },
-  { id: "flavor", title: "Escolha o Sabor", data: menuData.flavors },
-  { id: "toppings", title: "Coberturas", data: menuData.toppings, multiple: true },
-  { id: "addons", title: "Adicionais", data: menuData.addons, multiple: true },
-  { id: "creams", title: "Cremes", data: menuData.creams, multiple: true },
-  { id: "fruits", title: "Frutas", data: menuData.fruits, multiple: true },
-  { id: "fillings", title: "Recheios", data: menuData.fillings, multiple: true },
-  { id: "delivery", title: "Entrega ou Retirada" },
-  { id: "payment", title: "Forma de Pagamento" },
-  { id: "summary", title: "Resumo do Pedido" },
-];
+type MenuData = {
+  sizes: MenuItem[];
+  flavors: MenuItem[];
+  toppings: MenuItem[];
+  addons: MenuItem[];
+  creams: MenuItem[];
+  fruits: MenuItem[];
+  fillings: MenuItem[];
+};
 
 export default function OrderPage() {
+  const [apiData, setApiData] = useState<MenuData | null>(null);
+  const [loading, setLoading] = useState(true);
   const [showCart, setShowCart] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
@@ -68,6 +67,32 @@ export default function OrderPage() {
     paymentMethod: null,
     changeFor: "",
   });
+
+  useEffect(() => {
+    fetch("http://localhost:3001/api/menu")
+      .then(res => res.json())
+      .then(data => {
+        setApiData(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Erro ao carregar menu:", err);
+        setLoading(false);
+      });
+  }, []);
+
+  const STEPS = useMemo(() => [
+    { id: "size", title: "Escolha o Tamanho", data: apiData?.sizes || [] },
+    { id: "flavor", title: "Escolha o Sabor", data: apiData?.flavors || [] },
+    { id: "toppings", title: "Coberturas", data: apiData?.toppings || [], multiple: true },
+    { id: "addons", title: "Adicionais", data: apiData?.addons || [], multiple: true },
+    { id: "creams", title: "Cremes", data: apiData?.creams || [], multiple: true },
+    { id: "fruits", title: "Frutas", data: apiData?.fruits || [], multiple: true },
+    { id: "fillings", title: "Recheios", data: apiData?.fillings || [], multiple: true },
+    { id: "delivery", title: "Entrega ou Retirada" },
+    { id: "payment", title: "Forma de Pagamento" },
+    { id: "summary", title: "Resumo do Pedido" },
+  ], [apiData]);
 
   const [holdTimer, setHoldTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
   const [holdInterval, setHoldInterval] = useState<ReturnType<typeof setInterval> | null>(null);
@@ -312,6 +337,14 @@ export default function OrderPage() {
       </div>
     );
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#3d1b34] flex items-center justify-center">
+        <div className="text-primary font-heading text-2xl animate-pulse uppercase">Carregando Menu...</div>
+      </div>
+    );
+  }
 
   return (
     <SmoothScrollProvider isDisabled={showCart}>
