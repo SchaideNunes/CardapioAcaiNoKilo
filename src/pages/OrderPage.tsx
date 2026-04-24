@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { MenuItem } from "@/data/menu";
+import { MenuItem, menuData as localFallbackData } from "@/data/menu";
 import { 
   ArrowLeft, 
   ArrowRight, 
@@ -45,8 +45,8 @@ type MenuData = {
 };
 
 export default function OrderPage() {
-  const [apiData, setApiData] = useState<MenuData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [apiData, setApiData] = useState<MenuData | null>(localFallbackData);
+  const [loading, setLoading] = useState(false);
   const [showCart, setShowCart] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
@@ -69,15 +69,15 @@ export default function OrderPage() {
   });
 
   useEffect(() => {
-    fetch("https://cardapioacainokilo.onrender.com/api/menu")
+    fetch("http://localhost:3001/api/menu")
       .then(res => res.json())
       .then(data => {
-        setApiData(data);
-        setLoading(false);
+        if (data && data.sizes) {
+          setApiData(data);
+        }
       })
       .catch(err => {
-        console.error("Erro ao carregar menu:", err);
-        setLoading(false);
+        console.log("Modo Demo: Usando dados locais do arquivo menu.ts");
       });
   }, []);
 
@@ -198,7 +198,7 @@ export default function OrderPage() {
   const sendWhatsApp = async () => {
     // Primeiro salva no banco de dados para o Admin Panel
     try {
-      await fetch("https://cardapioacainokilo.onrender.com/api/orders", {
+      await fetch("http://localhost:3001/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

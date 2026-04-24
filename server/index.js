@@ -50,6 +50,7 @@ app.get('/api/menu', async (req, res) => {
   try {
     const collection = db.collection(process.env.COLLECTION_NAME);
     const items = await collection.find({ active: { $ne: false } }).toArray();
+    console.log(`Itens encontrados no banco: ${items.length}`);
     
     const menuData = {
       sizes: items.filter(i => i.original_category === 'sizes'),

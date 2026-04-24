@@ -103,8 +103,8 @@ for (const category in data) {
   });
 }
 
-const db = db.getSiblingDB('cardapio-acai');
-const collection = db.getCollection('preco');
+const database = db.getSiblingDB('cardapio-acai');
+const collection = database.getCollection('preco');
 
 print(`Limpando coleção preco...`);
 collection.deleteMany({});

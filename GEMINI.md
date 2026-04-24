@@ -19,12 +19,29 @@ Cardápio interativo mobile-first para montagem de açaí personalizado, com env
 - **Acesso:** Utilizar as credenciais pessoais configuradas no banco de dados.
 - **Proteção:** Rotas de API `/api/admin/*` exigem Token válido.
 
+## ⚙️ Modos de Operação
+
+O projeto agora suporta dois modos de funcionamento para facilitar demonstrações sem a necessidade de um banco de dados ativo:
+
+### 1. Modo Demonstração (Ativo por Padrão)
+- **Como funciona:** O frontend tenta carregar os dados do backend local. Se o servidor estiver desligado ou o banco inacessível, o sistema carrega automaticamente os dados estáticos do arquivo `src/data/menu.ts`.
+- **Ideal para:** Mostrar o projeto em outros computadores ou quando o banco de dados não estiver rodando.
+- **Limitação:** Pedidos realizados no Modo Demo não serão salvos no Painel Admin (apenas enviados via WhatsApp).
+
+### 2. Modo Produção / Desenvolvimento Local
+- **Como funciona:** Requer o MongoDB e o Servidor Node.js rodando.
+- **Configuração:**
+  - Banco Local: `mongodb://127.0.0.1:27017`
+  - Backend: `http://localhost:3001`
+- **Vantagem:** Permite salvar pedidos e gerenciar o estoque/preços via Painel Admin.
+
 ## 🗄️ Arquitetura de Dados (MongoDB)
 - **Database:** `cardapio-acai`
 - **Collections:** 
   - `preco`: Itens do menu, preços e status de estoque.
   - `pedidos`: Histórico de pedidos realizados no site.
   - `usuarios`: Credenciais de acesso ao painel.
+- **Migração:** Para popular o banco local, use `mongosh "mongodb://127.0.0.1:27017/cardapio-acai" migration.js`.
 
 ## 🚀 Comandos de Inicialização
 - `npm run server`: Inicia o backend (Porta 3001).
