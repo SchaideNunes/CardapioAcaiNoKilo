@@ -46,7 +46,7 @@ type MenuData = {
 
 export default function OrderPage() {
   const [apiData, setApiData] = useState<MenuData | null>(localFallbackData);
-  const [loading, setLoading] = useState(false);
+  const loading = false; // Em modo demo, inicia carregado
   const [showCart, setShowCart] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
@@ -76,7 +76,7 @@ export default function OrderPage() {
           setApiData(data);
         }
       })
-      .catch(err => {
+      .catch(() => {
         console.log("Modo Demo: Usando dados locais do arquivo menu.ts");
       });
   }, []);
