@@ -13,7 +13,10 @@ app.use(cors());
 app.use(express.json());
 
 const uri = process.env.MONGODB_URI;
-const client = new MongoClient(uri);
+const client = new MongoClient(uri, {
+  connectTimeoutMS: 30000,
+  keepAlive: true,
+});
 let db;
 
 async function connectDB() {
