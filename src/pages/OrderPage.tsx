@@ -109,7 +109,6 @@ export default function OrderPage() {
 
   const handleNext = () => {
     if (currentStep < STEPS.length - 1) {
-      // Se for entrega e selecionou Retirada, pula pagamento (passo 8 para 10)
       if (STEPS[currentStep].id === "delivery" && order.deliveryMethod === "pickup") {
         setCurrentStep(currentStep + 2);
       } else {
@@ -122,7 +121,6 @@ export default function OrderPage() {
 
   const handlePrev = () => {
     if (currentStep > 0) {
-      // Se estiver no resumo e for Retirada, volta para entrega (passo 9 para 7)
       if (STEPS[currentStep].id === "summary" && order.deliveryMethod === "pickup") {
         setCurrentStep(currentStep - 2);
       } else {
@@ -197,7 +195,23 @@ export default function OrderPage() {
     return encodeURIComponent(message);
   };
 
-  const sendWhatsApp = () => {
+  const sendWhatsApp = async () => {
+    // Primeiro salva no banco de dados para o Admin Panel
+    try {
+      await fetch("http://localhost:3001/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...order,
+          total: totalPrice,
+          items: [...order.toppings, ...order.addons, ...order.creams, ...order.fruits, ...order.fillings].map(i => i.name)
+        })
+      });
+    } catch (e) {
+      console.error("Erro ao salvar pedido no banco, mas enviando WhatsApp...", e);
+    }
+
+    // Depois abre o WhatsApp
     window.open(`https://wa.me/557591585290?text=${formatWhatsAppMessage()}`, "_blank");
   };
 
@@ -365,8 +379,6 @@ export default function OrderPage() {
           {filteredData?.map((item) => {
             const cat = step.id as keyof OrderState;
             const val = order[cat];
-
-            // Verificação segura para saber se o item está selecionado
             const sel = Array.isArray(val) 
               ? (val as MenuItem[]).some(i => i.id === item.id) 
               : (val as MenuItem)?.id === item.id;
@@ -450,23 +462,13 @@ export default function OrderPage() {
         <footer className="fixed bottom-0 left-0 w-full z-50 bg-[#3d1b34] border-t border-white/5 p-6 flex items-center justify-between shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
 <div className="flex flex-col"><span className="text-xs text-white/50 uppercase font-bold">Total</span><span className="font-heading text-3xl text-white">R$ {totalPrice.toFixed(2)}</span></div><div className="flex gap-4">
   {currentStep < STEPS.length - 1 ? (
-    <button 
-      onClick={handleNext} 
-      disabled={!isStepValid()} 
-      className={cn("px-8 py-4 rounded-2xl font-heading text-xl flex items-center gap-2 transition-all", isStepValid() ? "bg-primary text-secondary" : "bg-white/5 text-white/20 cursor-not-allowed")}
-    >
-      PRÓXIMO <ArrowRight size={20} />
-    </button>
+    <button onClick={handleNext} disabled={!isStepValid()} className={cn("px-8 py-4 rounded-2xl font-heading text-xl flex items-center gap-2 transition-all", isStepValid() ? "bg-primary text-secondary" : "bg-white/5 text-white/20 cursor-not-allowed")}>PRÓXIMO <ArrowRight size={20} /></button>
   ) : (
-    <button 
-      onClick={sendWhatsApp} 
-      className="px-8 py-4 bg-[#25D366] text-[#3d1b34] font-heading text-xl rounded-2xl flex items-center gap-2 hover:bg-[#22c35e] transition-all shadow-lg active:scale-95 uppercase"
-    >
+    <button onClick={sendWhatsApp} className="px-8 py-4 bg-[#25D366] text-[#3d1b34] font-heading text-xl rounded-2xl flex items-center gap-2 hover:bg-[#22c35e] transition-all shadow-lg active:scale-95 uppercase">
       <Send size={20} /> Finalizar
     </button>
   )}
-</div>
-</footer>
+</div></footer>
       </main>
     </SmoothScrollProvider>
   );

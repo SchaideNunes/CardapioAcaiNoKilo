@@ -3,52 +3,43 @@
 Este arquivo contém o contexto acumulado, regras de negócio e diretrizes técnicas para garantir a continuidade e estabilidade do projeto.
 
 ## 📌 Contexto Geral
-Cardápio interativo mobile-first para montagem de açaí personalizado, com envio de pedido via WhatsApp. Experiência "Premium" com dados dinâmicos vindos de banco de dados.
+Cardápio interativo mobile-first para montagem de açaí personalizado, com envio de pedido via WhatsApp e Painel Administrativo para gestão em tempo real.
 
 ## 🛠️ Stack Tecnológica
-- **Frontend:** React 19 + Vite (TypeScript)
-- **Backend:** Node.js + Express
-- **Banco de Dados:** MongoDB (Local ou Atlas)
+- **Frontend:** React 19 + Vite + React Router Dom
+- **Backend:** Node.js + Express + JWT + Bcrypt
+- **Banco de Dados:** MongoDB
 - **Estilização:** Tailwind CSS (Glassmorphism)
-- **Animações:** GSAP + Framer Motion
-- **Scroll:** Lenis (Smooth Scroll)
-- **Ícones:** Lucide React
+- **Animações:** GSAP + Tailwind Animate
+
+## 🔐 Segurança e Acesso
+- **Admin Panel:** Acessível em `/admin`.
+- **Login:** Acessível em `/login`.
+- **Autenticação:** JWT (JSON Web Tokens) armazenados no localStorage.
+- **Acesso:** Utilizar as credenciais pessoais configuradas no banco de dados.
+- **Proteção:** Rotas de API `/api/admin/*` exigem Token válido.
 
 ## 🗄️ Arquitetura de Dados (MongoDB)
 - **Database:** `cardapio-acai`
-- **Collection:** `preco`
-- **Fluxo:** O frontend consome a API em `http://localhost:3001/api/menu` que organiza os itens por categorias dinâmicas (sizes, flavors, toppings, etc).
-
-## 🎨 Identidade Visual
-- **Cor Primária:** `#F6E632` (Amarelo vibrante)
-- **Cor Secundária:** `#b32aa6` (Ametista Vibrante)
-- **Fundo Deep:** `#3d1b34` (Deep Violet)
-- **Fontes:** `Bebas Neue` (Títulos) e `Raleway` (Textos)
+- **Collections:** 
+  - `preco`: Itens do menu, preços e status de estoque.
+  - `pedidos`: Histórico de pedidos realizados no site.
+  - `usuarios`: Credenciais de acesso ao painel.
 
 ## 🚀 Comandos de Inicialização
-- `npm run server`: Inicia o backend (Porta 3001). **Obrigatório para o site funcionar.**
-- `npm run dev`: Inicia o frontend Vite.
-- `node migration.js`: Script (na raiz) para resetar/migrar dados do arquivo local para o MongoDB.
+- `npm run server`: Inicia o backend (Porta 3001).
+- `npm run dev`: Inicia o frontend.
+- `node server/create-admin.js`: (Servidor) Cria/Reseta o usuário admin padrão.
 
-## ⚙️ Funcionalidades Cruciais
-1.  **Dynamic Loading:** O site exibe "Carregando Menu..." enquanto busca dados da API.
-2.  **Multi-step:** Navegação entre os 10 passos.
-3.  **Cálculo de Preço:** Valor base + opcionais + R$ 7,00 (frete delivery).
-4.  **Hold to Delete:** Exclusão no carrinho requer segurar a lixeira por 1s (barra de progresso).
-5.  **WhatsApp Link:** Formatação automática com endereço, troco e método de pagamento.
+## ⚙️ Funcionalidades do Painel Admin
+1.  **Dashboard de Pedidos:** Visualização dos pedidos do dia com total, itens e método de pagamento.
+2.  **Gestor de Preços:** Edição direta dos valores de cada item (salvamento automático no blur).
+3.  **Controle de Estoque:** Botão Power para ativar/desativar itens. Itens desativados somem do cardápio automaticamente.
 
 ## 📝 Regras de Implementação
-- **Mobile-First:** Prioridade absoluta para interface mobile.
-- **Segurança:** Arquivos `.env` no servidor gerenciam a conexão com o banco.
-- **Git:** `server/node_modules` deve ser ignorado.
-- **TypeScript:** Utilizar `"ignoreDeprecations": "6.0"` no `tsconfig.json` para evitar avisos de `baseUrl`.
-
-## 🧪 Plano de Testes Manuais
-- [ ] O menu carrega corretamente do banco de dados (API Online)?
-- [ ] O total soma R$ 7,00 ao escolher "Receber em Casa"?
-- [ ] O campo de troco aparece apenas em "Dinheiro" e valida o valor?
-- [ ] O scroll funciona dentro do carrinho (`data-lenis-prevent`)?
-- [ ] A mensagem do WhatsApp contém todos os itens e o total correto?
+- **Persistência:** Pedidos são salvos no banco ANTES do redirecionamento para o WhatsApp.
+- **Segurança Git:** O arquivo `server/.env` está no `.gitignore`. Nunca subir a `JWT_SECRET`.
+- **UX:** Transições suaves entre etapas e feedback visual de carregamento.
 
 ---
 *Atualizado em: 24 de Abril de 2026*
