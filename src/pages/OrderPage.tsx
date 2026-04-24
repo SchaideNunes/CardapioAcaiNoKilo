@@ -69,7 +69,7 @@ export default function OrderPage() {
   });
 
   useEffect(() => {
-    fetch("http://localhost:3001/api/menu")
+    fetch("https://cardapioacainokilo.onrender.com/api/menu")
       .then(res => res.json())
       .then(data => {
         setApiData(data);
@@ -198,7 +198,7 @@ export default function OrderPage() {
   const sendWhatsApp = async () => {
     // Primeiro salva no banco de dados para o Admin Panel
     try {
-      await fetch("http://localhost:3001/api/orders", {
+      await fetch("https://cardapioacainokilo.onrender.com/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -51,8 +51,8 @@ export default function AdminPage() {
     setLoading(true);
     try {
       const [menuRes, ordersRes] = await Promise.all([
-        fetch("http://localhost:3001/api/admin/menu", { headers: { Authorization: `Bearer ${token}` } }),
-        fetch("http://localhost:3001/api/admin/orders", { headers: { Authorization: `Bearer ${token}` } })
+        fetch("https://cardapioacainokilo.onrender.com/api/admin/menu", { headers: { Authorization: `Bearer ${token}` } }),
+        fetch("https://cardapioacainokilo.onrender.com/api/admin/orders", { headers: { Authorization: `Bearer ${token}` } })
       ]);
       
       if (menuRes.status === 401 || ordersRes.status === 401) {
@@ -76,7 +76,7 @@ export default function AdminPage() {
 
   const updateItem = async (id: string, updates: Partial<ItemAdmin>) => {
     try {
-      const res = await fetch(`http://localhost:3001/api/admin/menu/${id}`, {
+      const res = await fetch(`https://cardapioacainokilo.onrender.com/api/admin/menu/${id}`, {
         method: "PUT",
         headers: { 
           "Content-Type": "application/json",
