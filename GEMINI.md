@@ -1,47 +1,54 @@
 # Memória do Projeto: Cardápio Açaí no Kilo
 
-Este arquivo contém o contexto acumulado, regras de negócio e diretrizes técnicas para garantir a continuidade e estabilidade do projeto em todas as sessões.
+Este arquivo contém o contexto acumulado, regras de negócio e diretrizes técnicas para garantir a continuidade e estabilidade do projeto.
 
 ## 📌 Contexto Geral
-Um cardápio interativo mobile-first para montagem de açaí personalizado, com envio de pedido via WhatsApp. O foco é uma experiência "Premium" e intuitiva.
+Cardápio interativo mobile-first para montagem de açaí personalizado, com envio de pedido via WhatsApp. Experiência "Premium" com dados dinâmicos vindos de banco de dados.
 
 ## 🛠️ Stack Tecnológica
-- **Framework:** Next.js 16.2 (App Router)
-- **Estilização:** Tailwind CSS + Efeito Glassmorphism
-- **Animações:** GSAP + Framer Motion (tailwindcss-animate)
+- **Frontend:** React 19 + Vite (TypeScript)
+- **Backend:** Node.js + Express
+- **Banco de Dados:** MongoDB (Local ou Atlas)
+- **Estilização:** Tailwind CSS (Glassmorphism)
+- **Animações:** GSAP + Framer Motion
 - **Scroll:** Lenis (Smooth Scroll)
-- **Ícones:** Lucide React + Custom PNG Assets
+- **Ícones:** Lucide React
+
+## 🗄️ Arquitetura de Dados (MongoDB)
+- **Database:** `cardapio-acai`
+- **Collection:** `preco`
+- **Fluxo:** O frontend consome a API em `http://localhost:3001/api/menu` que organiza os itens por categorias dinâmicas (sizes, flavors, toppings, etc).
 
 ## 🎨 Identidade Visual
-- **Cor Primária:** `#F6E632` (Amarelo vibrante - botões e destaques)
-- **Cor Secundária:** `#b32aa6` (Ametista Vibrante - contraste moderno)
-- **Fundo Deep:** `#3d1b34` (Deep Violet - Roxo profundo premium)
+- **Cor Primária:** `#F6E632` (Amarelo vibrante)
+- **Cor Secundária:** `#b32aa6` (Ametista Vibrante)
+- **Fundo Deep:** `#3d1b34` (Deep Violet)
 - **Fontes:** `Bebas Neue` (Títulos) e `Raleway` (Textos)
 
-## 🚀 Funcionalidades Cruciais (Testar Sempre)
-1.  **Multi-step:** Navegação entre os 10 passos (Tamanho -> Sabor -> ... -> Entrega -> Pagamento -> Resumo).
-2.  **Cálculo de Preço:** O total deve somar o valor base + opcionais + R$ 7,00 (se for entrega).
-3.  **Seleção Única vs Múltipla:** 
-    - Tamanho, Sabor, Entrega e Pagamento: Seleção única.
-    - Outros: Seleção múltipla.
-4.  **Carrinho Lateral:** Clicar no ícone do topo deve abrir o drawer com resumo. O scroll de fundo deve travar.
-5.  **Hold to Delete:** Excluir itens do carrinho requer segurar o botão de lixeira por 1s (barra de progresso preenche o fundo do item).
-6.  **WhatsApp Link:** Mensagem direta e limpa, com endereço e forma de pagamento inclusos.
+## 🚀 Comandos de Inicialização
+- `npm run server`: Inicia o backend (Porta 3001). **Obrigatório para o site funcionar.**
+- `npm run dev`: Inicia o frontend Vite.
+- `node migration.js`: Script (na raiz) para resetar/migrar dados do arquivo local para o MongoDB.
 
-## 📝 Regras de Implementação (Engineering Standards)
-- **Mobile-First:** Priorizar sempre a visualização em celulares antes de expandir para desktop.
-- **Contraste:** Garantir que textos sobre o fundo roxo sejam sempre brancos (`text-white/90`) e sobre o amarelo sejam escuros (`text-secondary`).
-- **Performance:** Manter as transições suaves e garantir que o `setInterval` de deleção seja limpo para evitar memory leaks.
-- **Surgical Edits:** Modificar apenas as linhas necessárias, mantendo o código idiomático.
+## ⚙️ Funcionalidades Cruciais
+1.  **Dynamic Loading:** O site exibe "Carregando Menu..." enquanto busca dados da API.
+2.  **Multi-step:** Navegação entre os 10 passos.
+3.  **Cálculo de Preço:** Valor base + opcionais + R$ 7,00 (frete delivery).
+4.  **Hold to Delete:** Exclusão no carrinho requer segurar a lixeira por 1s (barra de progresso).
+5.  **WhatsApp Link:** Formatação automática com endereço, troco e método de pagamento.
+
+## 📝 Regras de Implementação
+- **Mobile-First:** Prioridade absoluta para interface mobile.
+- **Segurança:** Arquivos `.env` no servidor gerenciam a conexão com o banco.
+- **Git:** `server/node_modules` deve ser ignorado.
+- **TypeScript:** Utilizar `"ignoreDeprecations": "6.0"` no `tsconfig.json` para evitar avisos de `baseUrl`.
 
 ## 🧪 Plano de Testes Manuais
-Antes de entregar qualquer mudança, validar:
+- [ ] O menu carrega corretamente do banco de dados (API Online)?
 - [ ] O total soma R$ 7,00 ao escolher "Receber em Casa"?
-- [ ] O campo de endereço aparece apenas no delivery e bloqueia o "Próximo" se vazio?
-- [ ] A opção de "Dinheiro" abre o campo de troco e o botão "Não preciso de troco"?
-- [ ] O scroll trava no carrinho mas funciona dentro dos menus (`data-lenis-prevent`)?
-- [ ] A barra de 'Hold to Delete' preenche todo o fundo do item no carrinho?
-- [ ] A mensagem do WhatsApp está formatada corretamente com o método de pagamento?
+- [ ] O campo de troco aparece apenas em "Dinheiro" e valida o valor?
+- [ ] O scroll funciona dentro do carrinho (`data-lenis-prevent`)?
+- [ ] A mensagem do WhatsApp contém todos os itens e o total correto?
 
 ---
-*Atualizado em: 19 de Abril de 2026*
+*Atualizado em: 24 de Abril de 2026*

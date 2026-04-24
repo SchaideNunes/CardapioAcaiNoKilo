@@ -328,7 +328,7 @@ export default function OrderPage() {
 
             return (
               <button key={item.id} onClick={() => toggleItem(cat, item, step.multiple)} className={cn("relative flex items-center justify-between p-4 sm:p-5 rounded-2xl border-2 transition-all text-left", sel ? "bg-primary border-primary text-secondary shadow-lg" : "bg-white/5 border-white/10 text-white hover:border-primary/30")}>
-                <div className="flex flex-col gap-1"><span className={cn("font-heading text-xl uppercase leading-none", sel ? "text-secondary" : "text-white")}>{item.name}</span>{item.price > 0 && <span className={cn("font-sans text-xs font-bold", sel ? "text-secondary/70" : "text-primary")}>+ R$ {item.price.toFixed(2)}</span>}</div>
+                <div className="flex flex-col gap-1"><span className={cn("font-heading text-xl uppercase leading-none", sel ? "text-secondary" : "text-white")}>{item.name}</span>{item.price > 0 && <span className={cn("font-sans text-sm font-black", sel ? "text-secondary" : "text-primary")}>+ R$ {item.price.toFixed(2)}</span>}</div>
                 <div className={cn("w-7 h-7 rounded-full border-2 flex items-center justify-center", sel ? "bg-secondary border-secondary text-primary" : "border-white/20 text-transparent")}><Check size={16} strokeWidth={3} /></div>
               </button>
             );
