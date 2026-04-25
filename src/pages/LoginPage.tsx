@@ -38,11 +38,11 @@ export default function LoginPage() {
     <div className="min-h-screen bg-[#3d1b34] flex items-center justify-center p-6">
       <div className="w-full max-w-md bg-white/5 border border-white/10 rounded-3xl p-8 backdrop-blur-xl shadow-2xl animate-in fade-in zoom-in-95 duration-500">
         <div className="flex flex-col items-center mb-8">
-          <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mb-4 shadow-[0_0_20px_rgba(246,230,50,0.3)]">
-            <Lock className="text-[#3d1b34]" size={32} />
+          <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-black/40">
+            <Lock className="text-secondary" size={32} />
           </div>
           <h1 className="font-heading text-3xl text-white uppercase tracking-wider">Acesso Restrito</h1>
-          <p className="text-white/40 text-xs font-bold uppercase tracking-widest mt-2">Painel Administrativo</p>
+          <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mt-2">Painel Administrativo</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-6">
@@ -64,7 +64,7 @@ export default function LoginPage() {
 
           {error && <p className="text-red-400 text-xs font-bold text-center uppercase animate-bounce">{error}</p>}
 
-          <button type="submit" className="w-full bg-primary text-[#3d1b34] font-heading text-xl py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-yellow-400 transition-all shadow-lg active:scale-95 group">
+          <button type="submit" className="w-full bg-primary text-secondary font-heading text-xl py-4 rounded-2xl flex items-center justify-center gap-2 hover:brightness-110 transition-all shadow-lg active:scale-95 group">
             ENTRAR <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
           </button>
         </form>

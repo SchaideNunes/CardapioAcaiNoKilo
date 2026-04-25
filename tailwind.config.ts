@@ -22,9 +22,9 @@ const config: Config = {
         'fluid-p': ['clamp(1rem, 1.2vw, 1.25rem)', { lineHeight: '1.6' }],
       },
       colors: {
-        primary: "#F6E632",
-        secondary: "#b32aa6",
-        accent: "#F6E632",
+        primary: "#E6D62E", // Amarelo ouro mais suave/menos "neon"
+        secondary: "#1F0D1A", // Roxo bem profundo para melhor contraste
+        accent: "#E6D62E",
         background: "var(--background)",
         foreground: "var(--foreground)",
       },

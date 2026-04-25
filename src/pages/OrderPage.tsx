@@ -407,6 +407,10 @@ export default function OrderPage() {
     <SmoothScrollProvider isDisabled={showCart}>
       <main className="min-h-screen bg-[#3d1b34] flex flex-col relative text-white">
         <div className="fixed inset-0 pointer-events-none">
+          <div className="absolute top-0 right-0 w-full h-[60vh] opacity-20 overflow-hidden">
+             <img src="/assets/Açai_hero.webp" alt="" className="w-full h-full object-cover mix-blend-overlay" />
+             <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#3d1b34]" />
+          </div>
           <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[40%] bg-primary/5 rounded-full blur-[120px]" />
           <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[40%] bg-black/40 rounded-full blur-[120px]" />
         </div>
@@ -452,7 +456,7 @@ export default function OrderPage() {
             <div className="p-6 bg-black/20 border-t border-white/10"><div className="flex justify-between items-end mb-6"><span className="text-xs font-bold text-white/50 uppercase">Total Atual</span><span className="font-heading text-4xl text-primary">R$ {totalPrice.toFixed(2)}</span></div><button onClick={() => setShowCart(false)} className="w-full bg-primary text-secondary font-heading text-xl py-4 rounded-xl">CONTINUAR</button></div>
           </div>
         </div>
-        <div className="w-full h-1 bg-white/5 sticky top-[73px] z-40"><div className="h-full bg-primary shadow-[0_0_10px_#F6E632]" style={{ width: `${((currentStep + 1) / STEPS.length) * 100}%` }} /></div>
+        <div className="w-full h-1 bg-white/5 sticky top-[73px] z-40"><div className="h-full bg-primary shadow-lg shadow-black/40" style={{ width: `${((currentStep + 1) / STEPS.length) * 100}%` }} /></div>
         <div className="flex-1 max-w-[800px] mx-auto w-full p-6 pb-32 relative z-10">
           <div key={currentStep} className="animate-in fade-in slide-in-from-right-4 duration-300 ease-out">
             <h2 className="text-4xl font-heading text-white uppercase mb-8">{STEPS[currentStep].title}</h2>
