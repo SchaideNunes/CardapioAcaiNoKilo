@@ -375,7 +375,7 @@ export default function OrderPage() {
         {step.data && step.data.length > 6 && (
           <div className="relative"><input type="text" placeholder={`Buscar...`} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-3 text-white focus:outline-none focus:border-primary" /></div>
         )}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {filteredData?.map((item) => {
             const cat = step.id as keyof OrderState;
             const val = order[cat];
@@ -384,9 +384,30 @@ export default function OrderPage() {
               : (val as MenuItem)?.id === item.id;
 
             return (
-              <button key={item.id} onClick={() => toggleItem(cat, item, step.multiple)} className={cn("relative flex items-center justify-between p-4 sm:p-5 rounded-2xl border-2 transition-all text-left", sel ? "bg-primary border-primary text-secondary shadow-lg" : "bg-white/5 border-white/10 text-white hover:border-primary/30")}>
-                <div className="flex flex-col gap-1"><span className={cn("font-heading text-xl uppercase leading-none", sel ? "text-secondary" : "text-white")}>{item.name}</span>{item.price > 0 && <span className={cn("font-heading text-lg", sel ? "text-secondary" : "text-primary")}>+ R$ {item.price.toFixed(2)}</span>}</div>
-                <div className={cn("w-7 h-7 rounded-full border-2 flex items-center justify-center", sel ? "bg-secondary border-secondary text-primary" : "border-white/20 text-transparent")}><Check size={16} strokeWidth={3} /></div>
+              <button 
+                key={item.id} 
+                onClick={() => toggleItem(cat, item, step.multiple)} 
+                className={cn(
+                  "relative flex items-center justify-between p-3.5 sm:p-4 rounded-xl transition-all text-left border-0", 
+                  sel ? "bg-primary text-secondary shadow-lg" : "bg-white/5 text-white hover:bg-white/10"
+                )}
+              >
+                <div className="flex flex-col gap-0.5">
+                  <span className={cn("font-heading text-xl uppercase leading-none", sel ? "text-secondary" : "text-white")}>
+                    {item.name}
+                  </span>
+                  {item.price > 0 && (
+                    <span className={cn("font-heading text-base", sel ? "text-secondary/80" : "text-primary")}>
+                      + R$ {item.price.toFixed(2)}
+                    </span>
+                  )}
+                </div>
+                <div className={cn(
+                  "w-6 h-6 rounded-full border-2 flex items-center justify-center", 
+                  sel ? "bg-secondary border-secondary text-primary" : "border-white/10 text-transparent"
+                )}>
+                  <Check size={14} strokeWidth={4} />
+                </div>
               </button>
             );
           })}
@@ -406,14 +427,6 @@ export default function OrderPage() {
   return (
     <SmoothScrollProvider isDisabled={showCart}>
       <main className="min-h-screen bg-[#3d1b34] flex flex-col relative text-white">
-        <div className="fixed inset-0 pointer-events-none">
-          <div className="absolute top-0 right-0 w-full h-[60vh] opacity-20 overflow-hidden">
-             <img src="/assets/Açai_hero.webp" alt="" className="w-full h-full object-cover mix-blend-overlay" />
-             <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#3d1b34]" />
-          </div>
-          <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[40%] bg-primary/5 rounded-full blur-[120px]" />
-          <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[40%] bg-black/40 rounded-full blur-[120px]" />
-        </div>
         <header className="sticky top-0 z-40 bg-[#3d1b34]/80 backdrop-blur-xl border-b border-white/5 px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             {currentStep > 0 && <button onClick={handlePrev} className="p-2 text-white/70 hover:text-primary transition-colors"><ArrowLeft size={24} /></button>}
