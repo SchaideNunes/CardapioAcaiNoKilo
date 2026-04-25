@@ -9,7 +9,28 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-// ... rest of types
+interface ItemAdmin {
+  _id: string;
+  id: string;
+  name: string;
+  price: number;
+  category: string;
+  original_category: string;
+  active: boolean;
+}
+
+interface OrderAdmin {
+  _id: string;
+  total: number;
+  paymentMethod: string;
+  deliveryMethod: string;
+  items: string[];
+  createdAt: string;
+  address?: {
+    street: string;
+    neighborhood: string;
+  };
+}
 
 const demoOrders: OrderAdmin[] = [
   {
