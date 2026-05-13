@@ -392,18 +392,31 @@ export default function OrderPage() {
                   sel ? "bg-primary text-secondary shadow-lg" : "bg-white/5 text-white hover:bg-white/10"
                 )}
               >
-                <div className="flex flex-col gap-0.5">
-                  <span className={cn("font-heading text-xl uppercase leading-none", sel ? "text-secondary" : "text-white")}>
-                    {item.name}
-                  </span>
-                  {item.price > 0 && (
-                    <span className={cn("font-heading text-base", sel ? "text-secondary/80" : "text-primary")}>
-                      + R$ {item.price.toFixed(2)}
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-white/10 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                    <img 
+                      src={`/assets/items/${item.id}.webp`}
+                      alt={item.name}
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&background=3d1b34&color=D8AC4F&font-size=0.33&bold=true`;
+                      }}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-0.5">
+                    <span className={cn("font-heading text-lg sm:text-xl uppercase leading-none line-clamp-1", sel ? "text-secondary" : "text-white")}>
+                      {item.name}
                     </span>
-                  )}
+                    {item.price > 0 && (
+                      <span className={cn("font-heading text-sm sm:text-base", sel ? "text-secondary/80" : "text-primary")}>
+                        + R$ {item.price.toFixed(2)}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <div className={cn(
-                  "w-6 h-6 rounded-full border-2 flex items-center justify-center", 
+                  "w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ml-2", 
                   sel ? "bg-secondary border-secondary text-primary" : "border-white/10 text-transparent"
                 )}>
                   <Check size={14} strokeWidth={4} />
