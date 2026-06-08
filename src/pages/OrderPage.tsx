@@ -375,7 +375,7 @@ export default function OrderPage() {
         {step.data && step.data.length > 6 && (
           <div className="relative"><input type="text" placeholder={`Buscar...`} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-3 text-white focus:outline-none focus:border-primary" /></div>
         )}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className={cn("grid gap-3", step.id === 'size' ? "grid-cols-2 gap-3 sm:gap-6" : "grid-cols-1 sm:grid-cols-2")}>
           {filteredData?.map((item) => {
             const cat = step.id as keyof OrderState;
             const val = order[cat];
@@ -388,38 +388,46 @@ export default function OrderPage() {
                 key={item.id} 
                 onClick={() => toggleItem(cat, item, step.multiple)} 
                 className={cn(
-                  "relative flex items-center justify-between p-3.5 sm:p-4 rounded-xl transition-all text-left border-0", 
-                  sel ? "bg-primary text-secondary shadow-lg" : "bg-white/5 text-white hover:bg-white/10"
+                  "relative flex items-center justify-between transition-all text-left border-0",
+                  step.id === 'size' ? "p-4 sm:p-8 rounded-2xl sm:rounded-3xl flex-col sm:flex-row gap-2 sm:gap-0" : "p-3.5 sm:p-4 rounded-xl",
+                  sel ? "bg-primary text-secondary shadow-lg scale-[1.02]" : "bg-white/5 text-white hover:bg-white/10"
                 )}
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-white/10 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                <div className={cn("flex items-center gap-3 w-full", step.id === 'size' ? "flex-col sm:flex-row text-center sm:text-left gap-3 sm:gap-4" : "")}>
+                  <div className={cn("bg-white/10 overflow-hidden flex-shrink-0 flex items-center justify-center", step.id === 'size' ? "w-20 h-20 sm:w-28 sm:h-28 rounded-2xl sm:rounded-3xl shadow-inner" : "w-10 h-10 sm:w-12 sm:h-12 rounded-lg")}>
                     <img 
-                      src={`/assets/items/${item.id}.webp`}
+                      src={
+                        item.id === "cup_360" ? "/assets/items/Açai_350ml.webp" :
+                        (item.id === "cup_500" || item.id === "pot_500") ? "/assets/items/Açai_500ml.webp" :
+                        item.id === "cup_750" ? "/assets/items/Açai_750ml.webp" :
+                        (item.id === "pot_1l" || item.id === "pot_2l") ? "/assets/items/POTE_LITRO.webp" :
+                        `/assets/items/${item.id}.webp`
+                      }
                       alt={item.name}
                       onError={(e) => {
                         e.currentTarget.onerror = null;
                         e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&background=3d1b34&color=D8AC4F&font-size=0.33&bold=true`;
                       }}
-                      className="w-full h-full object-cover"
+                      className={cn("w-full h-full object-cover", step.id !== 'size' && "scale-125")}
                     />
                   </div>
-                  <div className="flex flex-col gap-0.5">
-                    <span className={cn("font-heading text-lg sm:text-xl uppercase leading-none line-clamp-1", sel ? "text-secondary" : "text-white")}>
+                  <div className="flex flex-col gap-1 sm:gap-0.5 flex-1">
+                    <span className={cn("font-heading uppercase leading-none", step.id === 'size' ? "text-xl sm:text-3xl" : "text-lg sm:text-xl line-clamp-1", sel ? "text-secondary" : "text-white")}>
                       {item.name}
                     </span>
                     {item.price > 0 && (
-                      <span className={cn("font-heading text-sm sm:text-base", sel ? "text-secondary/80" : "text-primary")}>
-                        + R$ {item.price.toFixed(2)}
+                      <span className={cn("font-heading", step.id === 'size' ? "text-sm sm:text-2xl sm:mt-1" : "text-sm sm:text-base", sel ? "text-secondary/80" : "text-primary")}>
+                        {step.id === 'size' ? "" : "+ "}R$ {item.price.toFixed(2)}
                       </span>
                     )}
                   </div>
                 </div>
                 <div className={cn(
-                  "w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ml-2", 
+                  "rounded-full border-2 flex items-center justify-center flex-shrink-0 ml-2 transition-all",
+                  step.id === 'size' ? "absolute top-2 right-2 sm:static sm:top-auto sm:right-auto w-6 h-6 sm:w-8 sm:h-8" : "w-6 h-6",
                   sel ? "bg-secondary border-secondary text-primary" : "border-white/10 text-transparent"
                 )}>
-                  <Check size={14} strokeWidth={4} />
+                  <Check size={step.id === 'size' ? 14 : 14} strokeWidth={4} />
                 </div>
               </button>
             );
