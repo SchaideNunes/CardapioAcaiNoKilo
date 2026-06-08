@@ -59,7 +59,9 @@ O projeto agora suporta dois modos de funcionamento para facilitar demonstraçõ
 ## 📝 Regras de Implementação
 - **Persistência:** Pedidos são salvos no banco ANTES do redirecionamento para o WhatsApp.
 - **Segurança Git:** O arquivo `server/.env` está no `.gitignore`. Nunca subir a `JWT_SECRET`.
-- **UX:** Transições suaves entre etapas e feedback visual de carregamento.
+- **UX e UI:** Transições suaves entre etapas, com uso extensivo de Tailwind e Glassmorphism. O design padrão das listas de complementos deve manter o estilo clássico (minimalista, horizontal, com pequeno zoom de 25% interno na imagem).
+- **Imagens e Performance:** Todas as imagens de itens no diretório `public/assets/items/` devem usar o formato `.webp` para garantir carregamento leve e 100% de compatibilidade web. Formatos nativos de celular (como `.HEIC`) não são renderizados corretamente pelos navegadores e devem ser convertidos (não apenas renomeados).
+- **Tamanhos (UI):** A tela de seleção de Tamanhos possui cards maiores com imagens de potes e copos especificamente mapeadas diretamente no arquivo `OrderPage.tsx`.
 
 ---
-*Atualizado em: 24 de Abril de 2026*
+*Atualizado em: 08 de Junho de 2026*
