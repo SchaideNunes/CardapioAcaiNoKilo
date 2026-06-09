@@ -16,6 +16,8 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+const PAYMENT_LABELS = { pix: "Pix", card: "Cartão", cash: "Dinheiro" };
+
 type OrderState = {
   size: MenuItem | null;
   flavor: MenuItem | null;
@@ -95,17 +97,18 @@ export default function OrderPage() {
   ], [apiData]);
 
   const [holdTimer, setHoldTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
-  const [holdInterval, setHoldInterval] = useState<ReturnType<typeof setInterval> | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [deleteProgress, setDeleteProgress] = useState(0);
+
+  const allSelectedItems = useMemo(() => [
+    ...order.toppings, ...order.addons, ...order.creams, ...order.fruits, ...order.fillings
+  ], [order.toppings, order.addons, order.creams, order.fruits, order.fillings]);
 
   const totalPrice = useMemo(() => {
     let total = order.size?.price || 0;
-    const additions = [...order.toppings, ...order.addons, ...order.creams, ...order.fruits, ...order.fillings];
-    total += additions.reduce((sum, item) => sum + item.price, 0);
+    total += allSelectedItems.reduce((sum, item) => sum + item.price, 0);
     if (order.deliveryMethod === "delivery") total += 7.00;
     return total;
-  }, [order]);
+  }, [order.size, order.deliveryMethod, allSelectedItems]);
 
   const handleNext = () => {
     if (currentStep < STEPS.length - 1) {
@@ -170,12 +173,11 @@ export default function OrderPage() {
   const formatWhatsAppMessage = () => {
     if (!order.size || !order.flavor) return "";
     let message = `*NOVO PEDIDO*\n\n*Tamanho:* ${order.size.name} (${order.flavor.name})\n`;
-    const items = [...order.toppings, ...order.addons, ...order.creams, ...order.fruits, ...order.fillings].map(i => i.name).join(", ");
+    const items = allSelectedItems.map(i => i.name).join(", ");
     if (items) message += `*Recheios:* ${items}\n`;
     message += `\n*Entrega:* ${order.deliveryMethod === "delivery" ? "Receber em casa" : "Retirar na loja"}\n`;
     if (order.deliveryMethod === "delivery") message += `*Endereço:* ${order.address.street}, ${order.address.number} - ${order.address.neighborhood}\n`;
-    const paymentLabels = { pix: "Pix", card: "Cartão", cash: "Dinheiro" };
-    message += `\n*Pagamento:* ${order.paymentMethod ? paymentLabels[order.paymentMethod] : "Não definido"}\n`;
+    message += `\n*Pagamento:* ${order.paymentMethod ? PAYMENT_LABELS[order.paymentMethod] : "Não definido"}\n`;
     if (order.paymentMethod === "cash" && order.changeFor) {
       message += order.changeFor === "Não preciso" ? `*Troco:* Não preciso\n` : `*Troco para:* R$ ${order.changeFor}\n`;
     }
@@ -192,7 +194,7 @@ export default function OrderPage() {
         body: JSON.stringify({
           ...order,
           total: totalPrice,
-          items: [...order.toppings, ...order.addons, ...order.creams, ...order.fruits, ...order.fillings].map(i => i.name)
+          items: allSelectedItems.map(i => i.name)
         })
       });
     } catch (e) {
@@ -316,11 +318,11 @@ export default function OrderPage() {
                 </div>
               </div>
 
-              {([...order.toppings, ...order.addons, ...order.creams, ...order.fruits, ...order.fillings].length > 0) && (
+              {(allSelectedItems.length > 0) && (
                 <div className="flex flex-col gap-3">
                   <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">Complementos</p>
                   <ul className="flex flex-col gap-3">
-                    {[...order.toppings, ...order.addons, ...order.creams, ...order.fruits, ...order.fillings].map((i) => (
+                    {allSelectedItems.map((i) => (
                       <li key={i.id} className="flex justify-between items-end gap-4 group">
                         <span className="text-white/80 text-sm font-medium">{i.name}</span>
                         <div className="flex-1 border-b border-dotted border-white/5 mb-1 opacity-50" />
@@ -345,9 +347,7 @@ export default function OrderPage() {
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-white/50 uppercase font-bold tracking-wider">Pagamento</span>
                   <span className="text-white font-bold uppercase">
-                    {order.paymentMethod === 'pix' ? 'Pix' :
-                      order.paymentMethod === 'card' ? 'Cartão' :
-                        order.paymentMethod === 'cash' ? 'Dinheiro' : 'Não definido'}
+                    {order.paymentMethod ? PAYMENT_LABELS[order.paymentMethod] : 'Não definido'}
                   </span>
                 </div>
               </div>
@@ -446,7 +446,7 @@ export default function OrderPage() {
               <div className="hidden xs:block"><h1 className="font-heading text-xl text-primary uppercase">Monte seu Açaí</h1><p className="text-[10px] text-white/50 font-bold uppercase">Passo {currentStep + 1} de {STEPS.length}</p></div>
             </div>
           </div>
-          <button onClick={() => setShowCart(true)} className="relative p-2"><ShoppingCart size={24} className="text-primary" /><div className="absolute -top-1 -right-1 bg-white text-secondary text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-lg">{[...order.toppings, ...order.addons, ...order.creams, ...order.fruits, ...order.fillings].length + (order.size ? 1 : 0)}</div></button>
+          <button onClick={() => setShowCart(true)} className="relative p-2"><ShoppingCart size={24} className="text-primary" /><div className="absolute -top-1 -right-1 bg-white text-secondary text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-lg">{allSelectedItems.length + (order.size ? 1 : 0)}</div></button>
         </header>
         <div className={cn("fixed inset-0 z-[100] transition-all duration-500", showCart ? "visible" : "invisible pointer-events-none")}>
           <div className={cn("absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-500", showCart ? "opacity-100" : "opacity-0")} onClick={() => setShowCart(false)} />
@@ -460,7 +460,7 @@ export default function OrderPage() {
               </div>
               <div className="space-y-3 pt-4 border-t border-white/5">
                 <p className="text-[10px] font-bold text-white/30 uppercase">Recheios</p>
-                {[...order.toppings, ...order.addons, ...order.creams, ...order.fruits, ...order.fillings].map(i => {
+                {allSelectedItems.map(i => {
                   const cat = Object.keys(order).find(k => Array.isArray(order[k as keyof OrderState]) && (order[k as keyof OrderState] as MenuItem[]).some(item => item.id === i.id)) as keyof OrderState;
                   return (
                     <div key={i.id} className={cn("relative flex justify-between items-center p-3 rounded-xl overflow-hidden border transition-all", deletingId === i.id ? "bg-red-500/10 border-red-500/30" : "bg-white/5 border-white/5")}>
