@@ -60,7 +60,7 @@ O projeto agora suporta dois modos de funcionamento para facilitar demonstraçõ
 - **Persistência:** Pedidos são salvos no banco ANTES do redirecionamento para o WhatsApp.
 - **Segurança Git:** O arquivo `server/.env` está no `.gitignore`. Nunca subir a `JWT_SECRET`.
 - **UX e UI:** Transições suaves entre etapas, com uso extensivo de Tailwind e Glassmorphism. O design padrão das listas de complementos deve manter o estilo clássico (minimalista, horizontal, com pequeno zoom de 25% interno na imagem).
-- **Imagens e Performance:** Todas as imagens de itens no diretório `public/assets/items/` devem usar o formato `.webp` para garantir carregamento leve e 100% de compatibilidade web. Formatos nativos de celular (como `.HEIC`) não são renderizados corretamente pelos navegadores e devem ser convertidos (não apenas renomeados).
+- **Imagens e Performance:** Todas as imagens de itens no diretório `public/assets/items/` devem usar o formato `.webp` para garantir carregamento leve e 100% de compatibilidade web. Formatos nativos de celular (como `.HEIC`) não são renderizados corretamente pelos navegadores e devem ser convertidos (não apenas renomeados). Sempre que novas imagens pesadas (como `fi_pacoca_cream`, `fi_pasta_amend` e `fi_pessego`) forem adicionadas, deve-se aplicar o script de compressão em massa (para ~15KB cada) preservando a velocidade do site.
 - **Tamanhos (UI):** A tela de seleção de Tamanhos possui cards maiores com imagens de potes e copos especificamente mapeadas diretamente no arquivo `OrderPage.tsx`.
 
 ---
