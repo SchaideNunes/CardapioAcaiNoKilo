@@ -1,10 +1,10 @@
 import { useState, useMemo, useEffect } from "react";
 import { MenuItem, menuData as localFallbackData } from "@/data/menu";
-import { 
-  ArrowLeft, 
-  ArrowRight, 
-  Check, 
-  ShoppingCart, 
+import {
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  ShoppingCart,
   Send,
   Trash2,
 } from "lucide-react";
@@ -114,7 +114,7 @@ export default function OrderPage() {
       } else {
         setCurrentStep(currentStep + 1);
       }
-      setSearchQuery(""); 
+      setSearchQuery("");
       window.scrollTo(0, 0);
     }
   };
@@ -126,7 +126,7 @@ export default function OrderPage() {
       } else {
         setCurrentStep(currentStep - 1);
       }
-      setSearchQuery(""); 
+      setSearchQuery("");
       window.scrollTo(0, 0);
     }
   };
@@ -150,40 +150,28 @@ export default function OrderPage() {
       }
       return prev;
     });
-    stopHold();
-  };
-
-  const startHold = (category: keyof OrderState, itemId: string) => {
-    if (holdTimer || holdInterval) stopHold();
-    setDeletingId(itemId);
-    setDeleteProgress(0);
-    let progress = 0;
-    const interval = setInterval(() => {
-      progress += 10;
-      setDeleteProgress(progress);
-      if (progress >= 100) clearInterval(interval);
-    }, 100);
-    const timer = setTimeout(() => {
-      removeItem(category, itemId);
-    }, 1000);
-    setHoldTimer(timer);
-    setHoldInterval(interval);
-  };
-
-  const stopHold = () => {
-    if (holdTimer) clearTimeout(holdTimer);
-    if (holdInterval) clearInterval(holdInterval);
-    setHoldTimer(null);
-    setHoldInterval(null);
     setDeletingId(null);
-    setDeleteProgress(0);
+    if (holdTimer) clearTimeout(holdTimer);
+  };
+
+  const handleDeleteClick = (category: keyof OrderState, itemId: string) => {
+    if (deletingId === itemId) {
+      removeItem(category, itemId);
+    } else {
+      setDeletingId(itemId);
+      if (holdTimer) clearTimeout(holdTimer);
+      const timer = setTimeout(() => {
+        setDeletingId(null);
+      }, 3000);
+      setHoldTimer(timer);
+    }
   };
 
   const formatWhatsAppMessage = () => {
     if (!order.size || !order.flavor) return "";
-    let message = `*NOVO PEDIDO*\n\n*Base:* ${order.size.name} (${order.flavor.name})\n`;
+    let message = `*NOVO PEDIDO*\n\n*Tamanho:* ${order.size.name} (${order.flavor.name})\n`;
     const items = [...order.toppings, ...order.addons, ...order.creams, ...order.fruits, ...order.fillings].map(i => i.name).join(", ");
-    if (items) message += `*Itens:* ${items}\n`;
+    if (items) message += `*Recheios:* ${items}\n`;
     message += `\n*Entrega:* ${order.deliveryMethod === "delivery" ? "Receber em casa" : "Retirar na loja"}\n`;
     if (order.deliveryMethod === "delivery") message += `*Endereço:* ${order.address.street}, ${order.address.number} - ${order.address.neighborhood}\n`;
     const paymentLabels = { pix: "Pix", card: "Cartão", cash: "Dinheiro" };
@@ -243,21 +231,21 @@ export default function OrderPage() {
           <div className="grid grid-cols-3 gap-2 sm:gap-4">
             <button onClick={() => setOrder(p => ({ ...p, paymentMethod: "pix" }))} className={cn("relative flex flex-col items-center justify-center p-4 sm:p-6 rounded-2xl transition-all border-0", order.paymentMethod === "pix" ? "bg-primary text-secondary shadow-lg" : "bg-white/5 text-white hover:bg-white/10")}>
               <div className="mb-2 w-10 h-10 flex items-center justify-center">
-                 <img src="/assets/pix.png" alt="Pix" className="w-full h-full object-contain" />
+                <img src="/assets/pix.png" alt="Pix" className="w-full h-full object-contain" />
               </div>
               <span className="font-heading text-sm sm:text-xl uppercase">Pix</span>
               {order.paymentMethod === "pix" && <div className="absolute top-2 right-2 bg-secondary text-primary w-4 h-4 rounded-full flex items-center justify-center shadow-lg"><Check size={10} strokeWidth={4} /></div>}
             </button>
             <button onClick={() => setOrder(p => ({ ...p, paymentMethod: "card" }))} className={cn("relative flex flex-col items-center justify-center p-4 sm:p-6 rounded-2xl transition-all border-0", order.paymentMethod === "card" ? "bg-primary text-secondary shadow-lg" : "bg-white/5 text-white hover:bg-white/10")}>
               <div className="mb-2 w-10 h-10 flex items-center justify-center">
-                 <img src="/assets/card.png" alt="Cartão" className="w-8 h-8 object-contain" />
+                <img src="/assets/card.png" alt="Cartão" className="w-8 h-8 object-contain" />
               </div>
               <span className="font-heading text-sm sm:text-xl uppercase">Cartão</span>
               {order.paymentMethod === "card" && <div className="absolute top-2 right-2 bg-secondary text-primary w-4 h-4 rounded-full flex items-center justify-center shadow-lg"><Check size={10} strokeWidth={4} /></div>}
             </button>
             <button onClick={() => setOrder(p => ({ ...p, paymentMethod: "cash" }))} className={cn("relative flex flex-col items-center justify-center p-4 sm:p-6 rounded-2xl transition-all border-0", order.paymentMethod === "cash" ? "bg-primary text-secondary shadow-lg" : "bg-white/5 text-white hover:bg-white/10")}>
               <div className="mb-2 w-10 h-10 flex items-center justify-center">
-                 <img src="/assets/Dinheiro.webp" alt="Dinheiro" className="w-8 h-8 object-contain" />
+                <img src="/assets/Dinheiro.webp" alt="Dinheiro" className="w-8 h-8 object-contain" />
               </div>
               <span className="font-heading text-sm sm:text-xl uppercase">Dinheiro</span>
               {order.paymentMethod === "cash" && <div className="absolute top-2 right-2 bg-secondary text-primary w-4 h-4 rounded-full flex items-center justify-center shadow-lg"><Check size={10} strokeWidth={4} /></div>}
@@ -320,7 +308,7 @@ export default function OrderPage() {
             <h3 className="font-heading text-3xl text-primary mb-6 uppercase tracking-wide border-b border-primary/20 pb-4">Resumo do Pedido</h3>
             <div className="space-y-6">
               <div className="flex flex-col gap-2">
-                <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">Base Escolhida</p>
+                <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">Tamanho escolhido</p>
                 <div className="flex justify-between items-end gap-4">
                   <span className="text-xl font-heading text-white uppercase">{order.size?.name} + {order.flavor?.name}</span>
                   <div className="flex-1 border-b border-dashed border-white/10 mb-1.5" />
@@ -344,24 +332,24 @@ export default function OrderPage() {
               )}
 
               <div className="pt-4 border-t border-white/10 flex flex-col gap-2">
-                 <div className="flex justify-between items-center text-sm">
-                   <span className="text-white/50 uppercase font-bold tracking-wider">Método</span>
-                   <span className="text-white font-bold">{order.deliveryMethod === "delivery" ? "🚀 Entrega" : "🛍️ Retirada"}</span>
-                 </div>
-                 {order.deliveryMethod === "delivery" && (
-                   <div className="flex justify-between items-center text-sm">
-                     <span className="text-white/50 uppercase font-bold tracking-wider">Frete</span>
-                     <span className="text-primary font-bold">+ R$ 7,00</span>
-                   </div>
-                 )}
-                 <div className="flex justify-between items-center text-sm">
-                   <span className="text-white/50 uppercase font-bold tracking-wider">Pagamento</span>
-                   <span className="text-white font-bold uppercase">
-                     {order.paymentMethod === 'pix' ? 'Pix' : 
-                      order.paymentMethod === 'card' ? 'Cartão' : 
-                      order.paymentMethod === 'cash' ? 'Dinheiro' : 'Não definido'}
-                   </span>
-                 </div>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-white/50 uppercase font-bold tracking-wider">Método</span>
+                  <span className="text-white font-bold">{order.deliveryMethod === "delivery" ? "🚀 Entrega" : "🛍️ Retirada"}</span>
+                </div>
+                {order.deliveryMethod === "delivery" && (
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-white/50 uppercase font-bold tracking-wider">Frete</span>
+                    <span className="text-primary font-bold">+ R$ 7,00</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-white/50 uppercase font-bold tracking-wider">Pagamento</span>
+                  <span className="text-white font-bold uppercase">
+                    {order.paymentMethod === 'pix' ? 'Pix' :
+                      order.paymentMethod === 'card' ? 'Cartão' :
+                        order.paymentMethod === 'cash' ? 'Dinheiro' : 'Não definido'}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -379,14 +367,14 @@ export default function OrderPage() {
           {filteredData?.map((item) => {
             const cat = step.id as keyof OrderState;
             const val = order[cat];
-            const sel = Array.isArray(val) 
-              ? (val as MenuItem[]).some(i => i.id === item.id) 
+            const sel = Array.isArray(val)
+              ? (val as MenuItem[]).some(i => i.id === item.id)
               : (val as MenuItem)?.id === item.id;
 
             return (
-              <button 
-                key={item.id} 
-                onClick={() => toggleItem(cat, item, step.multiple)} 
+              <button
+                key={item.id}
+                onClick={() => toggleItem(cat, item, step.multiple)}
                 className={cn(
                   "relative flex items-center justify-between transition-all text-left border-0",
                   step.id === 'size' ? "p-4 sm:p-8 rounded-2xl sm:rounded-3xl flex-col sm:flex-row gap-2 sm:gap-0" : "p-3.5 sm:p-4 rounded-xl",
@@ -395,13 +383,13 @@ export default function OrderPage() {
               >
                 <div className={cn("flex items-center gap-3 w-full", step.id === 'size' ? "flex-col sm:flex-row text-center sm:text-left gap-3 sm:gap-4" : "")}>
                   <div className={cn("bg-white/10 overflow-hidden flex-shrink-0 flex items-center justify-center", step.id === 'size' ? "w-20 h-20 sm:w-28 sm:h-28 rounded-2xl sm:rounded-3xl shadow-inner" : "w-10 h-10 sm:w-12 sm:h-12 rounded-lg")}>
-                    <img 
+                    <img
                       src={
                         item.id === "cup_360" ? "/assets/items/Açai_350ml.webp" :
-                        (item.id === "cup_500" || item.id === "pot_500") ? "/assets/items/Açai_500ml.webp" :
-                        item.id === "cup_750" ? "/assets/items/Açai_750ml.webp" :
-                        (item.id === "pot_1l" || item.id === "pot_2l") ? "/assets/items/POTE_LITRO.webp" :
-                        `/assets/items/${item.id}.webp`
+                          (item.id === "cup_500" || item.id === "pot_500") ? "/assets/items/Açai_500ml.webp" :
+                            item.id === "cup_750" ? "/assets/items/Açai_750ml.webp" :
+                              (item.id === "pot_1l" || item.id === "pot_2l") ? "/assets/items/POTE_LITRO.webp" :
+                                `/assets/items/${item.id}.webp`
                       }
                       alt={item.name}
                       loading="lazy"
@@ -465,25 +453,32 @@ export default function OrderPage() {
           <div className={cn("absolute right-0 top-0 h-full w-[85%] max-w-[400px] bg-[#3d1b34] shadow-2xl flex flex-col transition-transform duration-500", showCart ? "translate-x-0" : "translate-x-full")}>
             <div className="p-6 border-b border-white/10 flex items-center justify-between"><h3 className="font-heading text-2xl text-primary uppercase">Seu Pedido</h3><button onClick={() => setShowCart(false)} className="text-white/50"><ArrowRight size={24} /></button></div>
             <div className="flex-1 overflow-y-auto p-6 space-y-6" data-lenis-prevent>
-              {[...order.toppings, ...order.addons, ...order.creams, ...order.fruits, ...order.fillings].length > 0 && <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 flex items-center gap-3"><Trash2 size={14} className="text-red-400" /><p className="text-[10px] text-red-100/80 font-bold uppercase">Segure a lixeira para apagar</p></div>}
+
               <div className="space-y-3">
-                <p className="text-[10px] font-bold text-white/30 uppercase">Base</p>
+                <p className="text-[10px] font-bold text-white/30 uppercase">Tamanho</p>
                 {order.size ? <div className="flex justify-between items-center bg-white/5 p-3 rounded-lg"><span>{order.size.name}</span><span className="text-primary font-bold">R$ {order.size.price.toFixed(2)}</span></div> : <p className="text-sm text-white/20">Não selecionado</p>}
               </div>
               <div className="space-y-3 pt-4 border-t border-white/5">
-                <p className="text-[10px] font-bold text-white/30 uppercase">Itens</p>
+                <p className="text-[10px] font-bold text-white/30 uppercase">Recheios</p>
                 {[...order.toppings, ...order.addons, ...order.creams, ...order.fruits, ...order.fillings].map(i => {
                   const cat = Object.keys(order).find(k => Array.isArray(order[k as keyof OrderState]) && (order[k as keyof OrderState] as MenuItem[]).some(item => item.id === i.id)) as keyof OrderState;
                   return (
-                    <div key={i.id} className="relative flex justify-between items-center bg-white/5 p-3 rounded-xl overflow-hidden border border-white/5">
-                      {deletingId === i.id && (
-                        <div 
-                          className="absolute inset-y-0 left-0 bg-red-500/20 z-0 transition-all duration-150 ease-linear shadow-[0_0_15px_rgba(239,68,68,0.3)]" 
-                          style={{ width: `${deleteProgress}%` }} 
-                        />
-                      )}
-                      <span className="text-sm z-10 flex-1">{i.name}</span>
-                      <div className="flex items-center gap-3 z-10"><span className="text-xs text-white/40 italic">R$ {i.price.toFixed(2)}</span><button onMouseDown={() => startHold(cat, i.id)} onMouseUp={stopHold} onMouseLeave={stopHold} onTouchStart={() => startHold(cat, i.id)} onTouchEnd={stopHold} className={cn("bg-red-500/10 text-red-400 p-2 rounded-lg", deletingId === i.id && "bg-red-500/40 text-white")}><Trash2 size={16} /></button></div>
+                    <div key={i.id} className={cn("relative flex justify-between items-center p-3 rounded-xl overflow-hidden border transition-all", deletingId === i.id ? "bg-red-500/10 border-red-500/30" : "bg-white/5 border-white/5")}>
+                      <span className={cn("text-sm z-10 flex-1 transition-all", deletingId === i.id ? "text-red-300" : "text-white")}>
+                        {deletingId === i.id ? "Confirmar exclusão?" : i.name}
+                      </span>
+                      <div className="flex items-center gap-3 z-10">
+                        {deletingId !== i.id && <span className="text-xs text-white/40 italic">R$ {i.price.toFixed(2)}</span>}
+                        <button
+                          onClick={() => handleDeleteClick(cat, i.id)}
+                          className={cn(
+                            "p-2 rounded-lg transition-all font-bold text-xs flex items-center gap-2",
+                            deletingId === i.id ? "bg-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.4)] px-4" : "bg-red-500/10 text-red-400"
+                          )}
+                        >
+                          {deletingId === i.id ? "SIM" : <Trash2 size={16} />}
+                        </button>
+                      </div>
                     </div>
                   );
                 })}
@@ -500,15 +495,15 @@ export default function OrderPage() {
           </div>
         </div>
         <footer className="fixed bottom-0 left-0 w-full z-50 bg-[#3d1b34] border-t border-white/5 p-6 flex items-center justify-between shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
-<div className="flex flex-col"><span className="text-xs text-white/50 uppercase font-bold">Total</span><span className="font-heading text-3xl text-white">R$ {totalPrice.toFixed(2)}</span></div><div className="flex gap-4">
-  {currentStep < STEPS.length - 1 ? (
-    <button onClick={handleNext} disabled={!isStepValid()} className={cn("px-8 py-4 rounded-2xl font-heading text-xl flex items-center gap-2 transition-all", isStepValid() ? "bg-primary text-secondary" : "bg-white/5 text-white/20 cursor-not-allowed")}>PRÓXIMO <ArrowRight size={20} /></button>
-  ) : (
-    <button onClick={sendWhatsApp} className="px-8 py-4 bg-[#25D366] text-[#3d1b34] font-heading text-xl rounded-2xl flex items-center gap-2 hover:bg-[#22c35e] transition-all shadow-lg active:scale-95 uppercase">
-      <Send size={20} /> Finalizar
-    </button>
-  )}
-</div></footer>
+          <div className="flex flex-col"><span className="text-xs text-white/50 uppercase font-bold">Total</span><span className="font-heading text-3xl text-white">R$ {totalPrice.toFixed(2)}</span></div><div className="flex gap-4">
+            {currentStep < STEPS.length - 1 ? (
+              <button onClick={handleNext} disabled={!isStepValid()} className={cn("px-8 py-4 rounded-2xl font-heading text-xl flex items-center gap-2 transition-all", isStepValid() ? "bg-primary text-secondary" : "bg-white/5 text-white/20 cursor-not-allowed")}>PRÓXIMO <ArrowRight size={20} /></button>
+            ) : (
+              <button onClick={sendWhatsApp} className="px-8 py-4 bg-[#25D366] text-[#3d1b34] font-heading text-xl rounded-2xl flex items-center gap-2 hover:bg-[#22c35e] transition-all shadow-lg active:scale-95 uppercase">
+                <Send size={20} /> Finalizar
+              </button>
+            )}
+          </div></footer>
       </main>
     </SmoothScrollProvider>
   );
