@@ -404,6 +404,8 @@ export default function OrderPage() {
                         `/assets/items/${item.id}.webp`
                       }
                       alt={item.name}
+                      loading="lazy"
+                      decoding="async"
                       onError={(e) => {
                         e.currentTarget.onerror = null;
                         e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&background=3d1b34&color=D8AC4F&font-size=0.33&bold=true`;

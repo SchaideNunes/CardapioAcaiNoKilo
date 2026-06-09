@@ -28,3 +28,30 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: -0.02em;
   line-height: 1.1;
 }
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #3d1b34; 
+  border-left: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #D8AC4F;
+  border-radius: 10px;
+  border: 2px solid #3d1b34;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #c29841;
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #D8AC4F #3d1b34;
+}
