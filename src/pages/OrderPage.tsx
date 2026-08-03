@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { MenuItem, menuData as localFallbackData } from "@/data/menu";
 import {
   ArrowLeft,
@@ -440,7 +441,7 @@ export default function OrderPage() {
       <main className="min-h-screen bg-[#3d1b34] flex flex-col relative text-white">
         <header className="sticky top-0 z-40 bg-[#3d1b34]/80 backdrop-blur-xl border-b border-white/5 px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            {currentStep > 0 && <button onClick={handlePrev} className="p-2 text-white/70 hover:text-primary transition-colors"><ArrowLeft size={24} /></button>}
+            {currentStep > 0 ? <button onClick={handlePrev} className="p-2 text-white/70 hover:text-primary transition-colors"><ArrowLeft size={24} /></button> : <Link to="/" className="p-2 text-white/70 hover:text-primary transition-colors"><ArrowLeft size={24} /></Link>}
             <div className="flex items-center gap-3">
               <img src="/assets/Logo açai.webp" alt="Logo" className="w-10 h-10 object-contain mix-blend-screen" />
               <div className="hidden xs:block"><h1 className="font-heading text-xl text-primary uppercase">Monte seu Açaí</h1><p className="text-[10px] text-white/50 font-bold uppercase">Passo {currentStep + 1} de {STEPS.length}</p></div>
