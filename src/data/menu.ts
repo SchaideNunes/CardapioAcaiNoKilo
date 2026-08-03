@@ -8,14 +8,10 @@ export interface MenuItem {
 
 export const menuData = {
   sizes: [
-    // Copos
-    { id: "cup_360", name: "Copo 360ml", price: 14.00, category: "Tamanho", type: "Copo" },
-    { id: "cup_500", name: "Copo 500ml", price: 17.00, category: "Tamanho", type: "Copo" },
-    { id: "cup_750", name: "Copo 750ml", price: 22.00, category: "Tamanho", type: "Copo" },
-    // Potes
-    { id: "pot_500", name: "Pote 500ml", price: 17.99, category: "Tamanho", type: "Pote" },
-    { id: "pot_1l", name: "Pote 1L", price: 29.99, category: "Tamanho", type: "Pote" },
-    { id: "pot_2l", name: "Pote 2L", price: 49.99, category: "Tamanho", type: "Pote" },
+    { id: "pot_360", name: "Pote de 360", price: 14.00, category: "Tamanho", type: "Pote" },
+    { id: "pot_500", name: "Pote de 500", price: 17.00, category: "Tamanho", type: "Pote" },
+    { id: "pot_750", name: "Pote de 750", price: 22.00, category: "Tamanho", type: "Pote" },
+    { id: "pot_1l", name: "Pote de 1L", price: 29.99, category: "Tamanho", type: "Pote" },
   ],
   flavors: [
     { id: "f_natural", name: "Açaí Natural", price: 0, category: "Sabor" },

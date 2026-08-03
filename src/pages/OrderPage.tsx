@@ -386,10 +386,10 @@ export default function OrderPage() {
                   <div className={cn("bg-white/10 overflow-hidden flex-shrink-0 flex items-center justify-center", step.id === 'size' ? "w-20 h-20 sm:w-28 sm:h-28 rounded-2xl sm:rounded-3xl shadow-inner" : "w-10 h-10 sm:w-12 sm:h-12 rounded-lg")}>
                     <img
                       src={
-                        item.id === "cup_360" ? "/assets/items/Açai_350ml.webp" :
-                          (item.id === "cup_500" || item.id === "pot_500") ? "/assets/items/Açai_500ml.webp" :
-                            item.id === "cup_750" ? "/assets/items/Açai_750ml.webp" :
-                              (item.id === "pot_1l" || item.id === "pot_2l") ? "/assets/items/POTE_LITRO.webp" :
+                        item.id === "pot_360" ? "/assets/items/Açai_350ml.webp" :
+                          item.id === "pot_500" ? "/assets/items/Açai_500ml.webp" :
+                            item.id === "pot_750" ? "/assets/items/Açai_750ml.webp" :
+                              item.id === "pot_1l" ? "/assets/items/POTE_LITRO.webp" :
                                 `/assets/items/${item.id}.webp`
                       }
                       alt={item.name}
@@ -406,9 +406,9 @@ export default function OrderPage() {
                     <span className={cn("font-heading uppercase leading-none", step.id === 'size' ? "text-xl sm:text-3xl" : "text-lg sm:text-xl line-clamp-1", sel ? "text-secondary" : "text-white")}>
                       {item.name}
                     </span>
-                    {item.price > 0 && (
-                      <span className={cn("font-heading", step.id === 'size' ? "text-sm sm:text-2xl sm:mt-1" : "text-sm sm:text-base", sel ? "text-secondary/80" : "text-primary")}>
-                        {step.id === 'size' ? "" : "+ "}R$ {item.price.toFixed(2)}
+                    {item.price > 0 && step.id !== 'size' && (
+                      <span className={cn("font-heading text-sm sm:text-base", sel ? "text-secondary/80" : "text-primary")}>
+                        + R$ {item.price.toFixed(2)}
                       </span>
                     )}
                   </div>
