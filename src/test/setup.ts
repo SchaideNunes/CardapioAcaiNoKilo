@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-
+import { vi } from 'vitest';
 // Mock ResizeObserver (required by Lenis smooth scroll)
 class MockResizeObserver {
   observe() {}
