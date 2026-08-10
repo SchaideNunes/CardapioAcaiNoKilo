@@ -64,111 +64,65 @@ export default function Preloader({ onFinished }: { onFinished: () => void }) {
     return () => clearInterval(interval);
   }, [onFinished]);
 
-  // Açaí bowl SVG fill level
-  const fillHeight = progress;
-
   return (
     <div
-      className={`fixed inset-0 z-[9999] bg-[#3d1b34] flex flex-col items-center justify-center transition-opacity duration-500 ${fadeOut ? 'opacity-0' : 'opacity-100'}`}
+      className={`fixed inset-0 z-[9999] bg-[#3d1b34] flex flex-col items-center justify-center transition-opacity duration-700 overflow-hidden ${fadeOut ? 'opacity-0 scale-105' : 'opacity-100 scale-100'}`}
     >
       {/* Ambient glow */}
-      <div className="absolute w-72 h-72 bg-primary/15 rounded-full blur-[100px] animate-pulse" />
+      <div className="absolute w-96 h-96 bg-primary/20 rounded-full blur-[120px] animate-pulse" />
 
-      {/* Logo */}
-      <img
-        src="/assets/Logo açai.webp"
-        alt="Logo Açaí"
-        className="w-24 h-24 md:w-32 md:h-32 object-contain mix-blend-screen mb-6 animate-in fade-in zoom-in-75 duration-700"
-      />
+      {/* Floating Ingredients Background */}
+      <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+        <div className="relative w-full h-full max-w-2xl max-h-2xl">
+          <img src="/assets/items/fr_morango.webp" alt="Morango" className="absolute top-[20%] left-[20%] w-16 h-16 object-contain opacity-40 blur-[2px] animate-bounce" style={{ animationDuration: '4s' }} />
+          <img src="/assets/items/fr_banana.webp" alt="Banana" className="absolute top-[30%] right-[15%] w-12 h-12 object-contain opacity-30 blur-[1px] animate-bounce" style={{ animationDuration: '5s', animationDelay: '1s' }} />
+          <img src="/assets/items/a_chocoball.webp" alt="Chocoball" className="absolute bottom-[25%] left-[25%] w-10 h-10 object-contain opacity-50 blur-[3px] animate-pulse" style={{ animationDuration: '3s' }} />
+          <img src="/assets/items/fi_leitinho.webp" alt="Leitinho" className="absolute bottom-[20%] right-[25%] w-14 h-14 object-contain opacity-40 blur-[2px] animate-bounce" style={{ animationDuration: '6s', animationDelay: '2s' }} />
+        </div>
+      </div>
 
-      {/* Açaí Bowl with filling animation */}
-      <div className="relative w-36 h-36 md:w-44 md:h-44 mb-6">
-        <svg viewBox="0 0 200 200" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <clipPath id="bowlClip">
-              {/* Bowl shape - a rounded trapezoid */}
-              <path d="M30,70 Q30,60 45,58 L155,58 Q170,60 170,70 L160,155 Q155,175 100,178 Q45,175 40,155 Z" />
-            </clipPath>
-            <linearGradient id="acaiGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#5B2D8E" />
-              <stop offset="40%" stopColor="#3D1050" />
-              <stop offset="100%" stopColor="#2A0A38" />
-            </linearGradient>
-            <linearGradient id="bowlGradient" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="#D8AC4F" />
-              <stop offset="100%" stopColor="#A67C2E" />
-            </linearGradient>
-          </defs>
-
-          {/* Bowl outline */}
-          <path
-            d="M28,68 Q28,56 46,54 L154,54 Q172,56 172,68 L162,157 Q156,180 100,183 Q44,180 38,157 Z"
-            fill="none"
-            stroke="url(#bowlGradient)"
-            strokeWidth="3.5"
-            opacity="0.9"
+      {/* Açaí Hero Color Fill Animation */}
+      <div className="relative w-48 h-48 md:w-64 md:h-64 mb-10 z-10">
+        {/* Grayscale base (Empty bowl) */}
+        <img
+          src="/assets/Açai_hero.webp"
+          alt="Açaí Bowl Base"
+          className="absolute inset-0 w-full h-full object-contain grayscale opacity-20"
+        />
+        {/* Colorful fill layer (Fills up from bottom to top based on progress) */}
+        <img
+          src="/assets/Açai_hero.webp"
+          alt="Açaí Bowl Fill"
+          className="absolute inset-0 w-full h-full object-contain transition-all duration-300 ease-out drop-shadow-[0_0_30px_rgba(216,172,79,0.3)]"
+          style={{ clipPath: `inset(${100 - progress}% 0 0 0)` }}
+        />
+        
+        {/* Sparkles on the fill line */}
+        {progress > 5 && progress < 95 && (
+          <div 
+            className="absolute left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/80 to-transparent transition-all duration-300 ease-out blur-[1px]"
+            style={{ bottom: `${progress}%` }}
           />
-
-          {/* Açaí liquid fill - rises from bottom */}
-          <g clipPath="url(#bowlClip)">
-            <rect
-              x="25"
-              y={180 - (fillHeight * 1.25)}
-              width="150"
-              height="130"
-              fill="url(#acaiGradient)"
-              className="transition-all duration-100"
-            />
-            {/* Wavy surface on top of the liquid */}
-            <path
-              d={`M25,${180 - (fillHeight * 1.25)} Q65,${176 - (fillHeight * 1.25)} 100,${180 - (fillHeight * 1.25)} Q135,${184 - (fillHeight * 1.25)} 175,${180 - (fillHeight * 1.25)} L175,${182 - (fillHeight * 1.25)} Q135,${186 - (fillHeight * 1.25)} 100,${182 - (fillHeight * 1.25)} Q65,${178 - (fillHeight * 1.25)} 25,${182 - (fillHeight * 1.25)} Z`}
-              fill="#6B3FA0"
-              opacity="0.5"
-            >
-              <animate
-                attributeName="d"
-                dur="2s"
-                repeatCount="indefinite"
-                values={`
-                  M25,${180 - (fillHeight * 1.25)} Q65,${176 - (fillHeight * 1.25)} 100,${180 - (fillHeight * 1.25)} Q135,${184 - (fillHeight * 1.25)} 175,${180 - (fillHeight * 1.25)} L175,${182 - (fillHeight * 1.25)} Q135,${186 - (fillHeight * 1.25)} 100,${182 - (fillHeight * 1.25)} Q65,${178 - (fillHeight * 1.25)} 25,${182 - (fillHeight * 1.25)} Z;
-                  M25,${180 - (fillHeight * 1.25)} Q65,${184 - (fillHeight * 1.25)} 100,${180 - (fillHeight * 1.25)} Q135,${176 - (fillHeight * 1.25)} 175,${180 - (fillHeight * 1.25)} L175,${182 - (fillHeight * 1.25)} Q135,${178 - (fillHeight * 1.25)} 100,${182 - (fillHeight * 1.25)} Q65,${186 - (fillHeight * 1.25)} 25,${182 - (fillHeight * 1.25)} Z;
-                  M25,${180 - (fillHeight * 1.25)} Q65,${176 - (fillHeight * 1.25)} 100,${180 - (fillHeight * 1.25)} Q135,${184 - (fillHeight * 1.25)} 175,${180 - (fillHeight * 1.25)} L175,${182 - (fillHeight * 1.25)} Q135,${186 - (fillHeight * 1.25)} 100,${182 - (fillHeight * 1.25)} Q65,${178 - (fillHeight * 1.25)} 25,${182 - (fillHeight * 1.25)} Z
-                `}
-              />
-            </path>
-          </g>
-
-          {/* Toppings that appear as bowl fills */}
-          {progress > 60 && (
-            <g opacity={Math.min((progress - 60) / 20, 1)} className="transition-opacity duration-300">
-              {/* Small berry circles on top */}
-              <circle cx="80" cy={74 - (fillHeight * 0.08)} r="5" fill="#D94F6B" opacity="0.9" />
-              <circle cx="95" cy={70 - (fillHeight * 0.08)} r="4" fill="#E8637A" opacity="0.8" />
-              <circle cx="115" cy={72 - (fillHeight * 0.08)} r="5.5" fill="#D94F6B" opacity="0.85" />
-              <circle cx="105" cy={78 - (fillHeight * 0.08)} r="3.5" fill="#C4405B" opacity="0.9" />
-              {/* Banana slices */}
-              <ellipse cx="88" cy={76 - (fillHeight * 0.08)} rx="7" ry="4" fill="#F5D76E" opacity="0.85" transform={`rotate(-15 88 ${76 - (fillHeight * 0.08)})`} />
-              <ellipse cx="120" cy={76 - (fillHeight * 0.08)} rx="6" ry="3.5" fill="#F5D76E" opacity="0.8" transform={`rotate(20 120 ${76 - (fillHeight * 0.08)})`} />
-            </g>
-          )}
-        </svg>
+        )}
       </div>
 
-      {/* Percentage */}
-      <div className="flex flex-col items-center gap-2">
-        <span className="font-heading text-5xl md:text-6xl text-primary tabular-nums tracking-wider">
-          {progress}%
-        </span>
-        <span className="text-white/40 text-xs font-bold uppercase tracking-[0.3em] font-sans">
-          Preparando seu açaí...
+      {/* Logo and Percentage */}
+      <div className="flex flex-col items-center gap-3 z-10">
+        <img
+          src="/assets/Logo açai.webp"
+          alt="Logo Açaí"
+          className="w-32 h-32 md:w-40 md:h-40 object-contain mix-blend-screen animate-pulse"
+        />
+        
+        <div className="flex items-baseline gap-1 mt-2">
+          <span className="font-heading text-5xl md:text-6xl text-primary drop-shadow-lg">{progress}</span>
+          <span className="font-heading text-2xl text-primary/70">%</span>
+        </div>
+        
+        <span className="text-white/60 text-sm tracking-[0.2em] uppercase font-bold animate-pulse mt-2">
+          Preparando seu Açaí...
         </span>
       </div>
-
-      {/* Small floating açaí berries decoration */}
-      <div className="absolute top-[15%] left-[10%] w-3 h-3 bg-primary/30 rounded-full animate-bounce" style={{ animationDelay: '0s', animationDuration: '2.5s' }} />
-      <div className="absolute top-[25%] right-[15%] w-2 h-2 bg-secondary/40 rounded-full animate-bounce" style={{ animationDelay: '0.5s', animationDuration: '3s' }} />
-      <div className="absolute bottom-[20%] left-[20%] w-2.5 h-2.5 bg-primary/20 rounded-full animate-bounce" style={{ animationDelay: '1s', animationDuration: '2.8s' }} />
-      <div className="absolute bottom-[30%] right-[10%] w-2 h-2 bg-secondary/30 rounded-full animate-bounce" style={{ animationDelay: '1.5s', animationDuration: '2.2s' }} />
     </div>
   );
 }
