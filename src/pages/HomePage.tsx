@@ -27,40 +27,22 @@ export default function HomePage() {
           <div className="absolute bottom-[-10%] left-[-20%] w-[400px] h-[400px] bg-secondary/8 rounded-full blur-[100px]" />
         </div>
 
-        {/* Header */}
-        <header 
-          className={`relative z-10 flex items-center justify-center pt-12 pb-4 px-6 transition-all duration-700 ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-6'}`}
-        >
-          <div className="flex flex-col items-center gap-3">
+        {/* Main Centered Content */}
+        <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 py-8 w-full max-w-md mx-auto">
+          {/* Logo */}
+          <div className={`transition-all duration-700 mb-10 ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-6'}`}>
             <img
               src="/assets/Logo açai.webp"
               alt="Logo Açaí"
-              className="w-20 h-20 md:w-28 md:h-28 object-contain mix-blend-screen"
+              className="w-32 h-32 md:w-40 md:h-40 object-contain mix-blend-screen"
             />
           </div>
-        </header>
-
-        {/* Hero image section */}
-        <section
-          className={`relative z-10 px-6 pt-4 pb-2 transition-all duration-700 delay-200 ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-        >
-          <div className="relative mx-auto max-w-md w-full aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl shadow-black/40">
-            <img
-              src="/assets/Açai_hero.webp"
-              alt="Açaí"
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#3d1b34] via-transparent to-transparent" />
-          </div>
-        </section>
-
-        {/* Selection Cards */}
-        <section
-          className={`relative z-10 flex-1 flex flex-col gap-4 px-6 pt-6 pb-10 md:pb-16 transition-all duration-700 delay-500 ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-        >
-          <p className="text-white/40 text-[10px] font-bold uppercase tracking-[0.3em] font-sans text-center mb-1">
-            Escolha como deseja pedir
-          </p>
+          
+          {/* Selection Cards */}
+          <div className={`w-full flex flex-col gap-4 transition-all duration-700 delay-300 ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+            <p className="text-white/40 text-[10px] font-bold uppercase tracking-[0.3em] font-sans text-center mb-1">
+              Escolha como deseja pedir
+            </p>
 
           <div className="flex flex-col gap-4 max-w-md mx-auto w-full">
             {/* CRIAR O SEU */}
@@ -125,7 +107,8 @@ export default function HomePage() {
               />
             </Link>
           </div>
-        </section>
+        </div>
+      </div>
 
         {/* Bottom subtle brand */}
         <footer
