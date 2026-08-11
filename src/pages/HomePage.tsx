@@ -51,17 +51,17 @@ export default function HomePage() {
               className="group relative flex items-center gap-5 p-5 md:p-6 rounded-2xl bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] hover:border-primary/40 active:scale-[0.98] transition-all duration-300 backdrop-blur-sm"
             >
               {/* Thumbnail with açaí bowl */}
-              <div className="relative w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden flex-shrink-0 bg-gradient-to-br from-primary/30 to-primary/5 border border-primary/20 flex items-center justify-center shadow-lg shadow-primary/10">
+              <div className="relative w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden flex-shrink-0 bg-black/20 border border-white/5 flex items-center justify-center p-1 md:p-2">
                 <img
                   src="/assets/Acai_montar.webp"
                   alt="Monte seu açaí"
-                  className="w-full h-full object-cover rounded-lg"
+                  className="w-full h-full object-contain drop-shadow-md"
                 />
               </div>
               
               <div className="flex-1 min-w-0">
                 <h2 className="font-heading text-2xl md:text-3xl text-white uppercase tracking-wide group-hover:text-primary transition-colors">
-                  Criar o Seu
+                  Monte o seu
                 </h2>
                 <p className="text-white/40 text-xs font-sans mt-0.5 line-clamp-1">
                   Monte do seu jeito!
@@ -77,24 +77,20 @@ export default function HomePage() {
             {/* COMPRAR PRONTO */}
             <Link
               to="/prontos"
-              className="group relative flex items-center gap-5 p-5 md:p-6 rounded-2xl bg-gradient-to-r from-secondary/[0.08] to-secondary/[0.02] border border-secondary/20 hover:border-secondary/50 hover:from-secondary/[0.14] hover:to-secondary/[0.06] active:scale-[0.98] transition-all duration-300 backdrop-blur-sm shadow-lg shadow-secondary/5"
+              className="group relative flex items-center gap-5 p-5 md:p-6 rounded-2xl bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] hover:border-secondary/40 active:scale-[0.98] transition-all duration-300 backdrop-blur-sm"
             >
               {/* Thumbnail with ready product */}
-              <div className="relative w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden flex-shrink-0 bg-gradient-to-br from-secondary/30 to-secondary/5 border border-secondary/25 flex items-center justify-center shadow-lg shadow-secondary/10">
+              <div className="relative w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden flex-shrink-0 bg-black/20 border border-white/5 flex items-center justify-center p-1 md:p-2">
                 <img
                   src="/assets/Acai_fechado.webp"
                   alt="Açaí pronto"
-                  className="w-full h-full object-cover rounded-lg"
+                  className="w-full h-full object-contain drop-shadow-md"
                 />
-                {/* Badge */}
-                <div className="absolute -top-1 -right-1 bg-secondary text-[#3d1b34] text-[8px] font-bold font-sans px-1.5 py-0.5 rounded-full uppercase shadow-md">
-                  Pronto
-                </div>
               </div>
               
               <div className="flex-1 min-w-0">
                 <h2 className="font-heading text-2xl md:text-3xl text-white uppercase tracking-wide group-hover:text-secondary transition-colors">
-                  Comprar Pronto
+                  Compre Pronto
                 </h2>
                 <p className="text-white/40 text-xs font-sans mt-0.5 line-clamp-1">
                   Açaís e cremes prontos para levar!
