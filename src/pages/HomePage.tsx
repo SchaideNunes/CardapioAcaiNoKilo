@@ -43,7 +43,7 @@ export default function HomePage() {
         {/* Main Centered Content */}
         <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 py-8 w-full max-w-md mx-auto">
           {/* Logo */}
-          <div className={`transition-all duration-700 mb-10 ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-6'}`}>
+          <div className={`transition-all duration-700 mb-6 md:mb-10 ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-6'}`}>
             <img
               src="/assets/Logo açai.webp"
               alt="Logo Açaí"
@@ -52,22 +52,17 @@ export default function HomePage() {
           </div>
           
           {/* Selection Cards */}
-          <div className={`w-full flex flex-col gap-4 transition-all duration-700 delay-300 ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            <p className="text-white/40 text-[10px] font-bold uppercase tracking-[0.3em] font-sans text-center mb-1">
-              Escolha como deseja pedir
-            </p>
-
-          <div className="flex flex-col gap-6 max-w-md mx-auto w-full">
+          <div className={`w-full flex flex-col gap-4 md:gap-6 max-w-md mx-auto transition-all duration-700 delay-300 ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             {/* CRIAR O SEU */}
             <Link
               to="/montar"
-              className="group relative flex flex-col justify-end min-h-[190px] p-6 rounded-[32px] bg-white/[0.03] border border-white/10 hover:bg-white/[0.08] hover:border-primary/40 active:scale-[0.98] transition-all duration-500 overflow-hidden shadow-2xl shadow-black/20"
+              className="group relative flex flex-col justify-end min-h-[160px] md:min-h-[190px] p-5 md:p-6 rounded-[32px] bg-white/[0.03] border border-white/10 hover:bg-white/[0.08] hover:border-primary/40 active:scale-[0.98] transition-all duration-500 overflow-hidden shadow-2xl shadow-black/20"
             >
               {/* Background Glow */}
               <div className="absolute top-0 right-0 w-40 h-40 bg-primary/20 blur-[60px] rounded-full pointer-events-none" />
               
               {/* Large floating image */}
-              <div className="absolute -top-6 -right-6 w-48 h-48 sm:w-56 sm:h-56 pointer-events-none">
+              <div className="absolute -top-6 -right-6 w-40 h-40 md:w-48 md:h-48 sm:w-56 sm:h-56 pointer-events-none">
                 <img
                   src="/assets/Acai_montar.webp"
                   alt="Monte seu açaí"
@@ -92,13 +87,13 @@ export default function HomePage() {
             {/* COMPRAR PRONTO */}
             <Link
               to="/prontos"
-              className="group relative flex flex-col justify-end min-h-[190px] p-6 rounded-[32px] bg-white/[0.03] border border-white/10 hover:bg-white/[0.08] hover:border-primary/40 active:scale-[0.98] transition-all duration-500 overflow-hidden shadow-2xl shadow-black/20"
+              className="group relative flex flex-col justify-end min-h-[160px] md:min-h-[190px] p-5 md:p-6 rounded-[32px] bg-white/[0.03] border border-white/10 hover:bg-white/[0.08] hover:border-primary/40 active:scale-[0.98] transition-all duration-500 overflow-hidden shadow-2xl shadow-black/20"
             >
               {/* Background Glow */}
               <div className="absolute top-0 right-0 w-40 h-40 bg-secondary/15 blur-[60px] rounded-full pointer-events-none" />
               
               {/* Large floating image */}
-              <div className="absolute -top-2 -right-8 w-44 h-44 sm:w-52 sm:h-52 pointer-events-none">
+              <div className="absolute -top-2 -right-8 w-36 h-36 md:w-44 md:h-44 sm:w-52 sm:h-52 pointer-events-none">
                 <img
                   src="/assets/Acai_fechado.webp"
                   alt="Açaí pronto"
@@ -121,7 +116,6 @@ export default function HomePage() {
             </Link>
           </div>
         </div>
-      </div>
 
         {/* Bottom subtle brand */}
         <footer
