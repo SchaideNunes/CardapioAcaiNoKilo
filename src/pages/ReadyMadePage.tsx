@@ -217,7 +217,7 @@ export default function ReadyMadePage() {
                   {/* Action Icon Top Right */}
                   <div className={cn(
                     "absolute top-4 right-4 z-10 w-7 h-7 rounded-full flex items-center justify-center transition-all shadow-lg",
-                    sel ? "bg-primary text-secondary opacity-100" : "bg-white/10 text-white backdrop-blur-md opacity-100 group-hover:bg-primary group-hover:text-secondary"
+                    sel ? "bg-primary text-secondary opacity-100" : "bg-white text-secondary opacity-100 group-hover:scale-110"
                   )}>
                     {sel ? <Check size={14} strokeWidth={4} /> : <Plus size={16} strokeWidth={3} />}
                   </div>
@@ -234,24 +234,21 @@ export default function ReadyMadePage() {
                   </div>
                   
                   {/* Info Block */}
-                  <div className="w-full flex justify-between items-end p-2 sm:p-3">
-                    <div className="flex flex-col flex-1 min-w-0 pr-2">
-                      <h3 className={cn("font-sans font-medium text-[15px] sm:text-[17px] leading-tight mb-2 truncate", sel ? "text-primary" : "text-white")}>
+                  <div className="w-full flex flex-col p-2 sm:p-3">
+                    <div className="w-full flex justify-between items-center mb-2">
+                      <h3 className={cn("font-sans font-bold text-[14px] sm:text-[16px] uppercase tracking-wide truncate", sel ? "text-primary" : "text-white")}>
                         {cleanName}
                       </h3>
-                      <div className="flex gap-1.5 flex-wrap">
-                        <span className="bg-white/10 px-2 py-0.5 rounded-md text-[9px] font-medium text-white/60">
-                          {size}
-                        </span>
-                        <span className="bg-white/10 px-2 py-0.5 rounded-md text-[9px] font-medium text-white/60">
-                          Gelado
-                        </span>
-                      </div>
+                      <span className="font-sans font-bold text-[15px] sm:text-[17px] tracking-tight text-primary flex-shrink-0 ml-2 border-b-2 border-primary/30 pb-[1px] leading-none">
+                        R$ {product.price.toFixed(0)}
+                      </span>
                     </div>
-                    
-                    <div className="flex flex-col justify-center items-end flex-shrink-0 border-l border-white/10 pl-3">
-                      <span className="font-sans font-bold text-xl sm:text-2xl tracking-tighter text-primary">
-                        {product.price.toFixed(0)}<span className="text-[12px] font-normal text-white/50 relative -top-1 ml-0.5">R$</span>
+                    <div className="flex gap-1.5 flex-wrap">
+                      <span className="bg-white/10 px-2 py-0.5 rounded-md text-[9px] font-medium text-white/60">
+                        {size}
+                      </span>
+                      <span className="bg-white/10 px-2 py-0.5 rounded-md text-[9px] font-medium text-white/60">
+                        Gelado
                       </span>
                     </div>
                   </div>
