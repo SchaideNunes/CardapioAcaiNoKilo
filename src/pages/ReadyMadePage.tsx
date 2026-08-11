@@ -210,24 +210,24 @@ export default function ReadyMadePage() {
                   key={product.id}
                   onClick={() => sel ? removeFromCart(product.id) : addToCart(product)}
                   className={cn(
-                    "group relative flex flex-col p-2 sm:p-2 rounded-2xl transition-all duration-300 text-left border-0",
-                    sel ? "bg-primary/10 ring-1 ring-primary shadow-lg shadow-primary/20 scale-[1.02]" : "bg-white/[0.04] hover:bg-white/[0.08]"
+                    "group relative flex flex-col rounded-2xl transition-all duration-300 text-left border-0 overflow-hidden",
+                    sel ? "bg-primary/10 ring-1 ring-primary shadow-lg shadow-primary/20 scale-[1.02]" : "bg-black/20 hover:bg-black/40"
                   )}
                 >
                   {/* Action Icon Top Right */}
                   <div className={cn(
-                    "absolute top-4 right-4 z-10 w-7 h-7 rounded-full flex items-center justify-center transition-all shadow-lg",
+                    "absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-lg",
                     sel ? "bg-primary text-secondary opacity-100" : "bg-white text-secondary opacity-100 group-hover:scale-110"
                   )}>
-                    {sel ? <Check size={14} strokeWidth={4} /> : <Plus size={16} strokeWidth={3} />}
+                    {sel ? <Check size={16} strokeWidth={4} /> : <Plus size={18} strokeWidth={3} />}
                   </div>
 
                   {/* Image Block */}
-                  <div className="w-full aspect-[4/5] flex flex-col items-center justify-center overflow-hidden rounded-xl bg-white/5 relative p-4 mb-2">
+                  <div className="w-full aspect-[4/5] flex flex-col items-center justify-center relative bg-black/40">
                     <img 
                       src={product.image} 
                       alt={product.name} 
-                      className="w-full h-full object-contain drop-shadow-2xl group-hover:scale-110 transition-transform duration-500" 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
                     />
                     
                     {/* Promo Banner Removed */}
