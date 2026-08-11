@@ -66,8 +66,8 @@ export default function HomePage() {
                 <h2 className="font-heading text-4xl sm:text-5xl text-white uppercase tracking-wide group-hover:text-primary transition-colors leading-none mb-2 drop-shadow-lg">
                   Monte o seu
                 </h2>
-                <p className="text-white/50 text-sm font-sans drop-shadow-md">
-                  Personalize do seu jeito!
+                <p className="text-white/60 text-sm font-sans drop-shadow-md">
+                  Personalize <strong className="text-primary font-bold">do seu jeito!</strong>
                 </p>
                 <div className="mt-4 flex items-center gap-2 text-white/30 group-hover:text-primary transition-colors">
                   <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Começar</span>
@@ -97,8 +97,8 @@ export default function HomePage() {
                 <h2 className="font-heading text-4xl sm:text-5xl text-white uppercase tracking-wide group-hover:text-primary transition-colors leading-none mb-2 drop-shadow-lg">
                   Compre Pronto
                 </h2>
-                <p className="text-white/50 text-sm font-sans drop-shadow-md">
-                  Prontos para levar!
+                <p className="text-white/60 text-sm font-sans drop-shadow-md">
+                  Potes montados <strong className="text-secondary font-bold">prontos para levar!</strong>
                 </p>
                 <div className="mt-4 flex items-center gap-2 text-white/30 group-hover:text-primary transition-colors">
                   <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Ver Opções</span>
