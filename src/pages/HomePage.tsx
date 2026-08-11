@@ -62,7 +62,7 @@ export default function HomePage() {
               <div className="absolute top-0 right-0 w-40 h-40 bg-primary/20 blur-[60px] rounded-full pointer-events-none" />
               
               {/* Large floating image */}
-              <div className="absolute -top-6 -right-6 w-40 h-40 md:w-48 md:h-48 sm:w-56 sm:h-56 pointer-events-none">
+              <div className="absolute -top-4 -right-4 md:-top-6 md:-right-6 w-44 h-44 md:w-48 md:h-48 sm:w-56 sm:h-56 pointer-events-none">
                 <img
                   src="/assets/Acai_montar.webp"
                   alt="Monte seu açaí"
@@ -93,7 +93,7 @@ export default function HomePage() {
               <div className="absolute top-0 right-0 w-40 h-40 bg-secondary/15 blur-[60px] rounded-full pointer-events-none" />
               
               {/* Large floating image */}
-              <div className="absolute -top-2 -right-8 w-36 h-36 md:w-44 md:h-44 sm:w-52 sm:h-52 pointer-events-none">
+              <div className="absolute -top-2 -right-4 md:-right-8 w-40 h-40 md:w-44 md:h-44 sm:w-52 sm:h-52 pointer-events-none">
                 <img
                   src="/assets/Acai_fechado.webp"
                   alt="Açaí pronto"
