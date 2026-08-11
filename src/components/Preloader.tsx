@@ -85,13 +85,13 @@ export default function Preloader({ onFinished }: { onFinished: () => void }) {
       <div className="relative w-48 h-48 md:w-64 md:h-64 mb-10 z-10">
         {/* Grayscale base (Empty bowl) */}
         <img
-          src="/assets/Açai_hero.webp"
+          src="/assets/Pre loader.webp"
           alt="Açaí Bowl Base"
           className="absolute inset-0 w-full h-full object-contain grayscale opacity-20"
         />
         {/* Colorful fill layer (Fills up from bottom to top based on progress) */}
         <img
-          src="/assets/Açai_hero.webp"
+          src="/assets/Pre loader.webp"
           alt="Açaí Bowl Fill"
           className="absolute inset-0 w-full h-full object-contain transition-all duration-300 ease-out drop-shadow-[0_0_30px_rgba(216,172,79,0.3)]"
           style={{ clipPath: `inset(${100 - progress}% 0 0 0)` }}
