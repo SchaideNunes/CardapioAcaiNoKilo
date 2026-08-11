@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import Preloader from '@/components/Preloader';
 
 export default function HomePage() {
@@ -44,63 +44,67 @@ export default function HomePage() {
               Escolha como deseja pedir
             </p>
 
-          <div className="flex flex-col gap-4 max-w-md mx-auto w-full">
+          <div className="flex flex-col gap-6 max-w-md mx-auto w-full">
             {/* CRIAR O SEU */}
             <Link
               to="/montar"
-              className="group relative flex items-center gap-5 p-5 md:p-6 rounded-2xl bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] hover:border-primary/40 active:scale-[0.98] transition-all duration-300 backdrop-blur-sm"
+              className="group relative flex flex-col justify-end min-h-[190px] p-6 rounded-[32px] bg-white/[0.03] border border-white/10 hover:bg-white/[0.08] hover:border-primary/40 active:scale-[0.98] transition-all duration-500 overflow-hidden shadow-2xl shadow-black/20"
             >
-              {/* Thumbnail with açaí bowl */}
-              <div className="relative w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden flex-shrink-0 bg-black/20 border border-white/5 flex items-center justify-center p-1 md:p-2">
+              {/* Background Glow */}
+              <div className="absolute top-0 right-0 w-40 h-40 bg-primary/20 blur-[60px] rounded-full pointer-events-none" />
+              
+              {/* Large floating image */}
+              <div className="absolute -top-6 -right-6 w-48 h-48 sm:w-56 sm:h-56 pointer-events-none">
                 <img
                   src="/assets/Acai_montar.webp"
                   alt="Monte seu açaí"
-                  className="w-full h-full object-contain drop-shadow-md"
+                  className="w-full h-full object-contain drop-shadow-2xl group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-700 ease-out"
                 />
               </div>
               
-              <div className="flex-1 min-w-0">
-                <h2 className="font-heading text-2xl md:text-3xl text-white uppercase tracking-wide group-hover:text-primary transition-colors">
+              <div className="relative z-10 w-[70%]">
+                <h2 className="font-heading text-4xl sm:text-5xl text-white uppercase tracking-wide group-hover:text-primary transition-colors leading-none mb-2 drop-shadow-lg">
                   Monte o seu
                 </h2>
-                <p className="text-white/40 text-xs font-sans mt-0.5 line-clamp-1">
-                  Monte do seu jeito!
+                <p className="text-white/50 text-sm font-sans drop-shadow-md">
+                  Personalize do seu jeito!
                 </p>
+                <div className="mt-4 flex items-center gap-2 text-white/30 group-hover:text-primary transition-colors">
+                  <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Começar</span>
+                  <ArrowRight size={14} />
+                </div>
               </div>
-
-              <ChevronRight
-                size={22}
-                className="text-white/20 group-hover:text-primary group-hover:translate-x-1 transition-all flex-shrink-0"
-              />
             </Link>
 
             {/* COMPRAR PRONTO */}
             <Link
               to="/prontos"
-              className="group relative flex items-center gap-5 p-5 md:p-6 rounded-2xl bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] hover:border-primary/40 active:scale-[0.98] transition-all duration-300 backdrop-blur-sm"
+              className="group relative flex flex-col justify-end min-h-[190px] p-6 rounded-[32px] bg-white/[0.03] border border-white/10 hover:bg-white/[0.08] hover:border-primary/40 active:scale-[0.98] transition-all duration-500 overflow-hidden shadow-2xl shadow-black/20"
             >
-              {/* Thumbnail with ready product */}
-              <div className="relative w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden flex-shrink-0 bg-black/20 border border-white/5 flex items-center justify-center p-1 md:p-2">
+              {/* Background Glow */}
+              <div className="absolute top-0 right-0 w-40 h-40 bg-secondary/15 blur-[60px] rounded-full pointer-events-none" />
+              
+              {/* Large floating image */}
+              <div className="absolute -top-2 -right-8 w-44 h-44 sm:w-52 sm:h-52 pointer-events-none">
                 <img
                   src="/assets/Acai_fechado.webp"
                   alt="Açaí pronto"
-                  className="w-full h-full object-contain drop-shadow-md"
+                  className="w-full h-full object-contain drop-shadow-2xl group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-700 ease-out"
                 />
               </div>
               
-              <div className="flex-1 min-w-0">
-                <h2 className="font-heading text-2xl md:text-3xl text-white uppercase tracking-wide group-hover:text-primary transition-colors">
+              <div className="relative z-10 w-[70%]">
+                <h2 className="font-heading text-4xl sm:text-5xl text-white uppercase tracking-wide group-hover:text-primary transition-colors leading-none mb-2 drop-shadow-lg">
                   Compre Pronto
                 </h2>
-                <p className="text-white/40 text-xs font-sans mt-0.5 line-clamp-1">
-                  Açaís e cremes prontos para levar!
+                <p className="text-white/50 text-sm font-sans drop-shadow-md">
+                  Prontos para levar!
                 </p>
+                <div className="mt-4 flex items-center gap-2 text-white/30 group-hover:text-primary transition-colors">
+                  <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Ver Opções</span>
+                  <ArrowRight size={14} />
+                </div>
               </div>
-
-              <ChevronRight
-                size={22}
-                className="text-white/20 group-hover:text-primary group-hover:translate-x-1 transition-all flex-shrink-0"
-              />
             </Link>
           </div>
         </div>
