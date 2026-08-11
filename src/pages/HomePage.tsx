@@ -77,7 +77,7 @@ export default function HomePage() {
             {/* COMPRAR PRONTO */}
             <Link
               to="/prontos"
-              className="group relative flex items-center gap-5 p-5 md:p-6 rounded-2xl bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] hover:border-secondary/40 active:scale-[0.98] transition-all duration-300 backdrop-blur-sm"
+              className="group relative flex items-center gap-5 p-5 md:p-6 rounded-2xl bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] hover:border-primary/40 active:scale-[0.98] transition-all duration-300 backdrop-blur-sm"
             >
               {/* Thumbnail with ready product */}
               <div className="relative w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden flex-shrink-0 bg-black/20 border border-white/5 flex items-center justify-center p-1 md:p-2">
@@ -89,7 +89,7 @@ export default function HomePage() {
               </div>
               
               <div className="flex-1 min-w-0">
-                <h2 className="font-heading text-2xl md:text-3xl text-white uppercase tracking-wide group-hover:text-secondary transition-colors">
+                <h2 className="font-heading text-2xl md:text-3xl text-white uppercase tracking-wide group-hover:text-primary transition-colors">
                   Compre Pronto
                 </h2>
                 <p className="text-white/40 text-xs font-sans mt-0.5 line-clamp-1">
@@ -99,7 +99,7 @@ export default function HomePage() {
 
               <ChevronRight
                 size={22}
-                className="text-secondary/40 group-hover:text-secondary group-hover:translate-x-1 transition-all flex-shrink-0"
+                className="text-white/20 group-hover:text-primary group-hover:translate-x-1 transition-all flex-shrink-0"
               />
             </Link>
           </div>
