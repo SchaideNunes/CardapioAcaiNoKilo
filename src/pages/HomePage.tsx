@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import Preloader from '@/components/Preloader';
+import gsap from 'gsap';
 
 export default function HomePage() {
   const alreadyLoaded = sessionStorage.getItem('preloaderDone') === 'true';
@@ -15,6 +16,18 @@ export default function HomePage() {
       requestAnimationFrame(() => setShowContent(true));
     }
   }, [preloaderDone]);
+
+  useEffect(() => {
+    if (showContent) {
+      gsap.to('.cta-element', {
+        x: 5,
+        duration: 0.8,
+        repeat: -1,
+        yoyo: true,
+        ease: 'power1.inOut'
+      });
+    }
+  }, [showContent]);
 
   return (
     <>
@@ -69,7 +82,7 @@ export default function HomePage() {
                 <p className="text-white/60 text-sm font-sans drop-shadow-md">
                   Personalize <strong className="text-primary font-bold">do seu jeito!</strong>
                 </p>
-                <div className="mt-4 flex items-center gap-2 text-white/30 group-hover:text-primary transition-colors">
+                <div className="cta-element mt-4 flex items-center gap-2 text-white/30 group-hover:text-primary transition-colors">
                   <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Começar</span>
                   <ArrowRight size={14} />
                 </div>
@@ -98,9 +111,9 @@ export default function HomePage() {
                   Compre Pronto
                 </h2>
                 <p className="text-white/60 text-sm font-sans drop-shadow-md">
-                  Potes montados <strong className="text-secondary font-bold">prontos para levar!</strong>
+                  <strong className="text-secondary font-bold">Prontos para levar!</strong>
                 </p>
-                <div className="mt-4 flex items-center gap-2 text-white/30 group-hover:text-primary transition-colors">
+                <div className="cta-element mt-4 flex items-center gap-2 text-white/30 group-hover:text-primary transition-colors">
                   <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Ver Opções</span>
                   <ArrowRight size={14} />
                 </div>
