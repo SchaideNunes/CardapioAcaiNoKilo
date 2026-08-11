@@ -200,32 +200,69 @@ export default function ReadyMadePage() {
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {READY_MADE_PRODUCTS.map((product) => {
               const sel = getQty(product.id) > 0;
+              // Extract size for the badge
+              const sizeMatch = product.name.match(/(500ml|1L|2L)/i);
+              const size = sizeMatch ? sizeMatch[0] : 'Açaí';
+              const cleanName = product.name.replace(/(500ml|1L|2L)/i, '').trim();
+
               return (
                 <button
                   key={product.id}
                   onClick={() => sel ? removeFromCart(product.id) : addToCart(product)}
                   className={cn(
-                    "relative flex flex-col items-center p-3 sm:p-5 rounded-2xl transition-all duration-300 text-center border-0",
-                    sel ? "bg-primary/20 text-secondary shadow-lg scale-[1.02] border-primary/50" : "bg-white/5 text-white hover:bg-white/10"
+                    "group relative flex flex-col p-2 sm:p-2 rounded-[28px] transition-all duration-300 text-left border border-white/5",
+                    sel ? "bg-primary/10 ring-1 ring-primary shadow-lg shadow-primary/20 scale-[1.02]" : "bg-white/[0.04] hover:bg-white/[0.08]"
                   )}
                 >
+                  {/* Selection Check */}
                   <div className={cn(
-                    "absolute top-2 right-2 z-10 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all",
-                    sel ? "bg-primary border-primary text-secondary" : "border-white/20 text-transparent"
+                    "absolute top-4 right-4 z-10 w-6 h-6 rounded-full flex items-center justify-center transition-all",
+                    sel ? "bg-primary text-secondary opacity-100" : "bg-black/20 text-transparent opacity-0 group-hover:opacity-100"
                   )}>
                     <Check size={14} strokeWidth={4} />
                   </div>
-                  
-                  <div className="w-full aspect-square mb-3 flex items-center justify-center overflow-hidden rounded-xl bg-black/20">
-                    <img src={product.image} alt={product.name} className="w-full h-full object-cover hover:scale-110 transition-transform duration-500" />
+
+                  {/* Image Block */}
+                  <div className="w-full aspect-[4/5] flex flex-col items-center justify-center overflow-hidden rounded-[20px] bg-white/5 relative p-4 mb-2">
+                    <img 
+                      src={product.image} 
+                      alt={product.name} 
+                      className="w-full h-full object-contain drop-shadow-2xl group-hover:scale-110 transition-transform duration-500" 
+                    />
+                    
+                    {/* Promo Banner Style */}
+                    <div className="absolute bottom-0 w-full bg-white/10 backdrop-blur-md py-1.5 px-3 text-center border-t border-white/10">
+                       <span className="text-[9px] uppercase tracking-wider font-bold text-white/70">
+                         Pronto para Levar
+                       </span>
+                    </div>
                   </div>
                   
-                  <h3 className={cn("font-heading text-sm sm:text-lg uppercase leading-tight mb-1", sel ? "text-primary" : "text-white")}>
-                    {product.name}
-                  </h3>
-                  <span className={cn("font-heading text-base sm:text-xl", sel ? "text-primary" : "text-primary")}>
-                    R$ {product.price.toFixed(2)}
-                  </span>
+                  {/* Info Block */}
+                  <div className="w-full flex justify-between items-end p-2 sm:p-3">
+                    <div className="flex flex-col flex-1 min-w-0 pr-2">
+                      <h3 className={cn("font-sans font-medium text-[15px] sm:text-[17px] leading-tight mb-2 truncate", sel ? "text-primary" : "text-white")}>
+                        {cleanName}
+                      </h3>
+                      <div className="flex gap-1.5 flex-wrap">
+                        <span className="bg-white/10 px-2 py-0.5 rounded-md text-[9px] font-medium text-white/60">
+                          {size}
+                        </span>
+                        <span className="bg-white/10 px-2 py-0.5 rounded-md text-[9px] font-medium text-white/60">
+                          Gelado
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex flex-col items-end flex-shrink-0 border-l border-white/10 pl-2">
+                      <span className={cn("font-sans font-bold text-xl sm:text-2xl tracking-tighter", sel ? "text-primary" : "text-white")}>
+                        {product.price.toFixed(0)}<span className="text-[12px] font-normal text-white/50 relative -top-1 ml-0.5">R$</span>
+                      </span>
+                      <span className={cn("text-[9px] mt-1 flex items-center gap-1 transition-colors", sel ? "text-primary" : "text-white/40 group-hover:text-white/80")}>
+                        {sel ? 'Remover' : 'Adicionar'} <ArrowRight size={10} className="-rotate-45" />
+                      </span>
+                    </div>
+                  </div>
                 </button>
               );
             })}
