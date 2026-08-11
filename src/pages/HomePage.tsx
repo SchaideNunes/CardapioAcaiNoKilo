@@ -53,9 +53,9 @@ export default function HomePage() {
               {/* Thumbnail with açaí bowl */}
               <div className="relative w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden flex-shrink-0 bg-gradient-to-br from-primary/30 to-primary/5 border border-primary/20 flex items-center justify-center shadow-lg shadow-primary/10">
                 <img
-                  src="/assets/items/Açai_500ml.webp"
+                  src="/assets/Acai_montar.webp"
                   alt="Monte seu açaí"
-                  className="w-[85%] h-[85%] object-contain drop-shadow-lg"
+                  className="w-full h-full object-cover rounded-lg"
                 />
               </div>
               
@@ -64,7 +64,7 @@ export default function HomePage() {
                   Criar o Seu
                 </h2>
                 <p className="text-white/40 text-xs font-sans mt-0.5 line-clamp-1">
-                  Monte do seu jeito, escolha os acompanhamentos
+                  Monte do seu jeito!
                 </p>
               </div>
 
@@ -82,7 +82,7 @@ export default function HomePage() {
               {/* Thumbnail with ready product */}
               <div className="relative w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden flex-shrink-0 bg-gradient-to-br from-secondary/30 to-secondary/5 border border-secondary/25 flex items-center justify-center shadow-lg shadow-secondary/10">
                 <img
-                  src="/assets/500ml_acai_morango.webp"
+                  src="/assets/Acai_fechado.webp"
                   alt="Açaí pronto"
                   className="w-full h-full object-cover rounded-lg"
                 />
@@ -97,7 +97,7 @@ export default function HomePage() {
                   Comprar Pronto
                 </h2>
                 <p className="text-white/40 text-xs font-sans mt-0.5 line-clamp-1">
-                  Açaís e cremes já montados, prontos para levar
+                  Açaís e cremes prontos para levar!
                 </p>
               </div>
 
