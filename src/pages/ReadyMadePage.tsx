@@ -210,32 +210,27 @@ export default function ReadyMadePage() {
                   key={product.id}
                   onClick={() => sel ? removeFromCart(product.id) : addToCart(product)}
                   className={cn(
-                    "group relative flex flex-col p-2 sm:p-2 rounded-[28px] transition-all duration-300 text-left border border-white/5",
+                    "group relative flex flex-col p-2 sm:p-2 rounded-2xl transition-all duration-300 text-left border-0",
                     sel ? "bg-primary/10 ring-1 ring-primary shadow-lg shadow-primary/20 scale-[1.02]" : "bg-white/[0.04] hover:bg-white/[0.08]"
                   )}
                 >
-                  {/* Selection Check */}
+                  {/* Action Icon Top Right */}
                   <div className={cn(
-                    "absolute top-4 right-4 z-10 w-6 h-6 rounded-full flex items-center justify-center transition-all",
-                    sel ? "bg-primary text-secondary opacity-100" : "bg-black/20 text-transparent opacity-0 group-hover:opacity-100"
+                    "absolute top-4 right-4 z-10 w-7 h-7 rounded-full flex items-center justify-center transition-all shadow-lg",
+                    sel ? "bg-primary text-secondary opacity-100" : "bg-white/10 text-white backdrop-blur-md opacity-100 group-hover:bg-primary group-hover:text-secondary"
                   )}>
-                    <Check size={14} strokeWidth={4} />
+                    {sel ? <Check size={14} strokeWidth={4} /> : <Plus size={16} strokeWidth={3} />}
                   </div>
 
                   {/* Image Block */}
-                  <div className="w-full aspect-[4/5] flex flex-col items-center justify-center overflow-hidden rounded-[20px] bg-white/5 relative p-4 mb-2">
+                  <div className="w-full aspect-[4/5] flex flex-col items-center justify-center overflow-hidden rounded-xl bg-white/5 relative p-4 mb-2">
                     <img 
                       src={product.image} 
                       alt={product.name} 
                       className="w-full h-full object-contain drop-shadow-2xl group-hover:scale-110 transition-transform duration-500" 
                     />
                     
-                    {/* Promo Banner Style */}
-                    <div className="absolute bottom-0 w-full bg-white/10 backdrop-blur-md py-1.5 px-3 text-center border-t border-white/10">
-                       <span className="text-[9px] uppercase tracking-wider font-bold text-white/70">
-                         Pronto para Levar
-                       </span>
-                    </div>
+                    {/* Promo Banner Removed */}
                   </div>
                   
                   {/* Info Block */}
@@ -254,12 +249,9 @@ export default function ReadyMadePage() {
                       </div>
                     </div>
                     
-                    <div className="flex flex-col items-end flex-shrink-0 border-l border-white/10 pl-2">
-                      <span className={cn("font-sans font-bold text-xl sm:text-2xl tracking-tighter", sel ? "text-primary" : "text-white")}>
+                    <div className="flex flex-col justify-center items-end flex-shrink-0 border-l border-white/10 pl-3">
+                      <span className="font-sans font-bold text-xl sm:text-2xl tracking-tighter text-primary">
                         {product.price.toFixed(0)}<span className="text-[12px] font-normal text-white/50 relative -top-1 ml-0.5">R$</span>
-                      </span>
-                      <span className={cn("text-[9px] mt-1 flex items-center gap-1 transition-colors", sel ? "text-primary" : "text-white/40 group-hover:text-white/80")}>
-                        {sel ? 'Remover' : 'Adicionar'} <ArrowRight size={10} className="-rotate-45" />
                       </span>
                     </div>
                   </div>
