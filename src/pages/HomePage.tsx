@@ -111,7 +111,7 @@ export default function HomePage() {
                   Compre Pronto
                 </h2>
                 <p className="text-white/60 text-sm font-sans drop-shadow-md">
-                  <strong className="text-secondary font-bold">Prontos para levar!</strong>
+                  <strong className="text-primary font-bold">Prontos para levar!</strong>
                 </p>
                 <div className="cta-element mt-4 flex items-center gap-2 text-white/30 group-hover:text-primary transition-colors">
                   <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Ver Opções</span>
