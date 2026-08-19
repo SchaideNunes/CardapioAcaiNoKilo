@@ -223,35 +223,33 @@ export default function ReadyMadePage() {
                   </div>
 
                   {/* Image Block */}
-                  <div className="w-full aspect-[4/5] flex flex-col items-center justify-center relative bg-black/40 rounded-b-2xl overflow-hidden shadow-sm">
+                  <div className="w-full aspect-[4/5] flex flex-col items-center justify-center relative bg-black/40 overflow-hidden">
                     <img 
                       src={product.image} 
                       alt={product.name} 
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
                     />
-                    
-                    {/* Title Band */}
-                    <div className="absolute bottom-0 w-full bg-black/60 backdrop-blur-md px-2 py-2.5 flex items-center justify-center text-center border-t border-white/5">
-                      <h3 className={cn("font-sans font-bold text-[11px] sm:text-[13px] uppercase tracking-wide line-clamp-2 leading-snug", sel ? "text-primary" : "text-white")}>
-                        {cleanName}
-                      </h3>
-                    </div>
                   </div>
                   
                   {/* Info Block */}
-                  <div className="w-full flex justify-between items-center p-3 sm:p-4 mt-1">
+                  <div className="w-full flex flex-col p-3 sm:p-3.5 gap-2">
+                    <div className="w-full flex justify-between items-baseline gap-2">
+                      <h3 className={cn("font-sans font-bold text-[13px] sm:text-[14px] uppercase tracking-wide line-clamp-1", sel ? "text-primary" : "text-white")}>
+                        {cleanName}
+                      </h3>
+                      <span className="font-sans font-bold text-[14px] sm:text-[16px] tracking-tight text-primary shrink-0 border-b border-primary/40 pb-[1px] leading-none">
+                        R$ {product.price.toFixed(0)}
+                      </span>
+                    </div>
+
                     <div className="flex gap-1.5 flex-wrap">
-                      <span className="bg-white/5 px-2 py-1 rounded-md text-[9px] font-medium text-white/50 border border-white/5">
+                      <span className="bg-white/5 px-2 py-0.5 rounded-md text-[9px] font-medium text-white/50 border border-white/5">
                         {size}
                       </span>
-                      <span className="bg-white/5 px-2 py-1 rounded-md text-[9px] font-medium text-white/50 border border-white/5">
+                      <span className="bg-white/5 px-2 py-0.5 rounded-md text-[9px] font-medium text-white/50 border border-white/5">
                         Gelado
                       </span>
                     </div>
-                    
-                    <span className="font-sans font-bold text-[16px] sm:text-[18px] tracking-tight text-primary flex-shrink-0 ml-2 border-b-2 border-primary/30 pb-[1px] leading-none">
-                      R$ {product.price.toFixed(0)}
-                    </span>
                   </div>
                 </button>
               );
