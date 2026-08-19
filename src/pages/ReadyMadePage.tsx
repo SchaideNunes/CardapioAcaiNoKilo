@@ -233,21 +233,27 @@ export default function ReadyMadePage() {
                   
                   {/* Info Block */}
                   <div className="w-full flex flex-col p-3 sm:p-3.5 gap-2">
-                    <div className="w-full flex justify-between items-baseline gap-2">
-                      <h3 className={cn("font-sans font-bold text-[13px] sm:text-[14px] uppercase tracking-wide line-clamp-1", sel ? "text-primary" : "text-white")}>
-                        {cleanName}
-                      </h3>
-                      <span className="font-sans font-bold text-[14px] sm:text-[16px] tracking-tight text-primary shrink-0 border-b border-primary/40 pb-[1px] leading-none">
-                        R$ {product.price.toFixed(0)}
-                      </span>
-                    </div>
+                    {/* Product Name */}
+                    <h3 className={cn(
+                      "font-sans font-semibold text-[13px] sm:text-[15px] leading-tight line-clamp-2 min-h-[2rem] sm:min-h-[2.25rem] text-white transition-colors",
+                      sel && "text-primary font-bold"
+                    )}>
+                      {cleanName}
+                    </h3>
 
-                    <div className="flex gap-1.5 flex-wrap">
-                      <span className="bg-white/5 px-2 py-0.5 rounded-md text-[9px] font-medium text-white/50 border border-white/5">
-                        {size}
-                      </span>
-                      <span className="bg-white/5 px-2 py-0.5 rounded-md text-[9px] font-medium text-white/50 border border-white/5">
-                        Gelado
+                    {/* Badges and Price Row */}
+                    <div className="w-full flex justify-between items-center pt-1 border-t border-white/5">
+                      <div className="flex gap-1.5 flex-wrap">
+                        <span className="bg-white/10 px-2 py-0.5 rounded-md text-[10px] font-medium text-white/70">
+                          {size}
+                        </span>
+                        <span className="bg-white/10 px-2 py-0.5 rounded-md text-[10px] font-medium text-white/70">
+                          Gelado
+                        </span>
+                      </div>
+
+                      <span className="font-sans font-bold text-[15px] sm:text-[17px] tracking-tight text-primary shrink-0 ml-2">
+                        R$ {product.price.toFixed(0)}
                       </span>
                     </div>
                   </div>
