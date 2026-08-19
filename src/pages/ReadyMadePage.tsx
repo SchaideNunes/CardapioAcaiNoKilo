@@ -210,7 +210,7 @@ export default function ReadyMadePage() {
                   key={product.id}
                   onClick={() => sel ? removeFromCart(product.id) : addToCart(product)}
                   className={cn(
-                    "group relative flex flex-col rounded-2xl transition-all duration-300 text-left border-0 overflow-hidden",
+                    "group relative flex flex-col justify-between h-full rounded-2xl transition-all duration-300 text-left border-0 overflow-hidden",
                     sel ? "bg-primary/10 ring-1 ring-primary shadow-lg shadow-primary/20 scale-[1.02]" : "bg-black/20 hover:bg-black/40"
                   )}
                 >
@@ -232,17 +232,19 @@ export default function ReadyMadePage() {
                   </div>
                   
                   {/* Info Block */}
-                  <div className="w-full flex flex-col p-3 sm:p-3.5 gap-2">
+                  <div className="w-full flex-1 flex flex-col justify-between p-3 sm:p-3.5 gap-2">
                     {/* Product Name */}
-                    <h3 className={cn(
-                      "font-sans font-semibold text-[13px] sm:text-[15px] leading-tight line-clamp-2 min-h-[2rem] sm:min-h-[2.25rem] text-white transition-colors",
-                      sel && "text-primary font-bold"
-                    )}>
-                      {cleanName}
-                    </h3>
+                    <div className="h-10 sm:h-11 flex items-center">
+                      <h3 className={cn(
+                        "font-sans font-semibold text-[13px] sm:text-[14px] leading-snug line-clamp-2 text-white transition-colors",
+                        sel && "text-primary font-bold"
+                      )}>
+                        {cleanName}
+                      </h3>
+                    </div>
 
                     {/* Badges and Price Row */}
-                    <div className="w-full flex justify-between items-center pt-1 border-t border-white/5">
+                    <div className="w-full flex justify-between items-center pt-2 border-t border-white/5">
                       <div className="flex gap-1.5 flex-wrap">
                         <span className="bg-white/10 px-2 py-0.5 rounded-md text-[10px] font-medium text-white/70">
                           {size}
@@ -252,7 +254,7 @@ export default function ReadyMadePage() {
                         </span>
                       </div>
 
-                      <span className="font-sans font-bold text-[15px] sm:text-[17px] tracking-tight text-primary shrink-0 ml-2">
+                      <span className="font-heading text-xl sm:text-2xl text-primary tracking-wide shrink-0 ml-2 leading-none">
                         R$ {product.price.toFixed(0)}
                       </span>
                     </div>
