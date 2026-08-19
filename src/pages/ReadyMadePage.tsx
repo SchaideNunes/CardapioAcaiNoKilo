@@ -28,10 +28,10 @@ const READY_MADE_PRODUCTS: ReadyProduct[] = [
   { id: "1l_acai_banana", name: "Açaí c/ Banana 1L", price: 35.00, image: "/assets/1l_acai_banana.webp" },
   { id: "1l_acai_morango", name: "Açaí c/ Morango 1L", price: 38.00, image: "/assets/1l_acai_morango.webp" },
 
-  { id: "1l_creme_abacaxi_vinho", name: "Creme de Abacaxi ao Vinho 1L", price: 40.00, image: "/assets/1l_creme_abacaxi_vinho.webp" },
+  { id: "1l_creme_abacaxi_vinho", name: "Creme Abacaxi c/ Vinho 1L", price: 40.00, image: "/assets/1l_creme_abacaxi_vinho.webp" },
   { id: "1l_creme_doce_de_leite", name: "Creme Doce de Leite 1L", price: 40.00, image: "/assets/1l_creme_doce_de_leite.webp" },
-  { id: "1l_creme_grego_amarena", name: "Creme Iogurte Grego com Amarena 1L", price: 45.00, image: "/assets/1l_creme_grego_amarena.webp" },
-  { id: "1l_creme_moranto_zero", name: "Creme de Morango Zero 1L", price: 42.00, image: "/assets/1l_creme_moranto_zero.webp" },
+  { id: "1l_creme_grego_amarena", name: "Creme Grego c/ Amarena 1L", price: 45.00, image: "/assets/1l_creme_grego_amarena.webp" },
+  { id: "1l_creme_moranto_zero", name: "Creme Morango Zero 1L", price: 42.00, image: "/assets/1l_creme_moranto_zero.webp" },
 
   { id: "2l_acai_natural", name: "Açaí Natural 2L", price: 55.00, image: "/assets/2l_acai_natural.webp" },
   { id: "2l_acai_banana", name: "Açaí c/ Banana 2L", price: 60.00, image: "/assets/2l_acai_banana.webp" },
@@ -234,11 +234,11 @@ export default function ReadyMadePage() {
                   {/* Info Block */}
                   <div className="w-full flex-1 flex flex-col justify-between p-3 sm:p-3.5 gap-2">
                     {/* Product Name */}
-                    <div className="h-10 sm:h-11 flex items-center">
+                    <div className="h-6 sm:h-7 flex items-center">
                       <h3 className={cn(
-                        "font-sans font-semibold text-[13px] sm:text-[14px] leading-snug line-clamp-2 text-white transition-colors",
+                        "font-sans font-semibold text-[13px] sm:text-[14px] leading-tight truncate text-white transition-colors",
                         sel && "text-primary font-bold"
-                      )}>
+                      )} title={cleanName}>
                         {cleanName}
                       </h3>
                     </div>
