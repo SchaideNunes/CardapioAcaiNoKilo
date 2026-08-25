@@ -61,8 +61,8 @@ export default function HomePage() {
               {/* Background Glow */}
               <div className="absolute top-0 right-0 w-40 h-40 bg-primary/20 blur-[60px] rounded-full pointer-events-none" />
               
-              {/* Large floating image */}
-              <div className="absolute -top-4 -right-4 md:-top-6 md:-right-6 w-44 h-44 md:w-48 md:h-48 sm:w-56 sm:h-56 pointer-events-none">
+              {/* Floating image (Vertically Centered) */}
+              <div className="absolute top-1/2 -translate-y-1/2 right-0 sm:right-2 w-40 h-40 sm:w-48 sm:h-48 pointer-events-none flex items-center justify-center">
                 <img
                   src="/assets/Acai_montar.webp"
                   alt="Monte seu açaí"
@@ -70,7 +70,7 @@ export default function HomePage() {
                 />
               </div>
               
-              <div className="relative z-10 w-[70%]">
+              <div className="relative z-10 w-[64%]">
                 <h2 className="font-heading text-4xl sm:text-5xl text-white uppercase tracking-wide group-hover:text-primary transition-colors leading-none mb-2 drop-shadow-lg">
                   Monte o seu
                 </h2>
@@ -92,8 +92,8 @@ export default function HomePage() {
               {/* Background Glow */}
               <div className="absolute top-0 right-0 w-40 h-40 bg-secondary/15 blur-[60px] rounded-full pointer-events-none" />
               
-              {/* Large floating image */}
-              <div className="absolute -top-2 -right-4 md:-right-8 w-40 h-40 md:w-44 md:h-44 sm:w-52 sm:h-52 pointer-events-none">
+              {/* Floating image (Vertically Centered) */}
+              <div className="absolute top-1/2 -translate-y-1/2 right-1 sm:right-3 w-36 h-36 sm:w-44 sm:h-44 pointer-events-none flex items-center justify-center">
                 <img
                   src="/assets/Acai_fechado.webp"
                   alt="Açaí pronto"
@@ -101,7 +101,7 @@ export default function HomePage() {
                 />
               </div>
               
-              <div className="relative z-10 w-[70%]">
+              <div className="relative z-10 w-[64%]">
                 <h2 className="font-heading text-4xl sm:text-5xl text-white uppercase tracking-wide group-hover:text-primary transition-colors leading-none mb-2 drop-shadow-lg">
                   Compre Pronto
                 </h2>
