@@ -16,25 +16,26 @@ type ReadyProduct = {
   name: string;
   price: number;
   image: string;
+  imageScale?: string;
 };
 
 const READY_MADE_PRODUCTS: ReadyProduct[] = [
-  { id: "500ml_acai_natural", name: "Açaí Natural 500ml", price: 18.00, image: "/assets/500ml_acai_natural.webp" },
-  { id: "500ml_acai_banana", name: "Açaí c/ Banana 500ml", price: 20.00, image: "/assets/500ml_acai_banana.webp" },
-  { id: "500ml_acai_morango", name: "Açaí c/ Morango 500ml", price: 22.00, image: "/assets/500ml_acai_morango.webp" },
-  { id: "500ml_acai_cupuacu", name: "Açaí c/ Cupuaçu 500ml", price: 22.00, image: "/assets/500ml_acai_cupuacu.webp" },
+  { id: "500ml_acai_natural", name: "Açaí Natural 500ml", price: 18.00, image: "/assets/500ml_acai_natural.webp", imageScale: "scale-[1.12]" },
+  { id: "500ml_acai_banana", name: "Açaí c/ Banana 500ml", price: 20.00, image: "/assets/500ml_acai_banana.webp", imageScale: "scale-100" },
+  { id: "500ml_acai_morango", name: "Açaí c/ Morango 500ml", price: 22.00, image: "/assets/500ml_acai_morango.webp", imageScale: "scale-100" },
+  { id: "500ml_acai_cupuacu", name: "Açaí c/ Cupuaçu 500ml", price: 22.00, image: "/assets/500ml_acai_cupuacu.webp", imageScale: "scale-[1.38] translate-y-1" },
 
-  { id: "1l_acai_zero", name: "Açaí Zero Açúcar 1L", price: 38.00, image: "/assets/1l_acai_zero.webp" },
-  { id: "1l_acai_banana", name: "Açaí c/ Banana 1L", price: 35.00, image: "/assets/1l_acai_banana.webp" },
-  { id: "1l_acai_morango", name: "Açaí c/ Morango 1L", price: 38.00, image: "/assets/1l_acai_morango.webp" },
+  { id: "1l_acai_zero", name: "Açaí Zero Açúcar 1L", price: 38.00, image: "/assets/1l_acai_zero.webp", imageScale: "scale-[1.08]" },
+  { id: "1l_acai_banana", name: "Açaí c/ Banana 1L", price: 35.00, image: "/assets/1l_acai_banana.webp", imageScale: "scale-100" },
+  { id: "1l_acai_morango", name: "Açaí c/ Morango 1L", price: 38.00, image: "/assets/1l_acai_morango.webp", imageScale: "scale-100" },
 
-  { id: "1l_creme_abacaxi_vinho", name: "Creme Abacaxi c/ Vinho 1L", price: 40.00, image: "/assets/1l_creme_abacaxi_vinho.webp" },
-  { id: "1l_creme_doce_de_leite", name: "Creme Doce de Leite 1L", price: 40.00, image: "/assets/1l_creme_doce_de_leite.webp" },
-  { id: "1l_creme_grego_amarena", name: "Creme Grego c/ Amarena 1L", price: 45.00, image: "/assets/1l_creme_grego_amarena.webp" },
-  { id: "1l_creme_moranto_zero", name: "Creme Morango Zero 1L", price: 42.00, image: "/assets/1l_creme_moranto_zero.webp" },
+  { id: "1l_creme_abacaxi_vinho", name: "Creme Abacaxi c/ Vinho 1L", price: 40.00, image: "/assets/1l_creme_abacaxi_vinho.webp", imageScale: "scale-[1.05]" },
+  { id: "1l_creme_doce_de_leite", name: "Creme Doce de Leite 1L", price: 40.00, image: "/assets/1l_creme_doce_de_leite.webp", imageScale: "scale-[1.05]" },
+  { id: "1l_creme_grego_amarena", name: "Creme Grego c/ Amarena 1L", price: 45.00, image: "/assets/1l_creme_grego_amarena.webp", imageScale: "scale-[1.05]" },
+  { id: "1l_creme_moranto_zero", name: "Creme Morango Zero 1L", price: 42.00, image: "/assets/1l_creme_moranto_zero.webp", imageScale: "scale-[1.05]" },
 
-  { id: "2l_acai_natural", name: "Açaí Natural 2L", price: 55.00, image: "/assets/2l_acai_natural.webp" },
-  { id: "2l_acai_banana", name: "Açaí c/ Banana 2L", price: 60.00, image: "/assets/2l_acai_banana.webp" },
+  { id: "2l_acai_natural", name: "Açaí Natural 2L", price: 55.00, image: "/assets/2l_acai_natural.webp", imageScale: "scale-[1.08]" },
+  { id: "2l_acai_banana", name: "Açaí c/ Banana 2L", price: 60.00, image: "/assets/2l_acai_banana.webp", imageScale: "scale-[1.08]" },
 ];
 
 type CartItem = ReadyProduct & { qty: number };
@@ -214,6 +215,11 @@ export default function ReadyMadePage() {
                     sel ? "bg-primary/10 ring-1 ring-primary shadow-lg shadow-primary/20 scale-[1.02]" : "bg-black/20 hover:bg-black/40"
                   )}
                 >
+                  {/* Floating Size Badge (Top-Left) */}
+                  <div className="absolute top-3 left-3 z-10 bg-black/50 backdrop-blur-md border border-white/10 text-white/90 text-[10px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-full shadow-lg">
+                    {size}
+                  </div>
+
                   {/* Action Icon Top Right */}
                   <div className={cn(
                     "absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-lg",
@@ -222,40 +228,41 @@ export default function ReadyMadePage() {
                     {sel ? <Check size={16} strokeWidth={4} /> : <Plus size={18} strokeWidth={3} />}
                   </div>
 
-                  {/* Image Block */}
+                  {/* Image Block with Calibrated Zoom */}
                   <div className="w-full aspect-[4/5] flex flex-col items-center justify-center relative bg-black/40 overflow-hidden">
                     <img 
                       src={product.image} 
                       alt={product.name} 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+                      className={cn(
+                        "w-full h-full object-cover group-hover:scale-105 transition-transform duration-700",
+                        product.imageScale || "scale-100"
+                      )} 
                     />
                   </div>
                   
                   {/* Info Block */}
-                  <div className="w-full flex-1 flex flex-col justify-between p-3 sm:p-3.5 gap-2">
+                  <div className="w-full flex-1 flex flex-col justify-between p-3 sm:p-3.5 bg-white/[0.02]">
                     {/* Product Name */}
                     <div className="h-6 sm:h-7 flex items-center">
                       <h3 className={cn(
-                        "font-sans font-semibold text-[13px] sm:text-[14px] leading-tight truncate text-white transition-colors",
-                        sel && "text-primary font-bold"
+                        "font-sans font-bold text-[13px] sm:text-[14px] leading-tight truncate text-white transition-colors",
+                        sel && "text-primary"
                       )} title={cleanName}>
                         {cleanName}
                       </h3>
                     </div>
 
-                    {/* Badges and Price Row */}
-                    <div className="w-full flex justify-between items-center pt-2 border-t border-white/5">
-                      <div className="flex gap-1.5 flex-wrap">
-                        <span className="bg-white/10 px-2 py-0.5 rounded-md text-[10px] font-medium text-white/70">
-                          {size}
-                        </span>
-                        <span className="bg-white/10 px-2 py-0.5 rounded-md text-[10px] font-medium text-white/70">
-                          Gelado
-                        </span>
-                      </div>
-
-                      <span className="font-heading text-xl sm:text-2xl text-primary tracking-wide shrink-0 ml-2 leading-none">
+                    {/* Price and Action Row */}
+                    <div className="w-full flex justify-between items-center pt-2 border-t border-white/5 mt-1">
+                      <span className="font-heading text-2xl sm:text-3xl text-primary tracking-wide leading-none">
                         R$ {product.price.toFixed(0)}
+                      </span>
+
+                      <span className={cn(
+                        "text-[10px] font-sans font-bold uppercase tracking-wider transition-colors",
+                        sel ? "text-primary" : "text-white/30 group-hover:text-white/80"
+                      )}>
+                        {sel ? '✓ Pedido' : '+ Pedir'}
                       </span>
                     </div>
                   </div>
