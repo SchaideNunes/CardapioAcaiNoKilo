@@ -252,17 +252,10 @@ export default function ReadyMadePage() {
                       </h3>
                     </div>
 
-                    {/* Price and Action Row */}
-                    <div className="w-full flex justify-between items-center pt-2 border-t border-white/5 mt-1">
+                    {/* Price Row */}
+                    <div className="w-full flex items-center pt-2 border-t border-white/5 mt-1">
                       <span className="font-heading text-2xl sm:text-3xl text-primary tracking-wide leading-none">
                         R$ {product.price.toFixed(0)}
-                      </span>
-
-                      <span className={cn(
-                        "text-[10px] font-sans font-bold uppercase tracking-wider transition-colors",
-                        sel ? "text-primary" : "text-white/30 group-hover:text-white/80"
-                      )}>
-                        {sel ? '✓ Pedido' : '+ Pedir'}
                       </span>
                     </div>
                   </div>
