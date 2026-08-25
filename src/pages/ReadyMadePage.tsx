@@ -241,23 +241,19 @@ export default function ReadyMadePage() {
                   </div>
                   
                   {/* Info Block */}
-                  <div className="w-full flex-1 flex flex-col justify-between p-3 sm:p-3.5 bg-white/[0.02]">
+                  <div className="w-full p-3 sm:p-3.5 flex flex-col gap-1.5 bg-white/[0.02]">
                     {/* Product Name */}
-                    <div className="h-6 sm:h-7 flex items-center">
-                      <h3 className={cn(
-                        "font-sans font-bold text-[13px] sm:text-[14px] leading-tight truncate text-white transition-colors",
-                        sel && "text-primary"
-                      )} title={cleanName}>
-                        {cleanName}
-                      </h3>
-                    </div>
+                    <h3 className={cn(
+                      "font-sans font-bold text-[13px] sm:text-[14px] leading-tight truncate w-full text-white transition-colors",
+                      sel && "text-primary"
+                    )} title={cleanName}>
+                      {cleanName}
+                    </h3>
 
-                    {/* Price Row */}
-                    <div className="w-full flex items-center pt-2 border-t border-white/5 mt-1">
-                      <span className="font-heading text-2xl sm:text-3xl text-primary tracking-wide leading-none">
-                        R$ {product.price.toFixed(0)}
-                      </span>
-                    </div>
+                    {/* Price */}
+                    <span className="font-heading text-xl sm:text-2xl text-primary tracking-wide leading-none">
+                      R$ {product.price.toFixed(0)}
+                    </span>
                   </div>
                 </button>
               );
