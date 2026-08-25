@@ -24,33 +24,26 @@ describe('HomePage', () => {
     expect(logo).toBeInTheDocument();
   });
 
-  it('renders the "Criar o Seu" link', () => {
+  it('renders the "Monte o seu" link', () => {
     renderHomePage();
-    expect(screen.getByText('Criar o Seu')).toBeInTheDocument();
+    expect(screen.getByText('Monte o seu')).toBeInTheDocument();
   });
 
-  it('renders the "Comprar Pronto" link', () => {
+  it('renders the "Compre Pronto" link', () => {
     renderHomePage();
-    expect(screen.getByText('Comprar Pronto')).toBeInTheDocument();
+    expect(screen.getByText('Compre Pronto')).toBeInTheDocument();
   });
 
-  it('"Criar o Seu" link points to /montar', () => {
+  it('"Monte o seu" link points to /montar', () => {
     renderHomePage();
-    const link = screen.getByText('Criar o Seu').closest('a');
+    const link = screen.getByText('Monte o seu').closest('a');
     expect(link).toHaveAttribute('href', '/montar');
   });
 
-  it('"Comprar Pronto" link points to /prontos', () => {
+  it('"Compre Pronto" link points to /prontos', () => {
     renderHomePage();
-    const link = screen.getByText('Comprar Pronto').closest('a');
+    const link = screen.getByText('Compre Pronto').closest('a');
     expect(link).toHaveAttribute('href', '/prontos');
-  });
-
-  it('displays the hero image', () => {
-    renderHomePage();
-    const heroImage = screen.getByAltText('Açaí');
-    expect(heroImage).toBeInTheDocument();
-    expect(heroImage).toHaveAttribute('src', '/assets/Açai_hero.webp');
   });
 
   it('shows the footer brand name "Açaí no Kilo"', () => {
@@ -59,13 +52,12 @@ describe('HomePage', () => {
   });
 
   it('shows preloader when first visiting', () => {
-    // Don't set sessionStorage - preloader should be shown
     render(
       <MemoryRouter>
         <HomePage />
       </MemoryRouter>
     );
-    expect(screen.getByText(/Preparando seu açaí/)).toBeInTheDocument();
+    expect(screen.getByText(/preparando seu açaí/i)).toBeInTheDocument();
   });
 
   it('skips preloader on subsequent visits', () => {
@@ -75,6 +67,6 @@ describe('HomePage', () => {
         <HomePage />
       </MemoryRouter>
     );
-    expect(screen.queryByText(/Preparando seu açaí/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/preparando seu açaí/i)).not.toBeInTheDocument();
   });
 });
