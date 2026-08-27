@@ -624,7 +624,7 @@ export default function OrderPage() {
               </div>
 
               {/* Selected Complements Scrollable List */}
-              <div className="py-4 max-h-[260px] overflow-y-auto space-y-2 no-scrollbar">
+              <div className="py-4 max-h-[260px] overflow-y-auto space-y-2 no-scrollbar" data-lenis-prevent>
                 <p className="text-[10px] font-normal text-white/40 uppercase tracking-[0.15em] mb-2">Complementos Escolhidos</p>
                 {allSelectedItems.length === 0 ? (
                   <p className="text-xs text-white/30 italic py-2">Nenhum complemento adicionado ainda</p>

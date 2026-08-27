@@ -287,7 +287,7 @@ export default function ReadyMadePage() {
               </div>
 
               {/* Items List */}
-              <div className="py-4 max-h-[360px] overflow-y-auto space-y-3 no-scrollbar">
+              <div className="py-4 max-h-[360px] overflow-y-auto space-y-3 no-scrollbar" data-lenis-prevent>
                 {cart.length === 0 ? (
                   <div className="py-12 text-center flex flex-col items-center justify-center gap-2">
                     <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-white/20 mb-1">
