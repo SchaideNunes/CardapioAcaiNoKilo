@@ -364,7 +364,12 @@ export default function OrderPage() {
         {step.data && step.data.length > 6 && (
           <div className="relative"><input type="text" placeholder={`Buscar...`} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-3 text-white focus:outline-none focus:border-primary" /></div>
         )}
-        <div className={cn("grid gap-3", step.id === 'size' ? "grid-cols-2 gap-3 sm:gap-6" : "grid-cols-1 sm:grid-cols-2")}>
+        <div className={cn(
+          "grid gap-3 lg:gap-4",
+          step.id === 'size'
+            ? "grid-cols-2 gap-3 sm:gap-6 lg:gap-6"
+            : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3"
+        )}>
           {filteredData?.map((item) => {
             const cat = step.id as keyof OrderState;
             const val = order[cat];
@@ -377,13 +382,22 @@ export default function OrderPage() {
                 key={item.id}
                 onClick={() => toggleItem(cat, item, step.multiple)}
                 className={cn(
-                  "relative flex items-center justify-between transition-all text-left border-0",
-                  step.id === 'size' ? "p-4 sm:p-8 rounded-2xl sm:rounded-3xl flex-col sm:flex-row gap-2 sm:gap-0" : "p-3.5 sm:p-4 rounded-xl",
-                  sel ? "bg-primary text-secondary shadow-lg scale-[1.02]" : "bg-white/5 text-white hover:bg-white/10"
+                  "group relative flex items-center justify-between transition-all text-left border-0 overflow-hidden cursor-pointer",
+                  step.id === 'size'
+                    ? "p-4 sm:p-6 lg:p-7 rounded-2xl sm:rounded-3xl flex-col sm:flex-row gap-3 sm:gap-0"
+                    : "p-3.5 sm:p-4 lg:p-4.5 rounded-2xl",
+                  sel
+                    ? "bg-primary text-secondary shadow-xl shadow-primary/10 ring-2 ring-primary scale-[1.02]"
+                    : "bg-white/[0.04] text-white hover:bg-white/[0.08] hover:border-white/20 hover:-translate-y-0.5 hover:shadow-lg"
                 )}
               >
-                <div className={cn("flex items-center gap-3 w-full", step.id === 'size' ? "flex-col sm:flex-row text-center sm:text-left gap-3 sm:gap-4" : "")}>
-                  <div className={cn("bg-white/10 overflow-hidden flex-shrink-0 flex items-center justify-center", step.id === 'size' ? "w-20 h-20 sm:w-28 sm:h-28 rounded-2xl sm:rounded-3xl shadow-inner" : "w-10 h-10 sm:w-12 sm:h-12 rounded-lg")}>
+                <div className={cn("flex items-center gap-3.5 w-full", step.id === 'size' ? "flex-col sm:flex-row text-center sm:text-left gap-3 sm:gap-5" : "")}>
+                  <div className={cn(
+                    "bg-white/10 overflow-hidden flex-shrink-0 flex items-center justify-center transition-transform duration-500",
+                    step.id === 'size'
+                      ? "w-20 h-20 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-2xl sm:rounded-3xl shadow-inner group-hover:scale-105"
+                      : "w-11 h-11 sm:w-13 sm:h-13 lg:w-14 lg:h-14 rounded-xl shadow-sm"
+                  )}>
                     <img
                       src={
                         item.id === "pot_360" ? "/assets/items/Açai_350ml.webp" :
@@ -399,26 +413,44 @@ export default function OrderPage() {
                         e.currentTarget.onerror = null;
                         e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&background=3d1b34&color=D8AC4F&font-size=0.33&bold=true`;
                       }}
-                      className={cn("w-full h-full object-cover", step.id !== 'size' && "scale-125")}
+                      className={cn(
+                        "w-full h-full object-cover transition-transform duration-500",
+                        step.id !== 'size' && "scale-110 group-hover:scale-125"
+                      )}
                     />
                   </div>
-                  <div className="flex flex-col gap-1 sm:gap-0.5 flex-1">
-                    <span className={cn("font-heading uppercase leading-none", step.id === 'size' ? "text-xl sm:text-3xl" : "text-lg sm:text-xl line-clamp-1", sel ? "text-secondary" : "text-white")}>
+                  <div className="flex flex-col gap-1 sm:gap-0.5 flex-1 min-w-0">
+                    <span className={cn(
+                      "font-heading uppercase leading-none truncate",
+                      step.id === 'size' ? "text-xl sm:text-2xl lg:text-3xl" : "text-base sm:text-lg lg:text-xl",
+                      sel ? "text-secondary font-bold" : "text-white"
+                    )}>
                       {item.name}
                     </span>
+                    {step.id === 'size' && (
+                      <span className={cn(
+                        "font-heading text-lg sm:text-xl lg:text-2xl mt-0.5",
+                        sel ? "text-secondary/90 font-bold" : "text-primary"
+                      )}>
+                        R$ {item.price.toFixed(2)}
+                      </span>
+                    )}
                     {item.price > 0 && step.id !== 'size' && (
-                      <span className={cn("font-heading text-sm sm:text-base", sel ? "text-secondary/80" : "text-primary")}>
+                      <span className={cn(
+                        "font-heading text-sm sm:text-base",
+                        sel ? "text-secondary/80 font-bold" : "text-primary"
+                      )}>
                         + R$ {item.price.toFixed(2)}
                       </span>
                     )}
                   </div>
                 </div>
                 <div className={cn(
-                  "rounded-full border-2 flex items-center justify-center flex-shrink-0 ml-2 transition-all",
-                  step.id === 'size' ? "absolute top-2 right-2 sm:static sm:top-auto sm:right-auto w-6 h-6 sm:w-8 sm:h-8" : "w-6 h-6",
-                  sel ? "bg-secondary border-secondary text-primary" : "border-white/10 text-transparent"
+                  "rounded-full border-2 flex items-center justify-center flex-shrink-0 ml-2 transition-all duration-300",
+                  step.id === 'size' ? "absolute top-3 right-3 sm:static sm:top-auto sm:right-auto w-6 h-6 sm:w-8 sm:h-8" : "w-6 h-6",
+                  sel ? "bg-secondary border-secondary text-primary" : "border-white/20 text-transparent group-hover:border-white/40"
                 )}>
-                  <Check size={step.id === 'size' ? 14 : 14} strokeWidth={4} />
+                  <Check size={step.id === 'size' ? 14 : 12} strokeWidth={4} />
                 </div>
               </button>
             );
@@ -488,23 +520,210 @@ export default function OrderPage() {
             <div className="p-6 bg-black/20 border-t border-white/10"><div className="flex justify-between items-end mb-6"><span className="text-xs font-bold text-white/50 uppercase">Total Atual</span><span className="font-heading text-4xl text-primary">R$ {totalPrice.toFixed(2)}</span></div><button onClick={() => setShowCart(false)} className="w-full bg-primary text-secondary font-heading text-xl py-4 rounded-xl">CONTINUAR</button></div>
           </div>
         </div>
-        <div className="w-full h-1 bg-white/5 sticky top-[73px] z-40"><div className="h-full bg-primary shadow-lg shadow-black/40" style={{ width: `${((currentStep + 1) / STEPS.length) * 100}%` }} /></div>
-        <div className="flex-1 max-w-[800px] mx-auto w-full p-6 pb-32 relative z-10">
-          <div key={currentStep} className="animate-in fade-in slide-in-from-right-4 duration-300 ease-out">
-            <h2 className="text-4xl font-heading text-white uppercase mb-8">{STEPS[currentStep].title}</h2>
-            {renderStepContent()}
+        {/* Desktop Step Trail / Horizontal Stepper */}
+        <div className="w-full bg-[#3d1b34]/90 backdrop-blur-md border-b border-white/5 sticky top-[73px] z-30 hidden lg:block">
+          <div className="max-w-[1440px] mx-auto px-6 py-3 flex items-center justify-between gap-2 overflow-x-auto no-scrollbar">
+            {STEPS.map((s, idx) => {
+              const isPast = idx < currentStep;
+              const isCurrent = idx === currentStep;
+              return (
+                <button
+                  key={s.id}
+                  onClick={() => {
+                    // Only allow jumping back or to reachable steps if valid
+                    if (idx < currentStep) {
+                      setCurrentStep(idx);
+                      window.scrollTo(0, 0);
+                    }
+                  }}
+                  disabled={idx > currentStep}
+                  className={cn(
+                    "flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-heading tracking-wider uppercase transition-all whitespace-nowrap border-0",
+                    isCurrent ? "bg-primary text-secondary shadow-md font-bold scale-105" :
+                    isPast ? "bg-white/10 text-white/80 hover:bg-white/15 cursor-pointer" :
+                    "bg-white/[0.02] text-white/20 cursor-not-allowed"
+                  )}
+                >
+                  <span className={cn(
+                    "w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-sans font-bold",
+                    isCurrent ? "bg-secondary text-primary" :
+                    isPast ? "bg-primary text-secondary" :
+                    "bg-white/10 text-white/40"
+                  )}>
+                    {isPast ? <Check size={10} strokeWidth={4} /> : idx + 1}
+                  </span>
+                  <span>{s.title.replace('Escolha o ', '')}</span>
+                </button>
+              );
+            })}
           </div>
         </div>
-        <footer className="fixed bottom-0 left-0 w-full z-50 bg-[#3d1b34] border-t border-white/5 p-6 flex items-center justify-between shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
-          <div className="flex flex-col"><span className="text-xs text-white/50 uppercase font-bold">Total</span><span className="font-heading text-3xl text-white">R$ {totalPrice.toFixed(2)}</span></div><div className="flex gap-4">
+
+        {/* Mobile Progress Line */}
+        <div className="w-full h-1 bg-white/5 sticky top-[73px] z-40 lg:hidden"><div className="h-full bg-primary shadow-lg shadow-black/40" style={{ width: `${((currentStep + 1) / STEPS.length) * 100}%` }} /></div>
+
+        {/* Responsive Main Layout: 2 Columns on Desktop (lg+), 1 Column on Mobile */}
+        <div className="max-w-[1440px] mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 pb-32 lg:pb-12 flex-1 flex flex-col lg:flex-row gap-8 items-start relative z-10">
+          
+          {/* Left Column: Interactive Selection Area */}
+          <div className="flex-1 w-full min-w-0">
+            <div key={currentStep} className="animate-in fade-in slide-in-from-right-4 duration-300 ease-out">
+              <div className="flex flex-col mb-6 lg:mb-8">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-3xl sm:text-4xl lg:text-5xl font-heading text-white uppercase">{STEPS[currentStep].title}</h2>
+                  <span className="text-xs font-bold text-white/40 uppercase tracking-widest hidden sm:inline-block">
+                    Passo {currentStep + 1} de {STEPS.length}
+                  </span>
+                </div>
+                {STEPS[currentStep].multiple && (
+                  <p className="text-sm text-white/60 font-sans mt-1">
+                    Você pode escolher múltiplos itens nesta etapa.
+                  </p>
+                )}
+              </div>
+              {renderStepContent()}
+            </div>
+          </div>
+
+          {/* Right Column: Permanent Sticky Desktop Summary Sidebar */}
+          <aside className="hidden lg:flex w-[380px] xl:w-[420px] sticky top-36 shrink-0 flex-col gap-4">
+            <div className="bg-white/[0.03] border border-white/10 rounded-3xl p-6 shadow-2xl backdrop-blur-md flex flex-col">
+              
+              {/* Sidebar Header */}
+              <div className="flex items-center justify-between pb-4 border-b border-white/10">
+                <h3 className="font-heading text-2xl text-primary uppercase tracking-wide">Seu Açaí</h3>
+                <span className="text-xs font-bold font-sans px-2.5 py-1 rounded-full bg-white/10 text-white/80">
+                  {allSelectedItems.length + (order.size ? 1 : 0)} {allSelectedItems.length + (order.size ? 1 : 0) === 1 ? 'item' : 'itens'}
+                </span>
+              </div>
+
+              {/* Cup Visual Preview & Base Info */}
+              <div className="py-4 border-b border-white/10 flex items-center gap-4">
+                <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center p-2 overflow-hidden shrink-0 shadow-inner">
+                  <img
+                    src={
+                      order.size?.id === "pot_360" ? "/assets/items/Açai_350ml.webp" :
+                      order.size?.id === "pot_500" ? "/assets/items/Açai_500ml.webp" :
+                      order.size?.id === "pot_750" ? "/assets/items/Açai_750ml.webp" :
+                      order.size?.id === "pot_1l" ? "/assets/items/POTE_LITRO.webp" :
+                      "/assets/Acai_montar.webp"
+                    }
+                    alt="Preview Açaí"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-base font-heading text-white uppercase truncate">
+                    {order.size ? order.size.name : "Tamanho não escolhido"}
+                  </p>
+                  <p className="text-xs font-sans text-primary font-semibold truncate mt-0.5">
+                    {order.flavor ? `Sabor: ${order.flavor.name}` : "Selecione o sabor"}
+                  </p>
+                  {order.size && (
+                    <p className="text-xs font-sans text-white/40 mt-0.5">Base: R$ {order.size.price.toFixed(2)}</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Selected Complements Scrollable List */}
+              <div className="py-4 max-h-[260px] overflow-y-auto space-y-2.5 no-scrollbar">
+                <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.15em] mb-2">Complementos Escolhidos</p>
+                {allSelectedItems.length === 0 ? (
+                  <p className="text-xs text-white/30 italic py-2">Nenhum complemento adicionado ainda</p>
+                ) : (
+                  allSelectedItems.map(i => {
+                    const cat = Object.keys(order).find(k => Array.isArray(order[k as keyof OrderState]) && (order[k as keyof OrderState] as MenuItem[]).some(item => item.id === i.id)) as keyof OrderState;
+                    return (
+                      <div key={i.id} className="flex justify-between items-center bg-white/[0.02] hover:bg-white/[0.05] p-2.5 rounded-xl border border-white/5 transition-all">
+                        <span className="text-xs font-medium text-white/90 truncate flex-1 pr-2">{i.name}</span>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <span className="text-xs font-heading text-primary">
+                            {i.price > 0 ? `+ R$ ${i.price.toFixed(2)}` : 'Grátis'}
+                          </span>
+                          <button
+                            onClick={() => removeItem(cat, i.id)}
+                            className="p-1 rounded-md text-white/30 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                            title="Remover item"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+
+              {/* Subtotal & Total */}
+              <div className="pt-4 border-t border-white/10 flex flex-col gap-2">
+                {order.deliveryMethod === "delivery" && (
+                  <div className="flex justify-between items-center text-xs text-white/60">
+                    <span>Taxa de Entrega</span>
+                    <span className="text-primary font-bold">+ R$ 7,00</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-baseline pt-1">
+                  <span className="text-xs font-bold text-white/50 uppercase tracking-widest">Total Geral</span>
+                  <span className="font-heading text-3xl xl:text-4xl text-primary leading-none">
+                    R$ {totalPrice.toFixed(2)}
+                  </span>
+                </div>
+
+                {/* Main Action Button */}
+                <div className="mt-3">
+                  {currentStep < STEPS.length - 1 ? (
+                    <button
+                      onClick={handleNext}
+                      disabled={!isStepValid()}
+                      className={cn(
+                        "w-full py-4 rounded-2xl font-heading text-xl flex items-center justify-center gap-2 transition-all uppercase shadow-lg active:scale-98",
+                        isStepValid() ? "bg-primary text-secondary hover:bg-[#ebd936] cursor-pointer" : "bg-white/5 text-white/20 cursor-not-allowed"
+                      )}
+                    >
+                      PRÓXIMO PASSO <ArrowRight size={18} />
+                    </button>
+                  ) : (
+                    <button
+                      onClick={sendWhatsApp}
+                      className="w-full py-4 bg-[#25D366] text-[#3d1b34] font-heading text-xl rounded-2xl flex items-center justify-center gap-2 hover:bg-[#22c35e] transition-all shadow-lg active:scale-98 uppercase"
+                    >
+                      <Send size={18} /> FINALIZAR NO WHATSAPP
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+
+        {/* Mobile Sticky Footer (Hidden on Desktop) */}
+        <footer className="fixed bottom-0 left-0 w-full z-50 bg-[#3d1b34] border-t border-white/5 p-4 sm:p-6 flex items-center justify-between shadow-[0_-10px_30px_rgba(0,0,0,0.5)] lg:hidden">
+          <div className="flex flex-col">
+            <span className="text-[10px] text-white/50 uppercase font-bold">Total</span>
+            <span className="font-heading text-2xl sm:text-3xl text-white">R$ {totalPrice.toFixed(2)}</span>
+          </div>
+          <div className="flex gap-4">
             {currentStep < STEPS.length - 1 ? (
-              <button onClick={handleNext} disabled={!isStepValid()} className={cn("px-8 py-4 rounded-2xl font-heading text-xl flex items-center gap-2 transition-all", isStepValid() ? "bg-primary text-secondary" : "bg-white/5 text-white/20 cursor-not-allowed")}>PRÓXIMO <ArrowRight size={20} /></button>
+              <button
+                onClick={handleNext}
+                disabled={!isStepValid()}
+                className={cn(
+                  "px-6 sm:px-8 py-3.5 sm:py-4 rounded-2xl font-heading text-lg sm:text-xl flex items-center gap-2 transition-all uppercase",
+                  isStepValid() ? "bg-primary text-secondary" : "bg-white/5 text-white/20 cursor-not-allowed"
+                )}
+              >
+                PRÓXIMO <ArrowRight size={18} />
+              </button>
             ) : (
-              <button onClick={sendWhatsApp} className="px-8 py-4 bg-[#25D366] text-[#3d1b34] font-heading text-xl rounded-2xl flex items-center gap-2 hover:bg-[#22c35e] transition-all shadow-lg active:scale-95 uppercase">
-                <Send size={20} /> Finalizar
+              <button
+                onClick={sendWhatsApp}
+                className="px-6 sm:px-8 py-3.5 sm:py-4 bg-[#25D366] text-[#3d1b34] font-heading text-lg sm:text-xl rounded-2xl flex items-center gap-2 hover:bg-[#22c35e] transition-all shadow-lg active:scale-95 uppercase"
+              >
+                <Send size={18} /> Finalizar
               </button>
             )}
-          </div></footer>
+          </div>
+        </footer>
       </main>
     </SmoothScrollProvider>
   );
