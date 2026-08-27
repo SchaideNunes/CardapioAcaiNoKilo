@@ -366,9 +366,9 @@ export default function OrderPage() {
           <div className="relative"><input type="text" placeholder={`Buscar...`} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-3 text-white focus:outline-none focus:border-primary" /></div>
         )}
         <div className={cn(
-          "grid gap-3 sm:gap-4",
+          "grid gap-3.5 sm:gap-4 lg:gap-4 xl:gap-5",
           step.id === 'size'
-            ? "grid-cols-2"
+            ? "grid-cols-2 lg:grid-cols-4"
             : "grid-cols-1 sm:grid-cols-2"
         )}>
           {filteredData?.map((item) => {
@@ -378,7 +378,7 @@ export default function OrderPage() {
               ? (val as MenuItem[]).some(i => i.id === item.id)
               : (val as MenuItem)?.id === item.id;
 
-            // Size Step: Compact Bento Box Vertical Card (Fits on screen without scroll)
+            // Size Step: Bento Box Vertical Card (Same portrait ratio as ReadyMade)
             if (step.id === 'size') {
               const sizeMatch = item.name.match(/(360|500|750|1L)/i);
               const sizeBadge = sizeMatch ? `${sizeMatch[0]}${sizeMatch[0].toUpperCase() === '1L' ? '' : 'ML'}` : 'Açaí';
@@ -388,27 +388,27 @@ export default function OrderPage() {
                   key={item.id}
                   onClick={() => toggleItem(cat, item, step.multiple)}
                   className={cn(
-                    "group relative flex flex-col justify-between rounded-2xl transition-all duration-300 text-left border-0 overflow-hidden cursor-pointer",
+                    "group relative flex flex-col justify-between h-full rounded-2xl transition-all duration-300 text-left border-0 overflow-hidden cursor-pointer",
                     sel
-                      ? "bg-primary/10 ring-1 ring-primary shadow-lg shadow-primary/20 scale-[1.01]"
-                      : "bg-black/20 hover:bg-black/40 hover:-translate-y-0.5 hover:shadow-lg"
+                      ? "bg-primary/10 ring-1 ring-primary shadow-lg shadow-primary/20 scale-[1.02]"
+                      : "bg-black/20 hover:bg-black/40 hover:-translate-y-1 hover:shadow-xl"
                   )}
                 >
                   {/* Floating Size Badge (Top-Left) */}
-                  <div className="absolute top-2 left-2 z-10 bg-black/60 backdrop-blur-md border border-white/10 text-white/90 text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full shadow-md">
+                  <div className="absolute top-3 left-3 z-10 bg-black/50 backdrop-blur-md border border-white/10 text-white/90 text-[10px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-full shadow-lg">
                     {sizeBadge}
                   </div>
 
                   {/* Action Icon Top Right */}
                   <div className={cn(
-                    "absolute top-2 right-2 z-10 w-7 h-7 rounded-full flex items-center justify-center transition-all shadow-md",
+                    "absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-lg",
                     sel ? "bg-primary text-secondary opacity-100" : "bg-white text-secondary opacity-100 group-hover:scale-110"
                   )}>
-                    {sel ? <Check size={14} strokeWidth={4} /> : <Plus size={15} strokeWidth={3} />}
+                    {sel ? <Check size={16} strokeWidth={4} /> : <Plus size={18} strokeWidth={3} />}
                   </div>
 
-                  {/* Image Block */}
-                  <div className="w-full h-28 sm:h-32 lg:h-36 flex flex-col items-center justify-center relative bg-black/40 overflow-hidden">
+                  {/* Image Block with Full Portrait Aspect Ratio */}
+                  <div className="w-full aspect-[4/5] flex flex-col items-center justify-center relative bg-black/40 overflow-hidden">
                     <img
                       src={
                         item.id === "pot_360" ? "/assets/items/Açai_350ml.webp" :
@@ -425,14 +425,14 @@ export default function OrderPage() {
                   </div>
 
                   {/* Info Block */}
-                  <div className="w-full p-2.5 sm:p-3 flex flex-col gap-0.5 bg-white/[0.02]">
+                  <div className="w-full p-3 sm:p-3.5 flex flex-col gap-1 bg-white/[0.02]">
                     <h3 className={cn(
-                      "font-sans font-bold text-xs sm:text-sm leading-tight truncate w-full text-white transition-colors",
+                      "font-sans font-bold text-[13px] sm:text-[14px] leading-tight truncate w-full text-white transition-colors",
                       sel && "text-primary"
                     )} title={item.name}>
                       {item.name}
                     </h3>
-                    <span className="font-heading text-lg sm:text-xl text-primary tracking-wide leading-none">
+                    <span className="font-heading text-xl sm:text-2xl text-primary tracking-wide leading-none">
                       R$ {item.price.toFixed(0)}
                     </span>
                   </div>
