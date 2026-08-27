@@ -196,74 +196,162 @@ export default function ReadyMadePage() {
           </div>
         </div>
 
-        {/* Products Grid */}
-        <div className="flex-1 max-w-[1000px] mx-auto w-full p-4 sm:p-6 pb-32">
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {READY_MADE_PRODUCTS.map((product) => {
-              const sel = getQty(product.id) > 0;
-              // Extract size for the badge
-              const sizeMatch = product.name.match(/(500ml|1L|2L)/i);
-              const size = sizeMatch ? sizeMatch[0] : 'Açaí';
-              const cleanName = product.name.replace(/(500ml|1L|2L)/i, '').trim();
+        {/* Main Content Layout: 2 Columns on Desktop, 1 Column on Mobile */}
+        <div className="max-w-[1440px] mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 pb-32 lg:pb-12 flex-1 flex flex-col lg:flex-row gap-8 items-start relative z-10">
+          
+          {/* Left Column: Products Grid */}
+          <div className="flex-1 w-full min-w-0">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-heading text-white uppercase">Açaís Prontos</h2>
+                <p className="text-sm text-white/60 font-sans mt-0.5">Selecione as opções desejadas para levar agora</p>
+              </div>
+              <span className="text-xs font-bold text-white/40 uppercase tracking-widest hidden sm:inline-block">
+                {READY_MADE_PRODUCTS.length} produtos
+              </span>
+            </div>
 
-              return (
-                <button
-                  key={product.id}
-                  onClick={() => sel ? removeFromCart(product.id) : addToCart(product)}
-                  className={cn(
-                    "group relative flex flex-col justify-between h-full rounded-2xl transition-all duration-300 text-left border-0 overflow-hidden",
-                    sel ? "bg-primary/10 ring-1 ring-primary shadow-lg shadow-primary/20 scale-[1.02]" : "bg-black/20 hover:bg-black/40"
-                  )}
-                >
-                  {/* Floating Size Badge (Top-Left) */}
-                  <div className="absolute top-3 left-3 z-10 bg-black/50 backdrop-blur-md border border-white/10 text-white/90 text-[10px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-full shadow-lg">
-                    {size}
-                  </div>
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              {READY_MADE_PRODUCTS.map((product) => {
+                const sel = getQty(product.id) > 0;
+                // Extract size for the badge
+                const sizeMatch = product.name.match(/(500ml|1L|2L)/i);
+                const size = sizeMatch ? sizeMatch[0] : 'Açaí';
+                const cleanName = product.name.replace(/(500ml|1L|2L)/i, '').trim();
 
-                  {/* Action Icon Top Right */}
-                  <div className={cn(
-                    "absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-lg",
-                    sel ? "bg-primary text-secondary opacity-100" : "bg-white text-secondary opacity-100 group-hover:scale-110"
-                  )}>
-                    {sel ? <Check size={16} strokeWidth={4} /> : <Plus size={18} strokeWidth={3} />}
-                  </div>
+                return (
+                  <button
+                    key={product.id}
+                    onClick={() => sel ? removeFromCart(product.id) : addToCart(product)}
+                    className={cn(
+                      "group relative flex flex-col justify-between h-full rounded-2xl transition-all duration-300 text-left border-0 overflow-hidden cursor-pointer",
+                      sel ? "bg-primary/10 ring-1 ring-primary shadow-lg shadow-primary/20 scale-[1.02]" : "bg-black/20 hover:bg-black/40 hover:-translate-y-1 hover:shadow-xl"
+                    )}
+                  >
+                    {/* Floating Size Badge (Top-Left) */}
+                    <div className="absolute top-3 left-3 z-10 bg-black/50 backdrop-blur-md border border-white/10 text-white/90 text-[10px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-full shadow-lg">
+                      {size}
+                    </div>
 
-                  {/* Image Block with Calibrated Zoom */}
-                  <div className="w-full aspect-[4/5] flex flex-col items-center justify-center relative bg-black/40 overflow-hidden">
-                    <img 
-                      src={product.image} 
-                      alt={product.name} 
-                      className={cn(
-                        "w-full h-full object-cover group-hover:scale-105 transition-transform duration-700",
-                        product.imageScale || "scale-100"
-                      )} 
-                    />
-                  </div>
-                  
-                  {/* Info Block */}
-                  <div className="w-full p-3 sm:p-3.5 flex flex-col gap-1.5 bg-white/[0.02]">
-                    {/* Product Name */}
-                    <h3 className={cn(
-                      "font-sans font-bold text-[13px] sm:text-[14px] leading-tight truncate w-full text-white transition-colors",
-                      sel && "text-primary"
-                    )} title={cleanName}>
-                      {cleanName}
-                    </h3>
+                    {/* Action Icon Top Right */}
+                    <div className={cn(
+                      "absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-lg",
+                      sel ? "bg-primary text-secondary opacity-100" : "bg-white text-secondary opacity-100 group-hover:scale-110"
+                    )}>
+                      {sel ? <Check size={16} strokeWidth={4} /> : <Plus size={18} strokeWidth={3} />}
+                    </div>
 
-                    {/* Price */}
-                    <span className="font-heading text-xl sm:text-2xl text-primary tracking-wide leading-none">
-                      R$ {product.price.toFixed(0)}
-                    </span>
-                  </div>
-                </button>
-              );
-            })}
+                    {/* Image Block with Calibrated Zoom */}
+                    <div className="w-full aspect-[4/5] flex flex-col items-center justify-center relative bg-black/40 overflow-hidden">
+                      <img 
+                        src={product.image} 
+                        alt={product.name} 
+                        className={cn(
+                          "w-full h-full object-cover group-hover:scale-105 transition-transform duration-700",
+                          product.imageScale || "scale-100"
+                        )} 
+                      />
+                    </div>
+                    
+                    {/* Info Block */}
+                    <div className="w-full p-3 sm:p-3.5 flex flex-col gap-1.5 bg-white/[0.02]">
+                      {/* Product Name */}
+                      <h3 className={cn(
+                        "font-sans font-bold text-[13px] sm:text-[14px] leading-tight truncate w-full text-white transition-colors",
+                        sel && "text-primary"
+                      )} title={cleanName}>
+                        {cleanName}
+                      </h3>
+
+                      {/* Price */}
+                      <span className="font-heading text-xl sm:text-2xl text-primary tracking-wide leading-none">
+                        R$ {product.price.toFixed(0)}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
           </div>
+
+          {/* Right Column: Permanent Sticky Cart Sidebar (Desktop only) */}
+          <aside className="hidden lg:flex w-[380px] xl:w-[420px] sticky top-24 shrink-0 flex-col gap-4">
+            <div className="bg-white/[0.03] border border-white/10 rounded-3xl p-6 shadow-2xl backdrop-blur-md flex flex-col">
+              
+              {/* Sidebar Header */}
+              <div className="flex items-center justify-between pb-4 border-b border-white/10">
+                <h3 className="font-heading text-2xl text-primary uppercase tracking-wide">Seu Carrinho</h3>
+                <span className="text-xs font-bold font-sans px-2.5 py-1 rounded-full bg-white/10 text-white/80">
+                  {cartCount} {cartCount === 1 ? 'item' : 'itens'}
+                </span>
+              </div>
+
+              {/* Items List */}
+              <div className="py-4 max-h-[360px] overflow-y-auto space-y-3 no-scrollbar">
+                {cart.length === 0 ? (
+                  <div className="py-12 text-center flex flex-col items-center justify-center gap-2">
+                    <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-white/20 mb-1">
+                      <ShoppingCart size={24} />
+                    </div>
+                    <p className="text-sm text-white/40 font-medium">Nenhum produto adicionado</p>
+                    <p className="text-xs text-white/20">Clique em qualquer produto ao lado para adicionar</p>
+                  </div>
+                ) : (
+                  cart.map(item => (
+                    <div key={item.id} className="flex items-center gap-3 bg-white/[0.02] hover:bg-white/[0.05] border border-white/5 p-3 rounded-2xl transition-all">
+                      <div className="w-12 h-12 rounded-xl overflow-hidden bg-black/40 flex-shrink-0 border border-white/5">
+                        <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-sans font-bold text-white truncate">{item.name}</p>
+                        <p className="text-primary font-heading text-sm mt-0.5">R$ {(item.price * item.qty).toFixed(2)}</p>
+                      </div>
+                      <div className="flex items-center gap-1.5 flex-shrink-0 bg-white/5 p-1 rounded-xl">
+                        <button onClick={() => updateQty(item.id, -1)} className="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center text-white/70 hover:bg-white/20 transition-colors">
+                          <Minus size={12} />
+                        </button>
+                        <span className="text-xs font-bold w-4 text-center">{item.qty}</span>
+                        <button onClick={() => updateQty(item.id, 1)} className="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center text-white/70 hover:bg-white/20 transition-colors">
+                          <Plus size={12} />
+                        </button>
+                      </div>
+                      <button onClick={() => removeFromCart(item.id)} className="p-2 rounded-xl text-white/30 hover:text-red-400 hover:bg-red-500/10 transition-colors flex-shrink-0" title="Remover">
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Subtotal & Action */}
+              <div className="pt-4 border-t border-white/10 flex flex-col gap-2">
+                <div className="flex justify-between items-baseline pt-1">
+                  <span className="text-xs font-bold text-white/50 uppercase tracking-widest">Total</span>
+                  <span className="font-heading text-3xl xl:text-4xl text-primary leading-none">
+                    R$ {cartTotal.toFixed(2)}
+                  </span>
+                </div>
+
+                <div className="mt-3">
+                  <button
+                    onClick={() => setShowCheckout(true)}
+                    disabled={cart.length === 0}
+                    className={cn(
+                      "w-full py-4 rounded-2xl font-heading text-xl flex items-center justify-center gap-2 transition-all uppercase shadow-lg active:scale-98",
+                      cart.length > 0 ? "bg-primary text-secondary hover:bg-[#ebd936] cursor-pointer" : "bg-white/5 text-white/20 cursor-not-allowed"
+                    )}
+                  >
+                    FINALIZAR PEDIDO <ArrowRight size={18} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </aside>
         </div>
 
-        {/* Bottom bar */}
+        {/* Mobile Floating Bottom Bar */}
         {cartCount > 0 && (
-          <footer className="fixed bottom-0 left-0 w-full z-50 bg-[#3d1b34] border-t border-white/5 p-4 sm:p-6 flex items-center justify-between shadow-[0_-10px_30px_rgba(0,0,0,0.5)] animate-in slide-in-from-bottom-4 duration-300">
+          <footer className="fixed bottom-0 left-0 w-full z-50 bg-[#3d1b34] border-t border-white/5 p-4 sm:p-6 flex items-center justify-between shadow-[0_-10px_30px_rgba(0,0,0,0.5)] animate-in slide-in-from-bottom-4 duration-300 lg:hidden">
             <div className="flex flex-col">
               <span className="text-[10px] text-white/50 uppercase font-bold">{cartCount} {cartCount === 1 ? 'item' : 'itens'}</span>
               <span className="font-heading text-2xl sm:text-3xl text-white">R$ {cartTotal.toFixed(2)}</span>
