@@ -5,6 +5,7 @@ import {
   ArrowLeft,
   ArrowRight,
   Check,
+  Plus,
   ShoppingCart,
   Send,
   Trash2,
@@ -365,9 +366,9 @@ export default function OrderPage() {
           <div className="relative"><input type="text" placeholder={`Buscar...`} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-3 text-white focus:outline-none focus:border-primary" /></div>
         )}
         <div className={cn(
-          "grid gap-3 lg:gap-4",
+          "grid gap-3.5 sm:gap-5 lg:gap-6",
           step.id === 'size'
-            ? "grid-cols-2 gap-3 sm:gap-6 lg:gap-6"
+            ? "grid-cols-2"
             : "grid-cols-1 sm:grid-cols-2"
         )}>
           {filteredData?.map((item) => {
@@ -377,27 +378,37 @@ export default function OrderPage() {
               ? (val as MenuItem[]).some(i => i.id === item.id)
               : (val as MenuItem)?.id === item.id;
 
-            return (
-              <button
-                key={item.id}
-                onClick={() => toggleItem(cat, item, step.multiple)}
-                className={cn(
-                  "group relative flex items-center justify-between transition-all duration-300 text-left border overflow-hidden cursor-pointer rounded-2xl",
-                  step.id === 'size'
-                    ? "p-4 sm:p-6 lg:p-7 rounded-2xl sm:rounded-3xl flex-col sm:flex-row gap-3 sm:gap-0"
-                    : "p-3.5 sm:p-4",
-                  sel
-                    ? "bg-primary/[0.08] border-primary/80 shadow-md shadow-primary/5"
-                    : "bg-white/[0.03] border-white/10 hover:bg-white/[0.06] hover:border-white/20 hover:-translate-y-0.5"
-                )}
-              >
-                <div className={cn("flex items-center gap-3.5 w-full", step.id === 'size' ? "flex-col sm:flex-row text-center sm:text-left gap-3 sm:gap-5" : "")}>
+            // Size Step: Bento Box Vertical Card (same as ReadyMadePage)
+            if (step.id === 'size') {
+              const sizeMatch = item.name.match(/(360|500|750|1L)/i);
+              const sizeBadge = sizeMatch ? `${sizeMatch[0]}${sizeMatch[0].toUpperCase() === '1L' ? '' : 'ML'}` : 'Açaí';
+
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => toggleItem(cat, item, step.multiple)}
+                  className={cn(
+                    "group relative flex flex-col justify-between h-full rounded-2xl transition-all duration-300 text-left border-0 overflow-hidden cursor-pointer",
+                    sel
+                      ? "bg-primary/10 ring-1 ring-primary shadow-lg shadow-primary/20 scale-[1.02]"
+                      : "bg-black/20 hover:bg-black/40 hover:-translate-y-1 hover:shadow-xl"
+                  )}
+                >
+                  {/* Floating Size Badge (Top-Left) */}
+                  <div className="absolute top-3 left-3 z-10 bg-black/50 backdrop-blur-md border border-white/10 text-white/90 text-[10px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-full shadow-lg">
+                    {sizeBadge}
+                  </div>
+
+                  {/* Action Icon Top Right */}
                   <div className={cn(
-                    "flex-shrink-0 flex items-center justify-center transition-all duration-500",
-                    step.id === 'size'
-                      ? "w-20 h-20 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-2xl sm:rounded-3xl bg-black/20 border border-white/5 shadow-inner group-hover:scale-105 p-2"
-                      : "w-12 h-12 sm:w-14 sm:h-14 relative"
+                    "absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-lg",
+                    sel ? "bg-primary text-secondary opacity-100" : "bg-white text-secondary opacity-100 group-hover:scale-110"
                   )}>
+                    {sel ? <Check size={16} strokeWidth={4} /> : <Plus size={18} strokeWidth={3} />}
+                  </div>
+
+                  {/* Image Block */}
+                  <div className="w-full aspect-[4/5] flex flex-col items-center justify-center relative bg-black/40 overflow-hidden">
                     <img
                       src={
                         item.id === "pot_360" ? "/assets/items/Açai_350ml.webp" :
@@ -409,34 +420,60 @@ export default function OrderPage() {
                       alt={item.name}
                       loading="lazy"
                       decoding="async"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    />
+                  </div>
+
+                  {/* Info Block */}
+                  <div className="w-full p-3 sm:p-3.5 flex flex-col gap-1.5 bg-white/[0.02]">
+                    <h3 className={cn(
+                      "font-sans font-bold text-[13px] sm:text-[14px] leading-tight truncate w-full text-white transition-colors",
+                      sel && "text-primary"
+                    )} title={item.name}>
+                      {item.name}
+                    </h3>
+                    <span className="font-heading text-xl sm:text-2xl text-primary tracking-wide leading-none">
+                      R$ {item.price.toFixed(0)}
+                    </span>
+                  </div>
+                </button>
+              );
+            }
+
+            // Other Steps: Sleek Horizontal Row Cards
+            return (
+              <button
+                key={item.id}
+                onClick={() => toggleItem(cat, item, step.multiple)}
+                className={cn(
+                  "group relative flex items-center justify-between transition-all duration-300 text-left border overflow-hidden cursor-pointer rounded-2xl p-3.5 sm:p-4",
+                  sel
+                    ? "bg-primary/[0.08] border-primary/80 shadow-md shadow-primary/5"
+                    : "bg-white/[0.03] border-white/10 hover:bg-white/[0.06] hover:border-white/20 hover:-translate-y-0.5"
+                )}
+              >
+                <div className="flex items-center gap-3.5 w-full">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 relative flex-shrink-0 flex items-center justify-center">
+                    <img
+                      src={`/assets/items/${item.id}.webp`}
+                      alt={item.name}
+                      loading="lazy"
+                      decoding="async"
                       onError={(e) => {
                         e.currentTarget.onerror = null;
                         e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&background=3d1b34&color=D8AC4F&font-size=0.33&bold=true`;
                       }}
-                      className={cn(
-                        "w-full h-full transition-transform duration-500",
-                        step.id === 'size'
-                          ? "object-contain"
-                          : "object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)] group-hover:scale-115"
-                      )}
+                      className="w-full h-full object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)] group-hover:scale-115 transition-transform duration-500"
                     />
                   </div>
                   <div className="flex flex-col gap-0.5 flex-1 min-w-0">
                     <span className={cn(
-                      "truncate transition-colors",
-                      step.id === 'size'
-                        ? "font-heading uppercase text-xl sm:text-2xl lg:text-3xl text-white tracking-wide"
-                        : "font-sans font-normal text-sm sm:text-[15px] text-white/90",
+                      "truncate transition-colors font-sans font-normal text-sm sm:text-[15px] text-white/90",
                       sel && "text-white"
                     )}>
                       {item.name}
                     </span>
-                    {step.id === 'size' && (
-                      <span className="font-heading text-base sm:text-xl text-primary tracking-wide">
-                        R$ {item.price.toFixed(2)}
-                      </span>
-                    )}
-                    {item.price > 0 && step.id !== 'size' && (
+                    {item.price > 0 && (
                       <span className="font-heading text-xs sm:text-sm text-primary tracking-wide">
                         + R$ {item.price.toFixed(2)}
                       </span>
@@ -444,13 +481,12 @@ export default function OrderPage() {
                   </div>
                 </div>
                 <div className={cn(
-                  "rounded-full border flex items-center justify-center flex-shrink-0 ml-2 transition-all duration-300",
-                  step.id === 'size' ? "absolute top-3 right-3 sm:static sm:top-auto sm:right-auto w-6 h-6 sm:w-7 sm:h-7" : "w-5 h-5",
+                  "rounded-full border flex items-center justify-center flex-shrink-0 ml-2 transition-all duration-300 w-5 h-5",
                   sel
                     ? "bg-primary border-primary text-secondary shadow-sm"
                     : "border-white/20 text-transparent group-hover:border-white/40"
                 )}>
-                  <Check size={step.id === 'size' ? 12 : 11} strokeWidth={3} />
+                  <Check size={11} strokeWidth={3} />
                 </div>
               </button>
             );
