@@ -632,18 +632,38 @@ export default function OrderPage() {
                   allSelectedItems.map(i => {
                     const cat = Object.keys(order).find(k => Array.isArray(order[k as keyof OrderState]) && (order[k as keyof OrderState] as MenuItem[]).some(item => item.id === i.id)) as keyof OrderState;
                     return (
-                      <div key={i.id} className="flex justify-between items-center bg-white/[0.02] hover:bg-white/[0.05] p-2.5 rounded-xl border border-white/5 transition-all">
-                        <span className="text-xs font-normal text-white/90 truncate flex-1 pr-2">{i.name}</span>
-                        <div className="flex items-center gap-2 shrink-0">
-                          <span className="text-xs font-heading text-primary font-normal">
-                            {i.price > 0 ? `+ R$ ${i.price.toFixed(2)}` : 'Grátis'}
-                          </span>
+                      <div
+                        key={i.id}
+                        className={cn(
+                          "relative flex justify-between items-center p-2.5 rounded-xl border transition-all overflow-hidden",
+                          deletingId === i.id
+                            ? "bg-red-500/10 border-red-500/30"
+                            : "bg-white/[0.02] hover:bg-white/[0.05] border-white/5"
+                        )}
+                      >
+                        <span className={cn(
+                          "text-xs font-normal truncate flex-1 pr-2 transition-all",
+                          deletingId === i.id ? "text-red-300" : "text-white/90"
+                        )}>
+                          {deletingId === i.id ? "Confirmar exclusão?" : i.name}
+                        </span>
+                        <div className="flex items-center gap-2 shrink-0 z-10">
+                          {deletingId !== i.id && (
+                            <span className="text-xs font-heading text-primary font-normal">
+                              {i.price > 0 ? `+ R$ ${i.price.toFixed(2)}` : 'Grátis'}
+                            </span>
+                          )}
                           <button
-                            onClick={() => removeItem(cat, i.id)}
-                            className="p-1 rounded-md text-white/30 hover:text-red-400 hover:bg-red-500/10 transition-colors"
-                            title="Remover item"
+                            onClick={() => handleDeleteClick(cat, i.id)}
+                            className={cn(
+                              "p-1.5 rounded-lg transition-all font-bold text-xs flex items-center gap-1",
+                              deletingId === i.id
+                                ? "bg-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.4)] px-3 py-1"
+                                : "text-white/30 hover:text-red-400 hover:bg-red-500/10"
+                            )}
+                            title={deletingId === i.id ? "Confirmar exclusão" : "Remover item"}
                           >
-                            <Trash2 size={13} />
+                            {deletingId === i.id ? "SIM" : <Trash2 size={13} />}
                           </button>
                         </div>
                       </div>
