@@ -368,7 +368,7 @@ export default function OrderPage() {
           "grid gap-3 lg:gap-4",
           step.id === 'size'
             ? "grid-cols-2 gap-3 sm:gap-6 lg:gap-6"
-            : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3"
+            : "grid-cols-1 sm:grid-cols-2"
         )}>
           {filteredData?.map((item) => {
             const cat = step.id as keyof OrderState;
