@@ -393,10 +393,10 @@ export default function OrderPage() {
               >
                 <div className={cn("flex items-center gap-3.5 w-full", step.id === 'size' ? "flex-col sm:flex-row text-center sm:text-left gap-3 sm:gap-5" : "")}>
                   <div className={cn(
-                    "overflow-hidden flex-shrink-0 flex items-center justify-center transition-transform duration-500",
+                    "flex-shrink-0 flex items-center justify-center transition-all duration-500",
                     step.id === 'size'
-                      ? "w-20 h-20 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-2xl sm:rounded-3xl bg-black/20 border border-white/5 shadow-inner group-hover:scale-105"
-                      : "w-11 h-11 sm:w-13 sm:h-13 rounded-xl bg-black/20 border border-white/5 p-1 shadow-sm"
+                      ? "w-20 h-20 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-2xl sm:rounded-3xl bg-black/20 border border-white/5 shadow-inner group-hover:scale-105 p-2"
+                      : "w-12 h-12 sm:w-14 sm:h-14 relative"
                   )}>
                     <img
                       src={
@@ -414,8 +414,10 @@ export default function OrderPage() {
                         e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&background=3d1b34&color=D8AC4F&font-size=0.33&bold=true`;
                       }}
                       className={cn(
-                        "w-full h-full object-cover transition-transform duration-500",
-                        step.id !== 'size' && "scale-110 group-hover:scale-125"
+                        "w-full h-full transition-transform duration-500",
+                        step.id === 'size'
+                          ? "object-contain"
+                          : "object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)] group-hover:scale-115"
                       )}
                     />
                   </div>
@@ -597,7 +599,7 @@ export default function OrderPage() {
 
               {/* Cup Visual Preview & Base Info */}
               <div className="py-4 border-b border-white/10 flex items-center gap-4">
-                <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center p-2 overflow-hidden shrink-0 shadow-inner">
+                <div className="w-16 h-16 flex items-center justify-center p-1 shrink-0">
                   <img
                     src={
                       order.size?.id === "pot_360" ? "/assets/items/Açai_350ml.webp" :
@@ -607,7 +609,7 @@ export default function OrderPage() {
                       "/assets/Acai_montar.webp"
                     }
                     alt="Preview Açaí"
-                    className="w-full h-full object-contain"
+                    className="w-full h-full object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
                   />
                 </div>
                 <div className="flex-1 min-w-0">
