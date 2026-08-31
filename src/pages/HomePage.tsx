@@ -121,7 +121,7 @@ export default function HomePage() {
               className="group relative flex flex-col justify-end min-h-[160px] md:min-h-[190px] lg:min-h-[220px] p-5 md:p-6 lg:p-8 rounded-[32px] lg:rounded-[40px] bg-white/[0.03] border border-white/10 hover:bg-white/[0.07] hover:border-primary/40 active:scale-[0.98] transition-all duration-500 overflow-hidden shadow-2xl shadow-black/20 hover:shadow-primary/5"
             >
               {/* Background Glow */}
-              <div className="absolute top-0 right-0 w-40 h-40 lg:w-60 lg:h-60 bg-secondary/20 blur-[60px] lg:blur-[80px] rounded-full pointer-events-none" />
+              <div className="absolute top-0 right-0 w-40 h-40 lg:w-60 lg:h-60 bg-primary/20 blur-[60px] lg:blur-[80px] rounded-full pointer-events-none" />
               
               {/* Floating image (Vertically Centered) */}
               <div className="absolute top-1/2 -translate-y-1/2 right-1 sm:right-3 lg:right-6 w-36 h-36 sm:w-44 sm:h-44 lg:w-56 lg:h-56 pointer-events-none flex items-center justify-center">
