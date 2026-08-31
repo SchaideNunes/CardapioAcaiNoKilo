@@ -498,7 +498,7 @@ export default function OrderPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#1a0c16] flex items-center justify-center">
+      <div className="min-h-screen bg-[#241220] flex items-center justify-center">
         <div className="text-primary font-heading text-2xl animate-pulse uppercase">Carregando Menu...</div>
       </div>
     );
@@ -506,8 +506,8 @@ export default function OrderPage() {
 
   return (
     <SmoothScrollProvider isDisabled={showCart}>
-      <main className="min-h-screen bg-[#1a0c16] flex flex-col relative text-white">
-        <header className="sticky top-0 z-40 bg-[#1a0c16]/80 backdrop-blur-xl border-b border-white/5 px-6 py-4 flex items-center justify-between">
+      <main className="min-h-screen bg-[#241220] flex flex-col relative text-white">
+        <header className="sticky top-0 z-40 bg-[#241220]/80 backdrop-blur-xl border-b border-white/5 px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             {currentStep > 0 ? <button onClick={handlePrev} className="p-2 text-white/70 hover:text-primary transition-colors"><ArrowLeft size={24} /></button> : <Link to="/" className="p-2 text-white/70 hover:text-primary transition-colors"><ArrowLeft size={24} /></Link>}
             <div className="flex items-center gap-3">
@@ -519,7 +519,7 @@ export default function OrderPage() {
         </header>
         <div className={cn("fixed inset-0 z-[100] transition-all duration-500", showCart ? "visible" : "invisible pointer-events-none")}>
           <div className={cn("absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-500", showCart ? "opacity-100" : "opacity-0")} onClick={() => setShowCart(false)} />
-          <div className={cn("absolute right-0 top-0 h-full w-[85%] max-w-[400px] bg-[#1a0c16] shadow-2xl flex flex-col transition-transform duration-500", showCart ? "translate-x-0" : "translate-x-full")}>
+          <div className={cn("absolute right-0 top-0 h-full w-[85%] max-w-[400px] bg-[#241220] shadow-2xl flex flex-col transition-transform duration-500", showCart ? "translate-x-0" : "translate-x-full")}>
             <div className="p-6 border-b border-white/10 flex items-center justify-between"><h3 className="font-heading text-2xl text-primary uppercase">Seu Pedido</h3><button onClick={() => setShowCart(false)} className="text-white/50"><ArrowRight size={24} /></button></div>
             <div className="flex-1 overflow-y-auto p-6 space-y-6" data-lenis-prevent>
 
@@ -557,7 +557,7 @@ export default function OrderPage() {
           </div>
         </div>
         {/* Desktop Step Trail / Horizontal Stepper */}
-        <div className="w-full bg-[#1a0c16]/90 backdrop-blur-md border-b border-white/5 sticky top-[73px] z-30 hidden lg:block">
+        <div className="w-full bg-[#241220]/90 backdrop-blur-md border-b border-white/5 sticky top-[73px] z-30 hidden lg:block">
           <div className="max-w-[1440px] mx-auto px-6 py-3 flex items-center justify-between gap-2 overflow-x-auto no-scrollbar">
             {STEPS.map((s, idx) => {
               const isPast = idx < currentStep;
@@ -741,7 +741,7 @@ export default function OrderPage() {
                   ) : (
                     <button
                       onClick={sendWhatsApp}
-                      className="w-full py-4 bg-[#25D366] text-[#1a0c16] font-heading text-xl rounded-2xl flex items-center justify-center gap-2 hover:bg-[#22c35e] transition-all shadow-lg active:scale-98 uppercase"
+                      className="w-full py-4 bg-[#25D366] text-[#241220] font-heading text-xl rounded-2xl flex items-center justify-center gap-2 hover:bg-[#22c35e] transition-all shadow-lg active:scale-98 uppercase"
                     >
                       <Send size={18} /> FINALIZAR NO WHATSAPP
                     </button>
@@ -753,7 +753,7 @@ export default function OrderPage() {
         </div>
 
         {/* Mobile Sticky Footer (Hidden on Desktop) */}
-        <footer className="fixed bottom-0 left-0 w-full z-50 bg-[#1a0c16] border-t border-white/5 p-4 sm:p-6 flex items-center justify-between shadow-[0_-10px_30px_rgba(0,0,0,0.5)] lg:hidden">
+        <footer className="fixed bottom-0 left-0 w-full z-50 bg-[#241220] border-t border-white/5 p-4 sm:p-6 flex items-center justify-between shadow-[0_-10px_30px_rgba(0,0,0,0.5)] lg:hidden">
           <div className="flex flex-col">
             <span className="text-[10px] text-white/50 uppercase font-bold">Total</span>
             <span className="font-heading text-2xl sm:text-3xl text-white">R$ {totalPrice.toFixed(2)}</span>
@@ -773,7 +773,7 @@ export default function OrderPage() {
             ) : (
               <button
                 onClick={sendWhatsApp}
-                className="px-6 sm:px-8 py-3.5 sm:py-4 bg-[#25D366] text-[#1a0c16] font-heading text-lg sm:text-xl rounded-2xl flex items-center gap-2 hover:bg-[#22c35e] transition-all shadow-lg active:scale-95 uppercase"
+                className="px-6 sm:px-8 py-3.5 sm:py-4 bg-[#25D366] text-[#241220] font-heading text-lg sm:text-xl rounded-2xl flex items-center gap-2 hover:bg-[#22c35e] transition-all shadow-lg active:scale-95 uppercase"
               >
                 <Send size={18} /> Finalizar
               </button>

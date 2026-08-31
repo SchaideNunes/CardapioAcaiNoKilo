@@ -33,7 +33,7 @@ export default function HomePage() {
     <>
       {!preloaderDone && <Preloader onFinished={() => setPreloaderDone(true)} />}
       
-      <main className="min-h-[100dvh] bg-[#1a0c16] flex flex-col relative text-white overflow-hidden">
+      <main className="min-h-[100dvh] bg-[#241220] flex flex-col relative text-white overflow-hidden">
         {/* Background Subtle Floating Food Elements (Desktop only) */}
         <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
           <div className="hidden lg:block absolute top-[12%] left-[8%] xl:left-[12%] w-24 h-24 xl:w-28 xl:h-28 opacity-40 animate-float-slow filter drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]">
@@ -82,27 +82,38 @@ export default function HomePage() {
             {/* CRIAR O SEU */}
             <Link
               to="/montar"
-              className="group relative flex flex-col justify-end min-h-[160px] md:min-h-[190px] lg:min-h-[220px] p-5 md:p-6 lg:p-8 rounded-[32px] lg:rounded-[40px] bg-white/[0.04] border border-white/10 hover:bg-white/[0.08] hover:border-primary/40 active:scale-[0.98] transition-all duration-500 overflow-hidden shadow-2xl shadow-black/40 hover:shadow-primary/5"
+              className="group relative p-[1.5px] rounded-[34px] lg:rounded-[42px] overflow-hidden transition-all duration-500 hover:scale-[1.01] active:scale-[0.98] shadow-2xl shadow-black/40"
             >
-              {/* Floating image (Vertically Centered) */}
-              <div className="absolute top-1/2 -translate-y-1/2 right-0 sm:right-2 lg:right-6 w-40 h-40 sm:w-48 sm:h-48 lg:w-60 lg:h-60 pointer-events-none flex items-center justify-center">
-                <img
-                  src="/assets/Acai_montar.webp"
-                  alt="Monte seu açaí"
-                  className="w-full h-full object-contain drop-shadow-2xl group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-700 ease-out"
-                />
-              </div>
-              
-              <div className="relative z-10 w-[64%] lg:w-[60%]">
-                <h2 className="font-heading text-4xl sm:text-5xl lg:text-6xl text-white uppercase tracking-wide group-hover:text-primary transition-colors leading-none mb-2 drop-shadow-lg">
-                  Monte o seu
-                </h2>
-                <p className="text-white/60 text-sm lg:text-base font-sans drop-shadow-md">
-                  Personalize <strong className="text-primary font-bold">do seu jeito!</strong>
-                </p>
-                <div className="cta-element mt-4 lg:mt-6 flex items-center gap-2 text-white/40 group-hover:text-primary transition-colors">
-                  <span className="text-[10px] lg:text-xs font-bold uppercase tracking-[0.2em]">Começar</span>
-                  <ArrowRight size={16} />
+              {/* Rotating Conic Pastel Yellow Border Beam */}
+              <div 
+                className="absolute -inset-[100%] animate-[spin_5s_linear_infinite] opacity-60 group-hover:opacity-100 transition-opacity"
+                style={{
+                  background: 'conic-gradient(from 0deg, transparent 0deg, transparent 270deg, rgba(248, 238, 166, 0.9) 320deg, rgba(255, 246, 189, 1) 335deg, transparent 360deg)'
+                }}
+              />
+
+              {/* Inner Card Content */}
+              <div className="relative w-full h-full min-h-[160px] md:min-h-[190px] lg:min-h-[220px] p-5 md:p-6 lg:p-8 rounded-[32px] lg:rounded-[40px] bg-[#2d1527] border border-white/10 group-hover:bg-[#34192d] transition-all duration-500 overflow-hidden flex flex-col justify-end">
+                {/* Floating image (Vertically Centered) */}
+                <div className="absolute top-1/2 -translate-y-1/2 right-0 sm:right-2 lg:right-6 w-40 h-40 sm:w-48 sm:h-48 lg:w-60 lg:h-60 pointer-events-none flex items-center justify-center">
+                  <img
+                    src="/assets/Acai_montar.webp"
+                    alt="Monte seu açaí"
+                    className="w-full h-full object-contain drop-shadow-2xl group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-700 ease-out"
+                  />
+                </div>
+                
+                <div className="relative z-10 w-[64%] lg:w-[60%]">
+                  <h2 className="font-heading text-4xl sm:text-5xl lg:text-6xl text-white uppercase tracking-wide group-hover:text-[#F8EEA6] transition-colors leading-none mb-2 drop-shadow-lg">
+                    Monte o seu
+                  </h2>
+                  <p className="text-white/60 text-sm lg:text-base font-sans drop-shadow-md">
+                    Personalize <strong className="text-[#F8EEA6] font-bold">do seu jeito!</strong>
+                  </p>
+                  <div className="cta-element mt-4 lg:mt-6 flex items-center gap-2 text-white/40 group-hover:text-[#F8EEA6] transition-colors">
+                    <span className="text-[10px] lg:text-xs font-bold uppercase tracking-[0.2em]">Começar</span>
+                    <ArrowRight size={16} />
+                  </div>
                 </div>
               </div>
             </Link>
@@ -110,27 +121,38 @@ export default function HomePage() {
             {/* COMPRAR PRONTO */}
             <Link
               to="/prontos"
-              className="group relative flex flex-col justify-end min-h-[160px] md:min-h-[190px] lg:min-h-[220px] p-5 md:p-6 lg:p-8 rounded-[32px] lg:rounded-[40px] bg-white/[0.04] border border-white/10 hover:bg-white/[0.08] hover:border-primary/40 active:scale-[0.98] transition-all duration-500 overflow-hidden shadow-2xl shadow-black/40 hover:shadow-primary/5"
+              className="group relative p-[1.5px] rounded-[34px] lg:rounded-[42px] overflow-hidden transition-all duration-500 hover:scale-[1.01] active:scale-[0.98] shadow-2xl shadow-black/40"
             >
-              {/* Floating image (Vertically Centered) */}
-              <div className="absolute top-1/2 -translate-y-1/2 right-1 sm:right-3 lg:right-6 w-36 h-36 sm:w-44 sm:h-44 lg:w-56 lg:h-56 pointer-events-none flex items-center justify-center">
-                <img
-                  src="/assets/Acai_fechado.webp"
-                  alt="Açaí pronto"
-                  className="w-full h-full object-contain drop-shadow-2xl group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-700 ease-out"
-                />
-              </div>
-              
-              <div className="relative z-10 w-[64%] lg:w-[60%]">
-                <h2 className="font-heading text-4xl sm:text-5xl lg:text-6xl text-white uppercase tracking-wide group-hover:text-primary transition-colors leading-none mb-2 drop-shadow-lg">
-                  Compre Pronto
-                </h2>
-                <p className="text-white/60 text-sm lg:text-base font-sans drop-shadow-md">
-                  <strong className="text-primary font-bold">Prontos para levar!</strong>
-                </p>
-                <div className="cta-element mt-4 lg:mt-6 flex items-center gap-2 text-white/40 group-hover:text-primary transition-colors">
-                  <span className="text-[10px] lg:text-xs font-bold uppercase tracking-[0.2em]">Ver Opções</span>
-                  <ArrowRight size={16} />
+              {/* Rotating Conic Pastel Yellow Border Beam */}
+              <div 
+                className="absolute -inset-[100%] animate-[spin_5s_linear_infinite] opacity-60 group-hover:opacity-100 transition-opacity"
+                style={{
+                  background: 'conic-gradient(from 180deg, transparent 0deg, transparent 270deg, rgba(248, 238, 166, 0.9) 320deg, rgba(255, 246, 189, 1) 335deg, transparent 360deg)'
+                }}
+              />
+
+              {/* Inner Card Content */}
+              <div className="relative w-full h-full min-h-[160px] md:min-h-[190px] lg:min-h-[220px] p-5 md:p-6 lg:p-8 rounded-[32px] lg:rounded-[40px] bg-[#2d1527] border border-white/10 group-hover:bg-[#34192d] transition-all duration-500 overflow-hidden flex flex-col justify-end">
+                {/* Floating image (Vertically Centered) */}
+                <div className="absolute top-1/2 -translate-y-1/2 right-1 sm:right-3 lg:right-6 w-36 h-36 sm:w-44 sm:h-44 lg:w-56 lg:h-56 pointer-events-none flex items-center justify-center">
+                  <img
+                    src="/assets/Acai_fechado.webp"
+                    alt="Açaí pronto"
+                    className="w-full h-full object-contain drop-shadow-2xl group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-700 ease-out"
+                  />
+                </div>
+                
+                <div className="relative z-10 w-[64%] lg:w-[60%]">
+                  <h2 className="font-heading text-4xl sm:text-5xl lg:text-6xl text-white uppercase tracking-wide group-hover:text-[#F8EEA6] transition-colors leading-none mb-2 drop-shadow-lg">
+                    Compre Pronto
+                  </h2>
+                  <p className="text-white/60 text-sm lg:text-base font-sans drop-shadow-md">
+                    <strong className="text-[#F8EEA6] font-bold">Prontos para levar!</strong>
+                  </p>
+                  <div className="cta-element mt-4 lg:mt-6 flex items-center gap-2 text-white/40 group-hover:text-[#F8EEA6] transition-colors">
+                    <span className="text-[10px] lg:text-xs font-bold uppercase tracking-[0.2em]">Ver Opções</span>
+                    <ArrowRight size={16} />
+                  </div>
                 </div>
               </div>
             </Link>
