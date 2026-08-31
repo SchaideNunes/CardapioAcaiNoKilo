@@ -69,7 +69,6 @@ export default function Preloader({ onFinished }: { onFinished: () => void }) {
   const acaiProgress = Math.min(Math.max((progress - 20) / 40, 0), 1);
   const noProgress = Math.min(Math.max((progress - 45) / 35, 0), 1);
   const kiloProgress = Math.min(Math.max((progress - 60) / 35, 0), 1);
-  const fillOpacity = progress > 75 ? (progress - 75) / 25 : 0;
 
   return (
     <div
@@ -286,17 +285,6 @@ export default function Preloader({ onFinished }: { onFinished: () => void }) {
               R
             </text>
           </g>
-
-          {/* ================= 6. FINAL SHIMMER / SOLID LOGO FADE-IN ================= */}
-          <image
-            href="/assets/Logo açai.webp"
-            x="30"
-            y="20"
-            width="440"
-            height="460"
-            className="transition-opacity duration-700 pointer-events-none"
-            style={{ opacity: fillOpacity }}
-          />
         </svg>
       </div>
 
