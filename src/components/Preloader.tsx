@@ -111,9 +111,9 @@ export default function Preloader({ onFinished }: { onFinished: () => void }) {
           <g filter={progress > 60 ? "url(#glow-orange)" : undefined}>
             {/* Top Wavy Ray */}
             <path
-              d="M 345 42 Q 332 58 346 72 Q 332 88 344 105"
+              d="M 345 35 Q 332 55 346 72 Q 332 90 344 108"
               stroke="#F58220"
-              strokeWidth="14"
+              strokeWidth="11"
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeDasharray="100"
@@ -122,9 +122,9 @@ export default function Preloader({ onFinished }: { onFinished: () => void }) {
 
             {/* Middle Right Wavy Ray */}
             <path
-              d="M 390 168 Q 412 150 432 165 Q 452 148 472 156"
+              d="M 390 168 Q 412 150 435 165 Q 455 148 475 156"
               stroke="#F58220"
-              strokeWidth="14"
+              strokeWidth="11"
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeDasharray="120"
@@ -135,7 +135,7 @@ export default function Preloader({ onFinished }: { onFinished: () => void }) {
             <path
               d="M 378 262 Q 402 278 418 298 Q 436 288 456 312"
               stroke="#F58220"
-              strokeWidth="14"
+              strokeWidth="11"
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeDasharray="120"
@@ -146,7 +146,7 @@ export default function Preloader({ onFinished }: { onFinished: () => void }) {
             <path
               d="M 305 210 C 300 195, 315 185, 330 190 C 350 195, 355 225, 340 245 C 320 270, 275 260, 265 220 C 255 170, 310 120, 365 130 C 415 140, 440 200, 420 255 C 405 295, 360 325, 315 320"
               stroke="#F58220"
-              strokeWidth="16"
+              strokeWidth="13"
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeDasharray="600"
@@ -155,129 +155,129 @@ export default function Preloader({ onFinished }: { onFinished: () => void }) {
           </g>
 
           {/* ================= 2. "AÇAÍ" (Top Word, Cream/Off-White #EFEBE4) ================= */}
-          <g stroke="#EFEBE4" strokeWidth="18" strokeLinecap="round" strokeLinejoin="round">
+          <g stroke="#EFEBE4" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round">
             {/* Letter 'A' (1) */}
             <path
-              d="M 95 280 L 115 90 L 140 255"
+              d="M 60 280 L 95 90 L 122 260"
               strokeDasharray="400"
               strokeDashoffset={400 * (1 - acaiProgress)}
             />
             <path
-              d="M 85 215 L 135 210"
+              d="M 75 205 L 115 200"
               strokeDasharray="100"
               strokeDashoffset={100 * (1 - acaiProgress)}
             />
 
             {/* Letter 'Ç' with Cedilla */}
             <path
-              d="M 205 105 C 155 80, 135 150, 145 220 C 152 260, 185 265, 205 240"
+              d="M 195 110 C 145 90, 132 155, 142 220 C 150 255, 178 258, 195 235"
               strokeDasharray="300"
               strokeDashoffset={300 * (1 - acaiProgress)}
             />
             <path
-              d="M 175 255 Q 170 275 178 288"
+              d="M 165 242 Q 162 260 170 270"
               strokeDasharray="50"
               strokeDashoffset={50 * (1 - acaiProgress)}
             />
 
             {/* Letter 'A' (2) */}
             <path
-              d="M 195 255 L 235 85 L 280 270"
+              d="M 210 260 L 242 85 L 275 270"
               strokeDasharray="400"
               strokeDashoffset={400 * (1 - acaiProgress)}
             />
             <path
-              d="M 190 205 L 270 200"
+              d="M 220 205 L 265 200"
               strokeDasharray="100"
               strokeDashoffset={100 * (1 - acaiProgress)}
             />
 
             {/* Letter 'Í' with Accent */}
             <path
-              d="M 260 90 L 255 265"
+              d="M 288 90 L 286 270"
               strokeDasharray="200"
               strokeDashoffset={200 * (1 - acaiProgress)}
             />
             <path
-              d="M 270 70 L 285 40"
+              d="M 292 75 L 305 35"
               strokeDasharray="50"
               strokeDashoffset={50 * (1 - acaiProgress)}
             />
           </g>
 
           {/* ================= 3. "NO" (Middle Left, Orange #F58220) ================= */}
-          <g stroke="#F58220" strokeWidth="18" strokeLinecap="round" strokeLinejoin="round">
+          <g stroke="#F58220" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round">
             {/* Letter 'N' */}
             <path
-              d="M 45 390 L 52 285 L 94 388 L 98 280"
+              d="M 38 390 L 42 298 L 76 385 L 80 285"
               strokeDasharray="400"
               strokeDashoffset={400 * (1 - noProgress)}
             />
 
             {/* Letter 'O' */}
             <path
-              d="M 108 335 C 108 290, 145 285, 145 335 C 145 385, 108 385, 108 335 Z"
+              d="M 110 285 C 88 285, 88 385, 110 385 C 135 385, 135 285, 110 285 Z"
               strokeDasharray="250"
               strokeDashoffset={250 * (1 - noProgress)}
             />
           </g>
 
           {/* ================= 4. "KILO" (Bottom, Cream/Off-White #EFEBE4) ================= */}
-          <g stroke="#EFEBE4" strokeWidth="18" strokeLinecap="round" strokeLinejoin="round">
+          <g stroke="#EFEBE4" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round">
             {/* Letter 'K' */}
             <path
-              d="M 190 290 L 155 480"
-              strokeDasharray="200"
-              strokeDashoffset={200 * (1 - kiloProgress)}
+              d="M 180 265 L 145 480"
+              strokeDasharray="250"
+              strokeDashoffset={250 * (1 - kiloProgress)}
             />
             <path
-              d="M 168 395 L 215 320"
+              d="M 160 385 L 210 315"
               strokeDasharray="120"
               strokeDashoffset={120 * (1 - kiloProgress)}
             />
             <path
-              d="M 172 385 L 230 480"
+              d="M 165 380 L 215 480"
               strokeDasharray="140"
               strokeDashoffset={140 * (1 - kiloProgress)}
             />
 
             {/* Letter 'I' */}
             <circle
-              cx="205"
-              cy="290"
-              r="7"
+              cx="230"
+              cy="285"
+              r="5"
               fill="#EFEBE4"
               opacity={kiloProgress}
             />
             <path
-              d="M 200 315 L 195 420"
-              strokeDasharray="120"
-              strokeDashoffset={120 * (1 - kiloProgress)}
+              d="M 230 310 L 230 440"
+              strokeDasharray="150"
+              strokeDashoffset={150 * (1 - kiloProgress)}
             />
 
             {/* Letter 'L' */}
             <path
-              d="M 230 260 L 235 455 L 290 445"
+              d="M 265 255 L 258 455 L 305 445"
               strokeDasharray="250"
               strokeDashoffset={250 * (1 - kiloProgress)}
             />
 
             {/* Letter 'O' (Tall Loop) */}
             <path
-              d="M 285 365 C 285 255, 320 255, 320 365 C 320 475, 285 475, 285 365 Z"
+              d="M 335 250 C 308 250, 308 430, 335 430 C 365 430, 365 250, 335 250 Z"
               strokeDasharray="350"
               strokeDashoffset={350 * (1 - kiloProgress)}
             />
           </g>
 
           {/* ================= 5. TRADEMARK (R) ================= */}
-          <g opacity={progress > 70 ? (progress - 70) / 30 : 0} stroke="#EFEBE4" strokeWidth="2.5" fill="none">
-            <circle cx="345" cy="320" r="10" />
+          <g opacity={progress > 70 ? (progress - 70) / 30 : 0} stroke="#EFEBE4" strokeWidth="2" fill="none">
+            <circle cx="375" cy="320" r="9" />
             <text
-              x="345"
-              y="323.5"
+              x="375"
+              y="323"
               fill="#EFEBE4"
-              fontSize="10"
+              fontSize="9"
               fontWeight="bold"
               fontFamily="Arial, sans-serif"
               textAnchor="middle"
