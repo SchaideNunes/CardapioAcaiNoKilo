@@ -40,18 +40,34 @@ export default function HomePage() {
           <div className="absolute bottom-[-10%] left-[-20%] w-[500px] h-[500px] lg:w-[700px] lg:h-[700px] bg-secondary/15 rounded-full blur-[120px]" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white/[0.015] rounded-full blur-[100px]" />
           
-          {/* Subtle Floating Food Elements (Desktop only) */}
-          <div className="hidden lg:block absolute top-[12%] left-[8%] xl:left-[12%] w-24 h-24 xl:w-28 xl:h-28 opacity-40 animate-float-slow filter drop-shadow-2xl">
-            <img src="/assets/items/fr_morango.webp" alt="Morango decorativo" className="w-full h-full object-contain rotate-[-15deg]" />
+          {/* Subtle Floating Food Elements (Desktop only) with background clipped away */}
+          <div className="hidden lg:block absolute top-[12%] left-[8%] xl:left-[12%] w-24 h-24 xl:w-28 xl:h-28 opacity-50 animate-float-slow filter drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]">
+            <img
+              src="/assets/items/fr_morango.webp"
+              alt="Morango decorativo"
+              className="w-full h-full object-contain rotate-[-15deg] [clip-path:circle(37.5%_at_50%_50%)]"
+            />
           </div>
-          <div className="hidden lg:block absolute bottom-[14%] left-[10%] xl:left-[14%] w-28 h-28 xl:w-32 xl:h-32 opacity-40 animate-float-reverse filter drop-shadow-2xl">
-            <img src="/assets/items/fr_banana.webp" alt="Banana decorativa" className="w-full h-full object-contain rotate-[20deg]" />
+          <div className="hidden lg:block absolute bottom-[14%] left-[10%] xl:left-[14%] w-28 h-28 xl:w-32 xl:h-32 opacity-50 animate-float-reverse filter drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]">
+            <img
+              src="/assets/items/fr_banana.webp"
+              alt="Banana decorativa"
+              className="w-full h-full object-contain rotate-[20deg] [clip-path:circle(37.5%_at_50%_50%)]"
+            />
           </div>
-          <div className="hidden lg:block absolute top-[15%] right-[8%] xl:right-[12%] w-24 h-24 xl:w-28 xl:h-28 opacity-35 animate-float-drift filter drop-shadow-2xl">
-            <img src="/assets/items/fr_kiwi.webp" alt="Kiwi decorativo" className="w-full h-full object-contain rotate-[10deg]" />
+          <div className="hidden lg:block absolute top-[15%] right-[8%] xl:right-[12%] w-24 h-24 xl:w-28 xl:h-28 opacity-45 animate-float-drift filter drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]">
+            <img
+              src="/assets/items/fr_kiwi.webp"
+              alt="Kiwi decorativo"
+              className="w-full h-full object-contain rotate-[10deg] [clip-path:circle(37.5%_at_50%_50%)]"
+            />
           </div>
-          <div className="hidden lg:block absolute bottom-[16%] right-[10%] xl:right-[14%] w-28 h-28 xl:w-32 xl:h-32 opacity-40 animate-float-slow filter drop-shadow-2xl">
-            <img src="/assets/items/a_granola_trad.webp" alt="Granola decorativa" className="w-full h-full object-contain rotate-[-10deg]" />
+          <div className="hidden lg:block absolute bottom-[16%] right-[10%] xl:right-[14%] w-28 h-28 xl:w-32 xl:h-32 opacity-50 animate-float-slow filter drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]">
+            <img
+              src="/assets/items/a_granola_trad.webp"
+              alt="Granola decorativa"
+              className="w-full h-full object-contain rotate-[-10deg] [clip-path:circle(37.5%_at_50%_50%)]"
+            />
           </div>
         </div>
 
