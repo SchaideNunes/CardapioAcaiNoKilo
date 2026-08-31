@@ -120,9 +120,9 @@ export default function ReadyMadePage() {
 
   return (
     <SmoothScrollProvider isDisabled={showCart || showCheckout}>
-      <main className="min-h-screen bg-[#3d1b34] flex flex-col relative text-white">
+      <main className="min-h-screen bg-[#1a0c16] flex flex-col relative text-white">
         {/* Header */}
-        <header className="sticky top-0 z-40 bg-[#3d1b34]/80 backdrop-blur-xl border-b border-white/5 px-6 py-4 flex items-center justify-between">
+        <header className="sticky top-0 z-40 bg-[#1a0c16]/80 backdrop-blur-xl border-b border-white/5 px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link to="/" className="p-2 text-white/70 hover:text-primary transition-colors">
               <ArrowLeft size={24} />
@@ -143,7 +143,7 @@ export default function ReadyMadePage() {
         {/* Cart Drawer - Same style as OrderPage */}
         <div className={cn("fixed inset-0 z-[100] transition-all duration-500", showCart ? "visible" : "invisible pointer-events-none")}>
           <div className={cn("absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-500", showCart ? "opacity-100" : "opacity-0")} onClick={() => setShowCart(false)} />
-          <div className={cn("absolute right-0 top-0 h-full w-[85%] max-w-[400px] bg-[#3d1b34] shadow-2xl flex flex-col transition-transform duration-500", showCart ? "translate-x-0" : "translate-x-full")}>
+          <div className={cn("absolute right-0 top-0 h-full w-[85%] max-w-[400px] bg-[#1a0c16] shadow-2xl flex flex-col transition-transform duration-500", showCart ? "translate-x-0" : "translate-x-full")}>
             <div className="p-6 border-b border-white/10 flex items-center justify-between">
               <h3 className="font-heading text-2xl text-primary uppercase">Seu Pedido</h3>
               <button onClick={() => setShowCart(false)} className="text-white/50"><ArrowRight size={24} /></button>
@@ -351,7 +351,7 @@ export default function ReadyMadePage() {
 
         {/* Mobile Floating Bottom Bar */}
         {cartCount > 0 && (
-          <footer className="fixed bottom-0 left-0 w-full z-50 bg-[#3d1b34] border-t border-white/5 p-4 sm:p-6 flex items-center justify-between shadow-[0_-10px_30px_rgba(0,0,0,0.5)] animate-in slide-in-from-bottom-4 duration-300 lg:hidden">
+          <footer className="fixed bottom-0 left-0 w-full z-50 bg-[#1a0c16] border-t border-white/5 p-4 sm:p-6 flex items-center justify-between shadow-[0_-10px_30px_rgba(0,0,0,0.5)] animate-in slide-in-from-bottom-4 duration-300 lg:hidden">
             <div className="flex flex-col">
               <span className="text-[10px] text-white/50 uppercase font-bold">{cartCount} {cartCount === 1 ? 'item' : 'itens'}</span>
               <span className="font-heading text-2xl sm:text-3xl text-white">R$ {cartTotal.toFixed(2)}</span>
@@ -374,7 +374,7 @@ export default function ReadyMadePage() {
         {showCheckout && (
           <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center">
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onClick={() => setShowCheckout(false)} />
-            <div className="relative w-full max-w-lg bg-[#3d1b34] rounded-t-3xl sm:rounded-3xl shadow-2xl p-6 sm:p-8 max-h-[90vh] overflow-y-auto animate-in slide-in-from-bottom-full sm:zoom-in-95 duration-300">
+            <div className="relative w-full max-w-lg bg-[#1a0c16] rounded-t-3xl sm:rounded-3xl shadow-2xl p-6 sm:p-8 max-h-[90vh] overflow-y-auto animate-in slide-in-from-bottom-full sm:zoom-in-95 duration-300">
               <div className="flex justify-between items-start mb-6">
                 <div>
                   <h2 className="font-heading text-2xl text-primary uppercase mb-1">Finalizar Pedido</h2>
@@ -454,7 +454,7 @@ export default function ReadyMadePage() {
 
               <div className="flex gap-3 mt-8">
                 <button onClick={() => setShowCheckout(false)} className="flex-1 py-4 rounded-xl bg-white/10 text-white font-heading text-lg hover:bg-white/20 transition-all uppercase">Voltar</button>
-                <button onClick={handleFinish} disabled={!isCheckoutValid()} className={cn("flex-[2] py-4 rounded-xl font-heading text-lg flex items-center justify-center gap-2 transition-all uppercase", isCheckoutValid() ? "bg-[#25D366] text-[#3d1b34] hover:bg-[#22c35e] shadow-lg active:scale-95" : "bg-white/5 text-white/20 cursor-not-allowed")}>
+                <button onClick={handleFinish} disabled={!isCheckoutValid()} className={cn("flex-[2] py-4 rounded-xl font-heading text-lg flex items-center justify-center gap-2 transition-all uppercase", isCheckoutValid() ? "bg-[#25D366] text-[#1a0c16] hover:bg-[#22c35e] shadow-lg active:scale-95" : "bg-white/5 text-white/20 cursor-not-allowed")}>
                   <Send size={20} /> Enviar Pedido
                 </button>
               </div>

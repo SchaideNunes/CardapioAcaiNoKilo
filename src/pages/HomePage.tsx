@@ -33,36 +33,31 @@ export default function HomePage() {
     <>
       {!preloaderDone && <Preloader onFinished={() => setPreloaderDone(true)} />}
       
-      <main className="min-h-[100dvh] bg-[#3d1b34] flex flex-col relative text-white overflow-hidden">
-        {/* Background ambient lighting effects */}
+      <main className="min-h-[100dvh] bg-[#1a0c16] flex flex-col relative text-white overflow-hidden">
+        {/* Background Subtle Floating Food Elements (Desktop only) */}
         <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
-          <div className="absolute top-[-20%] right-[-30%] w-[600px] h-[600px] lg:w-[800px] lg:h-[800px] bg-primary/10 rounded-full blur-[140px]" />
-          <div className="absolute bottom-[-10%] left-[-20%] w-[500px] h-[500px] lg:w-[700px] lg:h-[700px] bg-secondary/15 rounded-full blur-[120px]" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white/[0.015] rounded-full blur-[100px]" />
-          
-          {/* Subtle Floating Food Elements (Desktop only) with background clipped away */}
-          <div className="hidden lg:block absolute top-[12%] left-[8%] xl:left-[12%] w-24 h-24 xl:w-28 xl:h-28 opacity-50 animate-float-slow filter drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]">
+          <div className="hidden lg:block absolute top-[12%] left-[8%] xl:left-[12%] w-24 h-24 xl:w-28 xl:h-28 opacity-40 animate-float-slow filter drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]">
             <img
               src="/assets/items/fr_morango.webp"
               alt="Morango decorativo"
               className="w-full h-full object-contain rotate-[-15deg] [clip-path:circle(37.5%_at_50%_50%)]"
             />
           </div>
-          <div className="hidden lg:block absolute bottom-[14%] left-[10%] xl:left-[14%] w-28 h-28 xl:w-32 xl:h-32 opacity-50 animate-float-reverse filter drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]">
+          <div className="hidden lg:block absolute bottom-[14%] left-[10%] xl:left-[14%] w-28 h-28 xl:w-32 xl:h-32 opacity-40 animate-float-reverse filter drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]">
             <img
               src="/assets/items/fr_banana.webp"
               alt="Banana decorativa"
               className="w-full h-full object-contain rotate-[20deg] [clip-path:circle(37.5%_at_50%_50%)]"
             />
           </div>
-          <div className="hidden lg:block absolute top-[10%] right-[6%] xl:right-[10%] w-24 h-24 xl:w-28 xl:h-28 opacity-45 animate-float-drift filter drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]">
+          <div className="hidden lg:block absolute top-[10%] right-[6%] xl:right-[10%] w-24 h-24 xl:w-28 xl:h-28 opacity-35 animate-float-drift filter drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]">
             <img
               src="/assets/items/fr_kiwi.webp"
               alt="Kiwi decorativo"
               className="w-full h-full object-contain rotate-[10deg] [clip-path:circle(37.5%_at_50%_50%)]"
             />
           </div>
-          <div className="hidden lg:block absolute top-[45%] left-[4%] xl:left-[8%] w-24 h-24 xl:w-28 xl:h-28 opacity-45 animate-float-slow filter drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]">
+          <div className="hidden lg:block absolute top-[45%] left-[4%] xl:left-[8%] w-24 h-24 xl:w-28 xl:h-28 opacity-35 animate-float-slow filter drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]">
             <img
               src="/assets/items/a_granola_trad.webp"
               alt="Granola decorativa"
@@ -87,11 +82,8 @@ export default function HomePage() {
             {/* CRIAR O SEU */}
             <Link
               to="/montar"
-              className="group relative flex flex-col justify-end min-h-[160px] md:min-h-[190px] lg:min-h-[220px] p-5 md:p-6 lg:p-8 rounded-[32px] lg:rounded-[40px] bg-white/[0.03] border border-white/10 hover:bg-white/[0.07] hover:border-primary/40 active:scale-[0.98] transition-all duration-500 overflow-hidden shadow-2xl shadow-black/20 hover:shadow-primary/5"
+              className="group relative flex flex-col justify-end min-h-[160px] md:min-h-[190px] lg:min-h-[220px] p-5 md:p-6 lg:p-8 rounded-[32px] lg:rounded-[40px] bg-white/[0.04] border border-white/10 hover:bg-white/[0.08] hover:border-primary/40 active:scale-[0.98] transition-all duration-500 overflow-hidden shadow-2xl shadow-black/40 hover:shadow-primary/5"
             >
-              {/* Background Glow */}
-              <div className="absolute top-0 right-0 w-40 h-40 lg:w-60 lg:h-60 bg-primary/20 blur-[60px] lg:blur-[80px] rounded-full pointer-events-none" />
-              
               {/* Floating image (Vertically Centered) */}
               <div className="absolute top-1/2 -translate-y-1/2 right-0 sm:right-2 lg:right-6 w-40 h-40 sm:w-48 sm:h-48 lg:w-60 lg:h-60 pointer-events-none flex items-center justify-center">
                 <img
@@ -118,11 +110,8 @@ export default function HomePage() {
             {/* COMPRAR PRONTO */}
             <Link
               to="/prontos"
-              className="group relative flex flex-col justify-end min-h-[160px] md:min-h-[190px] lg:min-h-[220px] p-5 md:p-6 lg:p-8 rounded-[32px] lg:rounded-[40px] bg-white/[0.03] border border-white/10 hover:bg-white/[0.07] hover:border-primary/40 active:scale-[0.98] transition-all duration-500 overflow-hidden shadow-2xl shadow-black/20 hover:shadow-primary/5"
+              className="group relative flex flex-col justify-end min-h-[160px] md:min-h-[190px] lg:min-h-[220px] p-5 md:p-6 lg:p-8 rounded-[32px] lg:rounded-[40px] bg-white/[0.04] border border-white/10 hover:bg-white/[0.08] hover:border-primary/40 active:scale-[0.98] transition-all duration-500 overflow-hidden shadow-2xl shadow-black/40 hover:shadow-primary/5"
             >
-              {/* Background Glow */}
-              <div className="absolute top-0 right-0 w-40 h-40 lg:w-60 lg:h-60 bg-primary/20 blur-[60px] lg:blur-[80px] rounded-full pointer-events-none" />
-              
               {/* Floating image (Vertically Centered) */}
               <div className="absolute top-1/2 -translate-y-1/2 right-1 sm:right-3 lg:right-6 w-36 h-36 sm:w-44 sm:h-44 lg:w-56 lg:h-56 pointer-events-none flex items-center justify-center">
                 <img
