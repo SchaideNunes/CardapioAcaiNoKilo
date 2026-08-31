@@ -55,14 +55,14 @@ export default function HomePage() {
               className="w-full h-full object-contain rotate-[20deg] [clip-path:circle(37.5%_at_50%_50%)]"
             />
           </div>
-          <div className="hidden lg:block absolute top-[15%] right-[8%] xl:right-[12%] w-24 h-24 xl:w-28 xl:h-28 opacity-45 animate-float-drift filter drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]">
+          <div className="hidden lg:block absolute top-[10%] right-[6%] xl:right-[10%] w-24 h-24 xl:w-28 xl:h-28 opacity-45 animate-float-drift filter drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]">
             <img
               src="/assets/items/fr_kiwi.webp"
               alt="Kiwi decorativo"
               className="w-full h-full object-contain rotate-[10deg] [clip-path:circle(37.5%_at_50%_50%)]"
             />
           </div>
-          <div className="hidden lg:block absolute bottom-[16%] right-[10%] xl:right-[14%] w-28 h-28 xl:w-32 xl:h-32 opacity-50 animate-float-slow filter drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]">
+          <div className="hidden lg:block absolute top-[45%] left-[4%] xl:left-[8%] w-24 h-24 xl:w-28 xl:h-28 opacity-45 animate-float-slow filter drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]">
             <img
               src="/assets/items/a_granola_trad.webp"
               alt="Granola decorativa"
@@ -146,6 +146,19 @@ export default function HomePage() {
               </div>
             </Link>
           </div>
+        </div>
+
+        {/* Animated Mascot Character (Desktop right side) */}
+        <div
+          className={`hidden lg:flex absolute bottom-0 right-[2%] xl:right-[4%] 2xl:right-[8%] z-20 pointer-events-none items-end justify-center transition-all duration-1000 delay-500 ${
+            showContent ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-16 scale-95'
+          }`}
+        >
+          <img
+            src="/assets/Mascote.webp"
+            alt="Mascote Açaí no Kilo"
+            className="w-52 md:w-64 lg:w-72 xl:w-80 2xl:w-[380px] max-h-[68vh] object-contain drop-shadow-[0_20px_45px_rgba(0,0,0,0.6)] animate-float-slow select-none pointer-events-none"
+          />
         </div>
 
         {/* Bottom subtle brand */}
