@@ -148,16 +148,16 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Animated Mascot Character (Desktop right side) */}
+        {/* Animated Mascot Character (Mobile Corner Peek + Desktop Display) */}
         <div
-          className={`hidden lg:flex absolute bottom-0 right-[2%] xl:right-[4%] 2xl:right-[8%] z-20 pointer-events-none items-end justify-center transition-all duration-1000 delay-500 ${
-            showContent ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-16 scale-95'
+          className={`absolute bottom-0 right-0 sm:right-2 lg:right-[4%] 2xl:right-[8%] z-20 pointer-events-none flex items-end justify-center transition-all duration-1000 delay-500 ${
+            showContent ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-12 scale-95'
           }`}
         >
           <img
             src="/assets/Mascote.webp"
             alt="Mascote Açaí no Kilo"
-            className="w-52 md:w-64 lg:w-72 xl:w-80 2xl:w-[380px] max-h-[68vh] object-contain drop-shadow-[0_20px_45px_rgba(0,0,0,0.6)] animate-float-slow select-none pointer-events-none"
+            className="w-20 xs:w-24 sm:w-32 lg:w-72 xl:w-80 2xl:w-[380px] max-h-[20vh] lg:max-h-[68vh] object-contain drop-shadow-[0_15px_35px_rgba(0,0,0,0.6)] animate-float-slow select-none pointer-events-none translate-x-2 translate-y-1 lg:translate-x-0 lg:translate-y-0"
           />
         </div>
 
