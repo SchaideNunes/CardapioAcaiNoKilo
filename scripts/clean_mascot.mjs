@@ -14,6 +14,22 @@ fs.createReadStream(inputPath)
     const visited = new Uint8Array(width * height);
 
     function isCheckerPixel(x, y) {
+      // PROTECT TEETH:
+      if (x >= 515 && x <= 650 && y >= 470 && y <= 530) {
+        return false;
+      }
+      // PROTECT SOCKS:
+      if (y >= 720 && y <= 980 && ((x >= 260 && x <= 420) || (x >= 420 && x <= 600))) {
+        return false;
+      }
+      // PROTECT SUNGLASSES HIGHLIGHTS & WHITE SHIRT BADGE:
+      if (y >= 280 && y <= 450 && x >= 300 && x <= 660) {
+        return false;
+      }
+      if (y >= 540 && y <= 660 && x >= 510 && x <= 620) {
+        return false;
+      }
+
       const idx = (y * width + x) * 4;
       const r = data[idx];
       const g = data[idx + 1];
@@ -54,7 +70,7 @@ fs.createReadStream(inputPath)
             const g = data[cIdx + 1];
             const b = data[cIdx + 2];
 
-            // True gray checkerboard pixel (not pure character highlight)
+            // True gray checkerboard pixel
             if (r >= 195 && r <= 242 && g >= 195 && g <= 242 && b >= 195 && b <= 242 && Math.abs(r - g) <= 8 && Math.abs(g - b) <= 8) {
               hasGray = true;
             }
@@ -78,10 +94,7 @@ fs.createReadStream(inputPath)
           }
 
           // If it touches border OR contains gray checkerboard pixels, it is background!
-          // Exclude teeth (y between 420 and 480, x between 440 and 640)
-          const isTeeth = comp.every(([px, py]) => px >= 440 && px <= 640 && py >= 420 && py <= 480);
-
-          if ((touchesBorder || hasGray) && !isTeeth) {
+          if (touchesBorder || hasGray) {
             for (const [px, py] of comp) {
               const idx = (py * width + px) * 4;
               data[idx + 3] = 0; // Alpha = 0
@@ -95,6 +108,6 @@ fs.createReadStream(inputPath)
     console.log(`Total removed background pixels: ${totalRemoved}`);
 
     this.pack().pipe(fs.createWriteStream(outputPath)).on('finish', () => {
-      console.log('Saved 100% transparent PNG to ' + outputPath);
+      console.log('Saved 100% transparent PNG with preserved teeth & socks to ' + outputPath);
     });
   });
