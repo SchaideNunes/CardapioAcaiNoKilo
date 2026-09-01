@@ -15,7 +15,15 @@ import {
   X, 
   AlertTriangle,
   Upload,
-  Sparkles
+  Sparkles,
+  LayoutGrid,
+  Layers,
+  Droplets,
+  PlusCircle,
+  Milk,
+  Apple,
+  Cookie,
+  ShoppingBag
 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -53,15 +61,15 @@ export interface OrderAdmin {
 }
 
 export const CATEGORIES_CONFIG = [
-  { key: "all", label: "Todos os Itens", icon: "🍨", color: "from-amber-500/20 to-yellow-500/20" },
-  { key: "sizes", label: "Tamanhos de Potes", icon: "🥣", color: "from-purple-500/20 to-pink-500/20" },
-  { key: "flavors", label: "Sabores de Açaí", icon: "🍇", color: "from-violet-500/20 to-purple-500/20" },
-  { key: "toppings", label: "Coberturas", icon: "🍯", color: "from-amber-500/20 to-orange-500/20" },
-  { key: "addons", label: "Adicionais", icon: "🥜", color: "from-emerald-500/20 to-teal-500/20" },
-  { key: "creams", label: "Cremes", icon: "🍧", color: "from-pink-500/20 to-rose-500/20" },
-  { key: "fruits", label: "Frutas Frescas", icon: "🍓", color: "from-red-500/20 to-rose-500/20" },
-  { key: "fillings", label: "Recheios Especiais", icon: "🍫", color: "from-yellow-600/20 to-amber-700/20" },
-  { key: "ready_made", label: "Prontos para Levar", icon: "📦", color: "from-blue-500/20 to-cyan-500/20" },
+  { key: "all", label: "Todos os Itens", Icon: LayoutGrid, iconColor: "text-primary" },
+  { key: "sizes", label: "Tamanhos de Potes", Icon: Layers, iconColor: "text-purple-400" },
+  { key: "flavors", label: "Sabores de Açaí", Icon: Sparkles, iconColor: "text-violet-400" },
+  { key: "toppings", label: "Coberturas", Icon: Droplets, iconColor: "text-amber-400" },
+  { key: "addons", label: "Adicionais", Icon: PlusCircle, iconColor: "text-emerald-400" },
+  { key: "creams", label: "Cremes", Icon: Milk, iconColor: "text-pink-400" },
+  { key: "fruits", label: "Frutas Frescas", Icon: Apple, iconColor: "text-rose-400" },
+  { key: "fillings", label: "Recheios Especiais", Icon: Cookie, iconColor: "text-amber-500" },
+  { key: "ready_made", label: "Prontos para Levar", Icon: ShoppingBag, iconColor: "text-cyan-400" },
 ];
 
 export function resolveItemImage(item: Partial<ItemAdmin>): string {
@@ -434,7 +442,7 @@ export default function AdminPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#241220] flex flex-col items-center justify-center">
+      <div className="min-h-screen bg-[#180a15] flex flex-col items-center justify-center">
         <RefreshCw className="text-primary animate-spin mb-4" size={48} />
         <span className="font-heading text-xl text-white uppercase tracking-widest">Sincronizando Painel...</span>
       </div>
@@ -442,7 +450,7 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#241220] text-white flex flex-col md:flex-row relative selection:bg-primary selection:text-secondary">
+    <div className="min-h-screen bg-[#180a15] text-white flex flex-col md:flex-row relative selection:bg-primary selection:text-secondary">
       {/* Toast Notification */}
       {toast && (
         <div className={cn(
@@ -457,11 +465,11 @@ export default function AdminPage() {
       )}
 
       {/* Sidebar Navigation */}
-      <aside className="w-full md:w-72 bg-black/30 border-b md:border-b-0 md:border-r border-white/5 p-6 flex flex-col gap-6 backdrop-blur-xl">
+      <aside className="w-full md:w-72 bg-[#120610]/90 border-b md:border-b-0 md:border-r border-white/5 p-6 flex flex-col gap-6 backdrop-blur-xl">
         <div className="flex items-center justify-between md:justify-start gap-3 pb-4 border-b border-white/5">
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 bg-primary rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20">
-              <LayoutDashboard className="text-[#241220]" size={24} />
+              <LayoutDashboard className="text-[#180a15]" size={24} />
             </div>
             <div>
               <h1 className="font-heading text-2xl uppercase text-primary leading-none tracking-wide">Admin Painel</h1>
@@ -478,7 +486,7 @@ export default function AdminPage() {
         </div>
 
         {/* Status Pills */}
-        <div className="grid grid-cols-3 gap-2 bg-white/[0.03] p-3 rounded-2xl border border-white/5">
+        <div className="grid grid-cols-3 gap-2 bg-white/[0.02] p-3 rounded-2xl border border-white/5">
           <div className="text-center">
             <p className="text-[10px] text-white/40 font-bold uppercase">Total</p>
             <p className="font-heading text-lg text-white">{stats.total}</p>
@@ -564,7 +572,7 @@ export default function AdminPage() {
 
             <div className="grid gap-4">
               {orders.map(order => (
-                <div key={order._id} className="bg-white/[0.03] border border-white/10 p-6 rounded-3xl flex flex-col md:flex-row justify-between gap-6 hover:bg-white/[0.05] transition-all">
+                <div key={order._id} className="bg-[#1f0d1b]/80 border border-white/[0.08] p-6 rounded-3xl flex flex-col md:flex-row justify-between gap-6 hover:bg-[#261122] transition-all shadow-xl">
                   <div className="space-y-2.5">
                     <div className="flex items-center gap-3 flex-wrap">
                       <span className="bg-primary text-secondary px-3 py-1 rounded-full text-xs font-black uppercase font-heading tracking-wide">
@@ -614,23 +622,27 @@ export default function AdminPage() {
               </button>
             </div>
 
-            {/* Categorias Tabs (Horizontais) */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar border-b border-white/5">
-              {CATEGORIES_CONFIG.map(cat => (
-                <button
-                  key={cat.key}
-                  onClick={() => setSelectedCategory(cat.key)}
-                  className={cn(
-                    "px-4 py-2.5 rounded-xl font-sans text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center gap-2",
-                    selectedCategory === cat.key 
-                      ? "bg-white/15 text-primary border border-primary/40 shadow-md" 
-                      : "bg-white/[0.03] text-white/60 hover:bg-white/[0.08] hover:text-white border border-transparent"
-                  )}
-                >
-                  <span>{cat.icon}</span>
-                  <span>{cat.label}</span>
-                </button>
-              ))}
+            {/* Categorias Tabs (Com Ícones Modernos SVG) */}
+            <div className="flex items-center gap-2.5 overflow-x-auto pb-2 no-scrollbar border-b border-white/5">
+              {CATEGORIES_CONFIG.map(cat => {
+                const IconComponent = cat.Icon;
+                const isSelected = selectedCategory === cat.key;
+                return (
+                  <button
+                    key={cat.key}
+                    onClick={() => setSelectedCategory(cat.key)}
+                    className={cn(
+                      "px-4 py-2.5 rounded-2xl font-sans text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center gap-2.5 border",
+                      isSelected 
+                        ? "bg-primary text-secondary border-primary shadow-lg shadow-primary/20 font-black scale-[1.02]" 
+                        : "bg-white/[0.03] text-white/70 hover:bg-white/[0.08] hover:text-white border-white/5 hover:border-white/10"
+                    )}
+                  >
+                    <IconComponent size={16} className={isSelected ? "text-secondary" : cat.iconColor} />
+                    <span>{cat.label}</span>
+                  </button>
+                );
+              })}
             </div>
 
             {/* Filtros e Busca */}
@@ -643,7 +655,7 @@ export default function AdminPage() {
                   placeholder="Buscar por nome ou categoria..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-white/[0.04] border border-white/10 rounded-2xl py-2.5 pl-10 pr-4 text-white text-sm font-sans focus:outline-none focus:border-primary/50 transition-all placeholder:text-white/30"
+                  className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-2.5 pl-10 pr-4 text-white text-sm font-sans focus:outline-none focus:border-primary/50 transition-all placeholder:text-white/30"
                 />
                 {searchQuery && (
                   <button 
@@ -695,8 +707,8 @@ export default function AdminPage() {
                   <div 
                     key={item._id} 
                     className={cn(
-                      "group relative bg-white/[0.03] border p-5 rounded-3xl flex flex-col justify-between gap-4 transition-all hover:bg-white/[0.06] hover:border-white/20 shadow-lg",
-                      item.active === false ? "opacity-50 grayscale border-white/5 bg-black/20" : "border-white/10"
+                      "group relative bg-[#1f0d1b]/85 border p-5 rounded-3xl flex flex-col justify-between gap-4 transition-all hover:bg-[#281223] hover:border-primary/30 shadow-xl",
+                      item.active === false ? "opacity-50 grayscale border-white/5 bg-black/40" : "border-white/[0.08]"
                     )}
                   >
                     <div className="flex items-start gap-4">
@@ -704,7 +716,7 @@ export default function AdminPage() {
                       {(() => {
                         const itemImg = item.image || resolveItemImage(item);
                         return (
-                          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-black/40 border border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0 relative group-hover:border-primary/40 transition-colors shadow-inner">
+                          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-black/50 border border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0 relative group-hover:border-primary/40 transition-colors shadow-inner">
                             {itemImg ? (
                               <img 
                                 src={itemImg} 
@@ -729,11 +741,11 @@ export default function AdminPage() {
                       {/* Informações do Item */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1 flex-wrap">
-                          <span className="text-[10px] font-black text-primary uppercase tracking-widest bg-primary/10 px-2 py-0.5 rounded-md">
+                          <span className="text-[10px] font-black text-primary uppercase tracking-widest bg-primary/10 px-2 py-0.5 rounded-md border border-primary/20">
                             {item.category || item.original_category}
                           </span>
                           {item.type && (
-                            <span className="text-[9px] font-bold text-white/40 uppercase bg-white/5 px-1.5 py-0.5 rounded">
+                            <span className="text-[9px] font-bold text-white/40 uppercase bg-white/5 px-1.5 py-0.5 rounded border border-white/5">
                               {item.type}
                             </span>
                           )}
@@ -751,21 +763,26 @@ export default function AdminPage() {
 
                     {/* Preço e Ações Rápidas */}
                     <div className="flex items-center justify-between gap-3 pt-3 border-t border-white/5">
-                      {/* Campo de Preço Rápido */}
-                      <div className="relative flex items-center">
-                        <span className="absolute left-3 text-primary font-heading text-sm">R$</span>
+                      {/* Campo de Preço Rápido e Sofisticado */}
+                      <div className="flex items-center gap-1.5 bg-[#120610]/90 border border-primary/30 hover:border-primary/60 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/25 rounded-2xl px-3 py-1.5 transition-all shadow-inner group/price">
+                        <span className="text-primary font-heading font-black text-sm tracking-wider select-none">
+                          R$
+                        </span>
                         <input 
                           type="number" 
                           step="0.50"
-                          defaultValue={item.price} 
+                          min="0"
+                          defaultValue={item.price.toFixed(2)} 
                           onBlur={(e) => {
                             const val = parseFloat(e.target.value);
                             if (!isNaN(val) && val !== item.price) {
                               updateItemQuick(item._id, { price: val });
+                              e.target.value = val.toFixed(2);
                             }
                           }}
-                          className="w-24 bg-white/10 border border-white/10 rounded-xl py-1.5 pl-8 pr-2 text-white font-heading text-base focus:outline-none focus:border-primary transition-all text-right" 
+                          className="w-16 sm:w-20 bg-transparent text-primary font-heading text-xl font-bold tracking-wide focus:outline-none text-left [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
                         />
+                        <Edit3 size={12} className="text-primary/40 group-hover/price:text-primary transition-colors flex-shrink-0" />
                       </div>
 
                       {/* Botões de Ação */}
@@ -774,7 +791,7 @@ export default function AdminPage() {
                         <button 
                           onClick={() => { setEditingItem(item); setModalOpen(true); }}
                           title="Editar Detalhes / Foto"
-                          className="p-2.5 rounded-xl bg-white/5 hover:bg-white/15 text-white/70 hover:text-white transition-all"
+                          className="p-2.5 rounded-xl bg-white/5 hover:bg-white/15 text-white/70 hover:text-white transition-all border border-white/5"
                         >
                           <Edit3 size={16} />
                         </button>
@@ -784,10 +801,10 @@ export default function AdminPage() {
                           onClick={() => updateItemQuick(item._id, { active: item.active === false ? true : false })}
                           title={item.active === false ? "Ativar Item no Cardápio" : "Pausar Item (Falta no Estoque)"}
                           className={cn(
-                            "p-2.5 rounded-xl transition-all", 
+                            "p-2.5 rounded-xl transition-all border", 
                             item.active !== false 
-                              ? "bg-[#25D366]/20 text-[#25D366] hover:bg-[#25D366]/30" 
-                              : "bg-red-500/20 text-red-400 hover:bg-red-500/30"
+                              ? "bg-[#25D366]/20 border-[#25D366]/40 text-[#25D366] hover:bg-[#25D366]/30" 
+                              : "bg-red-500/20 border-red-500/40 text-red-400 hover:bg-red-500/30"
                           )}
                         >
                           <Power size={16} />
@@ -797,7 +814,7 @@ export default function AdminPage() {
                         <button 
                           onClick={() => setItemToDelete(item)}
                           title="Excluir do Cardápio"
-                          className="p-2.5 rounded-xl bg-white/5 hover:bg-red-500/20 text-white/40 hover:text-red-400 transition-all"
+                          className="p-2.5 rounded-xl bg-white/5 hover:bg-red-500/20 text-white/40 hover:text-red-400 transition-all border border-white/5 hover:border-red-500/30"
                         >
                           <Trash2 size={16} />
                         </button>
@@ -823,10 +840,10 @@ export default function AdminPage() {
 
       {/* ================= MODAL DE CONFIRMAÇÃO DE EXCLUSÃO ================= */}
       {itemToDelete && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="bg-[#2a1324] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-6">
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="bg-[#1f0d1b] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-6">
             <div className="flex items-center gap-4 text-red-400">
-              <div className="p-3 bg-red-500/10 rounded-2xl">
+              <div className="p-3 bg-red-500/10 rounded-2xl border border-red-500/20">
                 <Trash2 size={28} />
               </div>
               <div>
@@ -907,8 +924,8 @@ function ItemModal({ item, onClose, onSave, loading }: ItemModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/75 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200">
-      <div className="bg-[#241220] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-xl w-full shadow-2xl space-y-6 my-8 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200">
+      <div className="bg-[#1f0d1b] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-xl w-full shadow-2xl space-y-6 my-8 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between pb-4 border-b border-white/10">
           <div>
             <h3 className="font-heading text-2xl uppercase text-primary">
@@ -938,7 +955,7 @@ function ItemModal({ item, onClose, onSave, loading }: ItemModalProps) {
 
             <div className="flex items-center gap-4">
               {/* Preview */}
-              <div className="w-20 h-20 rounded-2xl bg-black/40 border border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0 relative shadow-inner">
+              <div className="w-20 h-20 rounded-2xl bg-black/50 border border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0 relative shadow-inner">
                 {image ? (
                   <img 
                     src={image} 
@@ -965,7 +982,7 @@ function ItemModal({ item, onClose, onSave, loading }: ItemModalProps) {
                   className="w-full bg-white/5 border border-white/10 rounded-xl py-2 px-3 text-white text-xs font-sans focus:outline-none focus:border-primary transition-all"
                 />
                 
-                <label className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white/80 text-xs font-bold uppercase cursor-pointer transition-all">
+                <label className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white/80 text-xs font-bold uppercase cursor-pointer transition-all border border-white/10">
                   <Upload size={14} /> Selecionar Arquivo
                   <input 
                     type="file" 
@@ -1008,7 +1025,7 @@ function ItemModal({ item, onClose, onSave, loading }: ItemModalProps) {
                     setCategory(selectedCat.label);
                   }
                 }}
-                className="w-full bg-[#2a1324] border border-white/10 rounded-xl py-3 px-3 text-white text-sm font-sans focus:outline-none focus:border-primary transition-all"
+                className="w-full bg-[#120610] border border-white/10 rounded-xl py-3 px-3 text-white text-sm font-sans focus:outline-none focus:border-primary transition-all"
               >
                 <option value="sizes">🥣 Tamanho de Pote (sizes)</option>
                 <option value="flavors">🍇 Sabor de Açaí (flavors)</option>
