@@ -163,6 +163,18 @@ export default function AdminPage() {
     fetchData();
   }, [token]);
 
+  // Bloquear scroll de fundo quando modal estiver aberto
+  useEffect(() => {
+    if (modalOpen || itemToDelete) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [modalOpen, itemToDelete]);
+
   const getInitialFallbackItems = (): ItemAdmin[] => {
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY) || localStorage.getItem("cardapio_admin_menu_items_v2");
     if (saved) {
