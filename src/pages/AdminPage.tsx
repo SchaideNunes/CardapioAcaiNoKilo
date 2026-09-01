@@ -508,7 +508,7 @@ export default function AdminPage() {
             <p className="font-heading text-lg text-[#25D366]">{stats.active}</p>
           </div>
           <div className="text-center">
-            <p className="text-[10px] text-red-400 font-bold uppercase">Pausados</p>
+            <p className="text-[10px] text-red-400 font-bold uppercase">Desativados</p>
             <p className="font-heading text-lg text-red-400">{stats.inactive}</p>
           </div>
         </div>
@@ -697,7 +697,7 @@ export default function AdminPage() {
                   onClick={() => setStatusFilter("inactive")} 
                   className={cn("px-3 py-1.5 rounded-xl text-xs font-bold uppercase transition-all", statusFilter === "inactive" ? "bg-red-500/20 text-red-400" : "text-white/40 hover:text-red-400")}
                 >
-                  Pausados ({stats.inactive})
+                  Desativados ({stats.inactive})
                 </button>
               </div>
             </div>
@@ -726,7 +726,7 @@ export default function AdminPage() {
                     {/* Botão Power / Status no Canto Superior Direito */}
                     <button 
                       onClick={() => updateItemQuick(item._id, { active: item.active === false ? true : false })}
-                      title={item.active === false ? "Item Pausado no Cardápio (Clique para Ativar)" : "Item Ativo no Cardápio (Clique para Pausar)"}
+                      title={item.active === false ? "Item Desativado no Cardápio (Clique para Ativar)" : "Item Ativo no Cardápio (Clique para Desativar)"}
                       className={cn(
                         "absolute top-4 right-4 px-2.5 py-1.5 rounded-xl transition-all border flex items-center gap-1.5 shadow-sm active:scale-95 group/power z-10",
                         item.active !== false 
@@ -736,7 +736,7 @@ export default function AdminPage() {
                     >
                       <Power size={14} className="group-hover/power:rotate-12 transition-transform" />
                       <span className="text-[10px] font-bold uppercase tracking-wider">
-                        {item.active !== false ? "Ativo" : "Pausado"}
+                        {item.active !== false ? "Ativo" : "Desativado"}
                       </span>
                     </button>
 
