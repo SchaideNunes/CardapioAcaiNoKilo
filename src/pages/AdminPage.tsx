@@ -707,11 +707,28 @@ export default function AdminPage() {
                   <div 
                     key={item._id} 
                     className={cn(
-                      "group relative bg-[#1f0d1b]/85 border p-5 rounded-3xl flex flex-col justify-between gap-4 transition-all hover:bg-[#281223] hover:border-primary/30 shadow-xl",
-                      item.active === false ? "opacity-50 grayscale border-white/5 bg-black/40" : "border-white/[0.08]"
+                      "group relative bg-[#1f0d1b]/85 border p-5 rounded-3xl flex flex-col justify-between gap-5 transition-all hover:bg-[#281223] hover:border-primary/30 shadow-xl",
+                      item.active === false ? "opacity-60 grayscale border-white/5 bg-black/40" : "border-white/[0.08]"
                     )}
                   >
-                    <div className="flex items-start gap-4">
+                    {/* Botão Power / Status no Canto Superior Direito */}
+                    <button 
+                      onClick={() => updateItemQuick(item._id, { active: item.active === false ? true : false })}
+                      title={item.active === false ? "Item Pausado no Cardápio (Clique para Ativar)" : "Item Ativo no Cardápio (Clique para Pausar)"}
+                      className={cn(
+                        "absolute top-4 right-4 px-2.5 py-1.5 rounded-xl transition-all border flex items-center gap-1.5 shadow-sm active:scale-95 group/power z-10",
+                        item.active !== false 
+                          ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/25 shadow-[0_0_12px_rgba(16,185,129,0.15)]" 
+                          : "bg-red-500/15 border-red-500/30 text-red-400 hover:bg-red-500/25 shadow-[0_0_12px_rgba(239,68,68,0.15)]"
+                      )}
+                    >
+                      <Power size={14} className="group-hover/power:rotate-12 transition-transform" />
+                      <span className="text-[10px] font-bold uppercase tracking-wider">
+                        {item.active !== false ? "Ativo" : "Pausado"}
+                      </span>
+                    </button>
+
+                    <div className="flex items-start gap-4 pr-16 sm:pr-20">
                       {/* Thumbnail da Imagem */}
                       {(() => {
                         const itemImg = item.image || resolveItemImage(item);
@@ -786,37 +803,24 @@ export default function AdminPage() {
                       </div>
 
                       {/* Botões de Ação */}
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-2">
                         {/* Editar Completo */}
                         <button 
                           onClick={() => { setEditingItem(item); setModalOpen(true); }}
-                          title="Editar Detalhes / Foto"
-                          className="p-2.5 rounded-xl bg-white/5 hover:bg-white/15 text-white/70 hover:text-white transition-all border border-white/5"
+                          title="Editar Detalhes e Foto"
+                          className="px-3.5 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-white/80 hover:text-white transition-all border border-white/10 hover:border-primary/40 flex items-center gap-1.5 text-xs font-bold uppercase active:scale-95 shadow-sm"
                         >
-                          <Edit3 size={16} />
-                        </button>
-
-                        {/* Power Toggle */}
-                        <button 
-                          onClick={() => updateItemQuick(item._id, { active: item.active === false ? true : false })}
-                          title={item.active === false ? "Ativar Item no Cardápio" : "Pausar Item (Falta no Estoque)"}
-                          className={cn(
-                            "p-2.5 rounded-xl transition-all border", 
-                            item.active !== false 
-                              ? "bg-[#25D366]/20 border-[#25D366]/40 text-[#25D366] hover:bg-[#25D366]/30" 
-                              : "bg-red-500/20 border-red-500/40 text-red-400 hover:bg-red-500/30"
-                          )}
-                        >
-                          <Power size={16} />
+                          <Edit3 size={14} className="text-primary" />
+                          <span>Editar</span>
                         </button>
 
                         {/* Excluir */}
                         <button 
                           onClick={() => setItemToDelete(item)}
-                          title="Excluir do Cardápio"
-                          className="p-2.5 rounded-xl bg-white/5 hover:bg-red-500/20 text-white/40 hover:text-red-400 transition-all border border-white/5 hover:border-red-500/30"
+                          title="Excluir Item do Cardápio"
+                          className="p-2 rounded-xl bg-red-500/[0.08] hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-all border border-red-500/20 hover:border-red-500/40 flex items-center justify-center active:scale-95 shadow-sm"
                         >
-                          <Trash2 size={16} />
+                          <Trash2 size={15} />
                         </button>
                       </div>
                     </div>

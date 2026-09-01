@@ -87,7 +87,7 @@ describe("AdminPage - Painel Administrativo", () => {
     const searchInput = await screen.findByPlaceholderText(/buscar por nome ou categoria/i);
     fireEvent.change(searchInput, { target: { value: "Abacaxi ao vinho" } });
 
-    const deleteButtons = await screen.findAllByTitle(/excluir do cardápio/i);
+    const deleteButtons = await screen.findAllByTitle(/excluir/i);
     fireEvent.click(deleteButtons[0]);
 
     expect(await screen.findByText(/excluir item\?/i)).toBeInTheDocument();
