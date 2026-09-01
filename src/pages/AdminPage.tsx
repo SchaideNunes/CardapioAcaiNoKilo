@@ -64,7 +64,32 @@ export const CATEGORIES_CONFIG = [
   { key: "ready_made", label: "Prontos para Levar", icon: "📦", color: "from-blue-500/20 to-cyan-500/20" },
 ];
 
-const LOCAL_STORAGE_KEY = "cardapio_admin_menu_items_v2";
+export function resolveItemImage(item: Partial<ItemAdmin>): string {
+  if (item.image && item.image.trim() !== '') {
+    return item.image;
+  }
+  const id = item.id || item._id || '';
+
+  // Tamanhos de potes
+  if (id === 'pot_360') return '/assets/items/Açai_350ml.webp';
+  if (id === 'pot_500') return '/assets/items/Açai_500ml.webp';
+  if (id === 'pot_750') return '/assets/items/Açai_750ml.webp';
+  if (id === 'pot_1l') return '/assets/items/POTE_LITRO.webp';
+
+  // Produtos prontos
+  if (item.original_category === 'ready_made' || id.startsWith('500ml_') || id.startsWith('1l_') || id.startsWith('2l_')) {
+    return `/assets/${id}.webp`;
+  }
+
+  // Complementos, frutas, cremes, recheios, adicionais, coberturas e sabores
+  if (id) {
+    return `/assets/items/${id}.webp`;
+  }
+
+  return '';
+}
+
+const LOCAL_STORAGE_KEY = "cardapio_admin_menu_items_v3";
 
 const demoOrders: OrderAdmin[] = [
   {
@@ -131,10 +156,16 @@ export default function AdminPage() {
   }, [token]);
 
   const getInitialFallbackItems = (): ItemAdmin[] => {
-    const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+    const saved = localStorage.getItem(LOCAL_STORAGE_KEY) || localStorage.getItem("cardapio_admin_menu_items_v2");
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed: ItemAdmin[] = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.map(item => ({
+            ...item,
+            image: item.image || resolveItemImage(item)
+          }));
+        }
       } catch (e) {
         console.error("Erro ao ler dados locais:", e);
       }
@@ -150,7 +181,7 @@ export default function AdminPage() {
           price: i.price,
           category: i.category,
           original_category: cat,
-          image: i.image || (cat === 'fruits' ? `/assets/items/${i.id}.webp` : ''),
+          image: i.image || resolveItemImage({ id: i.id, original_category: cat }),
           description: i.description || '',
           type: i.type || '',
           active: true
@@ -214,7 +245,10 @@ export default function AdminPage() {
 
       const backendItems = await menuRes.json();
       if (Array.isArray(backendItems) && backendItems.length > 0) {
-        setMenuItems(backendItems);
+        setMenuItems(backendItems.map((item: ItemAdmin) => ({
+          ...item,
+          image: item.image || resolveItemImage(item)
+        })));
       } else {
         setMenuItems(getInitialFallbackItems());
       }
@@ -667,21 +701,30 @@ export default function AdminPage() {
                   >
                     <div className="flex items-start gap-4">
                       {/* Thumbnail da Imagem */}
-                      <div className="w-16 h-16 rounded-2xl bg-black/30 border border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0 relative group-hover:border-primary/40 transition-colors">
-                        {item.image ? (
-                          <img 
-                            src={item.image} 
-                            alt={item.name} 
-                            className="w-full h-full object-contain p-1 group-hover:scale-110 transition-transform duration-300"
-                            onError={(e) => {
-                              // Se falhar o carregamento da imagem, mostra ícone
-                              (e.target as HTMLElement).style.display = 'none';
-                            }}
-                          />
-                        ) : (
-                          <ImageIcon className="text-white/20" size={24} />
-                        )}
-                      </div>
+                      {(() => {
+                        const itemImg = item.image || resolveItemImage(item);
+                        return (
+                          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-black/40 border border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0 relative group-hover:border-primary/40 transition-colors shadow-inner">
+                            {itemImg ? (
+                              <img 
+                                src={itemImg} 
+                                alt={item.name} 
+                                className={cn(
+                                  "w-full h-full transition-transform duration-300 group-hover:scale-110",
+                                  (item.original_category === 'sizes' || item.original_category === 'ready_made')
+                                    ? "object-contain p-1.5"
+                                    : "object-cover scale-105"
+                                )}
+                                onError={(e) => {
+                                  (e.target as HTMLElement).style.display = 'none';
+                                }}
+                              />
+                            ) : (
+                              <ImageIcon className="text-white/20" size={24} />
+                            )}
+                          </div>
+                        );
+                      })()}
 
                       {/* Informações do Item */}
                       <div className="flex-1 min-w-0">
@@ -830,7 +873,7 @@ function ItemModal({ item, onClose, onSave, loading }: ItemModalProps) {
   const [price, setPrice] = useState(item?.price?.toString() || "0");
   const [category, setCategory] = useState(item?.category || "Adicional");
   const [originalCategory, setOriginalCategory] = useState(item?.original_category || "addons");
-  const [image, setImage] = useState(item?.image || "");
+  const [image, setImage] = useState(item ? (item.image || resolveItemImage(item)) : "");
   const [description, setDescription] = useState(item?.description || "");
   const [type, setType] = useState(item?.type || "");
   const [active, setActive] = useState(item ? item.active !== false : true);
@@ -895,9 +938,18 @@ function ItemModal({ item, onClose, onSave, loading }: ItemModalProps) {
 
             <div className="flex items-center gap-4">
               {/* Preview */}
-              <div className="w-20 h-20 rounded-2xl bg-black/40 border border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0 relative">
+              <div className="w-20 h-20 rounded-2xl bg-black/40 border border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0 relative shadow-inner">
                 {image ? (
-                  <img src={image} alt="Preview" className="w-full h-full object-contain p-1" />
+                  <img 
+                    src={image} 
+                    alt="Preview" 
+                    className={cn(
+                      "w-full h-full",
+                      (originalCategory === 'sizes' || originalCategory === 'ready_made')
+                        ? "object-contain p-1.5"
+                        : "object-cover scale-105"
+                    )} 
+                  />
                 ) : (
                   <ImageIcon className="text-white/20" size={28} />
                 )}
