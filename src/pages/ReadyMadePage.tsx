@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, ArrowRight, ShoppingCart, Send, Check, Trash2, Plus, Minus } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
@@ -41,6 +41,43 @@ const READY_MADE_PRODUCTS: ReadyProduct[] = [
 type CartItem = ReadyProduct & { qty: number };
 
 export default function ReadyMadePage() {
+  const [products, setProducts] = useState<ReadyProduct[]>(() => {
+    const saved = localStorage.getItem("cardapio_admin_menu_items_v2");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        const readyItems = parsed.filter((i: any) => i.original_category === 'ready_made' && i.active !== false);
+        if (readyItems.length > 0) {
+          return readyItems.map((i: any) => ({
+            id: i.id || i._id,
+            name: i.name,
+            price: i.price,
+            image: i.image || "/assets/500ml_acai_natural.webp",
+            imageScale: "scale-100"
+          }));
+        }
+      } catch (e) {}
+    }
+    return READY_MADE_PRODUCTS;
+  });
+
+  useEffect(() => {
+    fetch("http://localhost:3001/api/menu")
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.ready_made && data.ready_made.length > 0) {
+          setProducts(data.ready_made.map((i: any) => ({
+            id: i.id || i._id,
+            name: i.name,
+            price: i.price,
+            image: i.image || "/assets/500ml_acai_natural.webp",
+            imageScale: "scale-100"
+          })));
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   const [cart, setCart] = useState<CartItem[]>([]);
   const [showCart, setShowCart] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
@@ -207,12 +244,12 @@ export default function ReadyMadePage() {
                 <p className="text-sm text-white/60 font-sans mt-0.5">Selecione as opções desejadas para levar agora</p>
               </div>
               <span className="text-xs font-bold text-white/40 uppercase tracking-widest hidden sm:inline-block">
-                {READY_MADE_PRODUCTS.length} produtos
+                {products.length} produtos
               </span>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              {READY_MADE_PRODUCTS.map((product) => {
+              {products.map((product) => {
                 const sel = getQty(product.id) > 0;
                 // Extract size for the badge
                 const sizeMatch = product.name.match(/(500ml|1L|2L)/i);

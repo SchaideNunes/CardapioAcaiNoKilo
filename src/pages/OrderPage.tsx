@@ -49,7 +49,27 @@ type MenuData = {
 };
 
 export default function OrderPage() {
-  const [apiData, setApiData] = useState<MenuData | null>(localFallbackData);
+  const [apiData, setApiData] = useState<MenuData | null>(() => {
+    const saved = localStorage.getItem("cardapio_admin_menu_items_v2");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const activeItems = parsed.filter((i: any) => i.active !== false);
+          return {
+            sizes: activeItems.filter((i: any) => i.original_category === 'sizes'),
+            flavors: activeItems.filter((i: any) => i.original_category === 'flavors'),
+            toppings: activeItems.filter((i: any) => i.original_category === 'toppings'),
+            addons: activeItems.filter((i: any) => i.original_category === 'addons'),
+            creams: activeItems.filter((i: any) => i.original_category === 'creams'),
+            fruits: activeItems.filter((i: any) => i.original_category === 'fruits'),
+            fillings: activeItems.filter((i: any) => i.original_category === 'fillings'),
+          };
+        }
+      } catch (e) {}
+    }
+    return localFallbackData;
+  });
   const loading = false; // Em modo demo, inicia carregado
   const [showCart, setShowCart] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);

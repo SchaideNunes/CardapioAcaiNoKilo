@@ -60,6 +60,7 @@ app.get('/api/menu', async (req, res) => {
       creams: items.filter(i => i.original_category === 'creams'),
       fruits: items.filter(i => i.original_category === 'fruits'),
       fillings: items.filter(i => i.original_category === 'fillings'),
+      ready_made: items.filter(i => i.original_category === 'ready_made'),
     };
     res.json(menuData);
   } catch (error) {
@@ -115,18 +116,81 @@ app.get('/api/admin/menu', verifyToken, async (req, res) => {
   }
 });
 
-// Atualizar Preço/Estoque
+// Criar Novo Item
+app.post('/api/admin/menu', verifyToken, async (req, res) => {
+  try {
+    const { name, price, category, original_category, image, description, type, active } = req.body;
+    
+    if (!name || price === undefined || !original_category) {
+      return res.status(400).json({ error: 'Nome, preço e categoria são obrigatórios' });
+    }
+
+    const newItem = {
+      name: name.trim(),
+      price: parseFloat(price) || 0,
+      category: category || original_category,
+      original_category,
+      image: image || '',
+      description: description || '',
+      type: type || '',
+      active: active !== false,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+
+    const result = await db.collection(process.env.COLLECTION_NAME).insertOne(newItem);
+    res.status(201).json({ success: true, item: { ...newItem, _id: result.insertedId } });
+  } catch (error) {
+    console.error('Erro ao criar item:', error);
+    res.status(500).json({ error: 'Erro ao criar item' });
+  }
+});
+
+// Atualizar Item Completo (Preço, Nome, Foto, Categoria, Estoque)
 app.put('/api/admin/menu/:id', verifyToken, async (req, res) => {
   const { id } = req.params;
-  const { price, active } = req.body;
+  const { name, price, category, original_category, image, description, type, active } = req.body;
+  
   try {
-    await db.collection(process.env.COLLECTION_NAME).updateOne(
-      { _id: new ObjectId(id) },
-      { $set: { price: parseFloat(price), active } }
-    );
-    res.json({ success: true });
+    const updateData = { updatedAt: new Date() };
+    if (name !== undefined) updateData.name = name.trim();
+    if (price !== undefined) updateData.price = parseFloat(price);
+    if (category !== undefined) updateData.category = category;
+    if (original_category !== undefined) updateData.original_category = original_category;
+    if (image !== undefined) updateData.image = image;
+    if (description !== undefined) updateData.description = description;
+    if (type !== undefined) updateData.type = type;
+    if (active !== undefined) updateData.active = Boolean(active);
+
+    const query = ObjectId.isValid(id) ? { _id: new ObjectId(id) } : { id };
+    const result = await db.collection(process.env.COLLECTION_NAME).updateOne(query, { $set: updateData });
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ error: 'Item não encontrado' });
+    }
+
+    res.json({ success: true, updated: updateData });
   } catch (error) {
+    console.error('Erro ao atualizar item:', error);
     res.status(500).json({ error: 'Erro ao atualizar item' });
+  }
+});
+
+// Excluir Item do Cardápio
+app.delete('/api/admin/menu/:id', verifyToken, async (req, res) => {
+  const { id } = req.params;
+  try {
+    const query = ObjectId.isValid(id) ? { _id: new ObjectId(id) } : { id };
+    const result = await db.collection(process.env.COLLECTION_NAME).deleteOne(query);
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ error: 'Item não encontrado' });
+    }
+
+    res.json({ success: true, message: 'Item removido com sucesso' });
+  } catch (error) {
+    console.error('Erro ao excluir item:', error);
+    res.status(500).json({ error: 'Erro ao excluir item' });
   }
 });
 
