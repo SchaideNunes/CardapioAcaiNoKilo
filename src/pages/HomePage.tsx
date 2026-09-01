@@ -34,36 +34,17 @@ export default function HomePage() {
       {!preloaderDone && <Preloader onFinished={() => setPreloaderDone(true)} />}
       
       <main className="min-h-[100dvh] bg-[#241220] flex flex-col relative text-white overflow-hidden">
-        {/* Background Subtle Floating Food Elements (Desktop only) */}
-        <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
-          <div className="hidden lg:block absolute top-[12%] left-[8%] xl:left-[12%] w-24 h-24 xl:w-28 xl:h-28 opacity-40 animate-float-slow filter drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]">
-            <img
-              src="/assets/items/fr_morango.webp"
-              alt="Morango decorativo"
-              className="w-full h-full object-contain rotate-[-15deg] [clip-path:circle(37.5%_at_50%_50%)]"
-            />
-          </div>
-          <div className="hidden lg:block absolute bottom-[14%] left-[10%] xl:left-[14%] w-28 h-28 xl:w-32 xl:h-32 opacity-40 animate-float-reverse filter drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]">
-            <img
-              src="/assets/items/fr_banana.webp"
-              alt="Banana decorativa"
-              className="w-full h-full object-contain rotate-[20deg] [clip-path:circle(37.5%_at_50%_50%)]"
-            />
-          </div>
-          <div className="hidden lg:block absolute top-[10%] right-[6%] xl:right-[10%] w-24 h-24 xl:w-28 xl:h-28 opacity-35 animate-float-drift filter drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]">
-            <img
-              src="/assets/items/fr_kiwi.webp"
-              alt="Kiwi decorativo"
-              className="w-full h-full object-contain rotate-[10deg] [clip-path:circle(37.5%_at_50%_50%)]"
-            />
-          </div>
-          <div className="hidden lg:block absolute top-[45%] left-[4%] xl:left-[8%] w-24 h-24 xl:w-28 xl:h-28 opacity-35 animate-float-slow filter drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]">
-            <img
-              src="/assets/items/a_granola_trad.webp"
-              alt="Granola decorativa"
-              className="w-full h-full object-contain rotate-[-10deg] [clip-path:circle(37.5%_at_50%_50%)]"
-            />
-          </div>
+        {/* Mascot Eating Açaí (Top-Left Corner) */}
+        <div
+          className={`absolute top-2 left-2 sm:top-4 sm:left-4 lg:top-6 lg:left-8 2xl:top-10 2xl:left-12 z-20 pointer-events-none flex items-start justify-center transition-all duration-1000 delay-400 ${
+            showContent ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-12 scale-95'
+          }`}
+        >
+          <img
+            src="/assets/Mascote_comendo.webp"
+            alt="Mascote saboreando açaí"
+            className="w-20 xs:w-24 sm:w-32 md:w-44 lg:w-56 xl:w-64 2xl:w-72 max-h-[20vh] lg:max-h-[35vh] object-contain drop-shadow-[0_15px_35px_rgba(0,0,0,0.5)] animate-float-slow select-none pointer-events-none"
+          />
         </div>
 
         {/* Main Centered Content */}
