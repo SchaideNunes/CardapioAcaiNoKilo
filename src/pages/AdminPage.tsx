@@ -28,7 +28,10 @@ import {
   Cookie,
   ShoppingBag,
   LogOut,
-  RefreshCw
+  RefreshCw,
+  Menu,
+  SlidersHorizontal,
+  MoreHorizontal
 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -67,7 +70,7 @@ export interface OrderAdmin {
 
 export const CATEGORIES_CONFIG = [
   { key: "all", label: "Todos os Itens", shortLabel: "Todos", Icon: LayoutGrid, iconColor: "text-[#F0DF58]" },
-  { key: "sizes", label: "Tamanhos de Potes", shortLabel: "Tamanhos", Icon: Layers, iconColor: "text-purple-300" },
+  { key: "sizes", label: "Tamanhos de Potes", shortLabel: "Potes", Icon: Layers, iconColor: "text-purple-300" },
   { key: "flavors", label: "Sabores de Açaí", shortLabel: "Sabores", Icon: Sparkles, iconColor: "text-violet-300" },
   { key: "toppings", label: "Coberturas", shortLabel: "Coberturas", Icon: Droplets, iconColor: "text-amber-300" },
   { key: "addons", label: "Adicionais", shortLabel: "Adicionais", Icon: PlusCircle, iconColor: "text-emerald-300" },
@@ -139,6 +142,7 @@ export default function AdminPage() {
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   
   const [menuItems, setMenuItems] = useState<ItemAdmin[]>([]);
   const [orders, setOrders] = useState<OrderAdmin[]>([]);
@@ -171,7 +175,7 @@ export default function AdminPage() {
 
   // Bloquear scroll de fundo quando modal estiver aberto
   useEffect(() => {
-    if (modalOpen || itemToDelete) {
+    if (modalOpen || itemToDelete || mobileDrawerOpen) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
@@ -179,7 +183,7 @@ export default function AdminPage() {
     return () => {
       document.body.style.overflow = "";
     };
-  }, [modalOpen, itemToDelete]);
+  }, [modalOpen, itemToDelete, mobileDrawerOpen]);
 
   const getInitialFallbackItems = (): ItemAdmin[] => {
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY) || localStorage.getItem("cardapio_admin_menu_items_v2");
@@ -479,11 +483,11 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0e0711] text-white flex flex-col md:flex-row relative selection:bg-[#F0DF58] selection:text-[#0e0711] font-sans">
+    <div className="min-h-screen bg-[#0e0711] text-white flex flex-col md:flex-row relative selection:bg-[#F0DF58] selection:text-[#0e0711] font-sans pb-20 md:pb-0">
       {/* Toast Notification */}
       {toast && (
         <div className={cn(
-          "fixed bottom-6 right-6 z-[100] px-5 py-3.5 rounded-2xl shadow-2xl font-sans text-sm flex items-center gap-3 animate-in slide-in-from-bottom-5 duration-300 border",
+          "fixed bottom-20 md:bottom-6 right-6 z-[100] px-5 py-3.5 rounded-2xl shadow-2xl font-sans text-sm flex items-center gap-3 animate-in slide-in-from-bottom-5 duration-300 border",
           toast.type === "success" && "bg-[#25D366]/20 border-[#25D366]/40 text-[#25D366] backdrop-blur-xl",
           toast.type === "error" && "bg-rose-500/20 border-rose-500/40 text-rose-300 backdrop-blur-xl",
           toast.type === "info" && "bg-[#F0DF58]/20 border-[#F0DF58]/40 text-[#F0DF58] backdrop-blur-xl"
@@ -493,8 +497,20 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* ================= SIDEBAR (ESQUERDA) ================= */}
-      <aside className="w-full md:w-64 bg-[#120714] border-b md:border-b-0 md:border-r border-white/[0.06] p-5 flex flex-col gap-6 flex-shrink-0">
+      {/* ================= MOBILE DRAWER OVERLAY ================= */}
+      {mobileDrawerOpen && (
+        <div 
+          onClick={() => setMobileDrawerOpen(false)}
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[110] md:hidden animate-in fade-in duration-200"
+        />
+      )}
+
+      {/* ================= SIDEBAR (DESKTOP + MOBILE DRAWER) ================= */}
+      <aside className={cn(
+        "bg-[#120714] border-r border-white/[0.06] p-5 flex flex-col gap-6 flex-shrink-0 z-[120] transition-transform duration-300",
+        "fixed md:static inset-y-0 left-0 w-72 md:w-64",
+        mobileDrawerOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full md:translate-x-0"
+      )}>
         {/* Header da Sidebar */}
         <div className="flex items-center justify-between gap-3 pb-3 border-b border-white/[0.06]">
           <div className="flex items-center gap-3">
@@ -515,18 +531,18 @@ export default function AdminPage() {
             </div>
           </div>
           <button 
-            onClick={fetchData} 
-            title="Recarregar Dados"
-            className="p-1.5 text-white/40 hover:text-[#F0DF58] transition-colors md:hidden"
+            onClick={() => setMobileDrawerOpen(false)} 
+            title="Fechar Menu"
+            className="p-1.5 text-white/40 hover:text-white transition-colors md:hidden"
           >
-            <RefreshCw size={16} />
+            <X size={20} />
           </button>
         </div>
 
         {/* Links Principais */}
         <nav className="flex flex-col gap-1.5">
           <button 
-            onClick={() => setActiveTab("overview")} 
+            onClick={() => { setActiveTab("overview"); setMobileDrawerOpen(false); }} 
             className={cn(
               "flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all",
               activeTab === "overview"
@@ -541,7 +557,7 @@ export default function AdminPage() {
           </button>
 
           <button 
-            onClick={() => setActiveTab("menu")} 
+            onClick={() => { setActiveTab("menu"); setMobileDrawerOpen(false); }} 
             className={cn(
               "flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all",
               activeTab === "menu"
@@ -559,7 +575,7 @@ export default function AdminPage() {
           </button>
 
           <button 
-            onClick={() => setActiveTab("orders")} 
+            onClick={() => { setActiveTab("orders"); setMobileDrawerOpen(false); }} 
             className={cn(
               "flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all",
               activeTab === "orders"
@@ -583,21 +599,21 @@ export default function AdminPage() {
             RÁPIDAS
           </p>
           <button 
-            onClick={() => { setEditingItem(null); setModalOpen(true); }}
+            onClick={() => { setEditingItem(null); setModalOpen(true); setMobileDrawerOpen(false); }}
             className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs font-medium text-white/60 hover:text-white hover:bg-white/[0.04] transition-all text-left"
           >
             <PlusCircle size={16} className="text-white/40" />
             <span>Adicionar Item</span>
           </button>
           <button 
-            onClick={() => { setActiveTab("menu"); setSelectedCategory("all"); }}
+            onClick={() => { setActiveTab("menu"); setSelectedCategory("all"); setMobileDrawerOpen(false); }}
             className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs font-medium text-white/60 hover:text-white hover:bg-white/[0.04] transition-all text-left"
           >
             <Layers size={16} className="text-white/40" />
             <span>Categorias</span>
           </button>
           <button 
-            onClick={() => setActiveTab("orders")}
+            onClick={() => { setActiveTab("orders"); setMobileDrawerOpen(false); }}
             className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs font-medium text-white/60 hover:text-white hover:bg-white/[0.04] transition-all text-left"
           >
             <BarChart3 size={16} className="text-white/40" />
@@ -614,7 +630,6 @@ export default function AdminPage() {
 
         {/* Rodapé da Sidebar */}
         <div className="mt-auto pt-4 border-t border-white/[0.06]">
-          {/* Sair do Painel */}
           <button 
             onClick={handleLogout} 
             className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/20 text-xs font-bold uppercase tracking-wider transition-all active:scale-95 shadow-sm"
@@ -624,12 +639,42 @@ export default function AdminPage() {
         </div>
       </aside>
 
-      {/* ================= CONTEÚDO PRINCIPAL (DIREITA) ================= */}
-      <main className="flex-1 p-5 sm:p-7 lg:p-8 overflow-y-auto space-y-6">
-        {/* Top Header Row */}
+      {/* ================= CONTEÚDO PRINCIPAL ================= */}
+      <main className="flex-1 p-4 sm:p-7 lg:p-8 overflow-y-auto space-y-5 sm:space-y-6">
+        {/* ================= CABEÇALHO MOBILE / DESKTOP ================= */}
+        {/* Top Header Mobile com Hamburger, Logo e Botão + */}
+        <div className="flex md:hidden items-center justify-between gap-3 pb-2">
+          <button 
+            onClick={() => setMobileDrawerOpen(true)}
+            title="Abrir Menu"
+            className="w-10 h-10 rounded-xl bg-white/[0.05] border border-white/10 flex items-center justify-center text-white/80 active:scale-95"
+          >
+            <Menu size={20} />
+          </button>
+
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-black/40 border border-white/10 p-0.5 flex items-center justify-center overflow-hidden">
+              <img src="/assets/Logo açai.webp" alt="Logo" className="w-full h-full object-contain" />
+            </div>
+            <div>
+              <span className="font-heading text-sm uppercase text-[#F0DF58] leading-none block">PAINEL</span>
+              <p className="text-[8px] text-white/50 uppercase font-bold tracking-widest mt-0.5">Açaí no Kilo</p>
+            </div>
+          </div>
+
+          <button 
+            onClick={() => { setEditingItem(null); setModalOpen(true); }}
+            title="Adicionar Novo Item"
+            className="w-10 h-10 rounded-xl bg-[#F0DF58] text-[#120714] flex items-center justify-center font-black active:scale-95 shadow-md"
+          >
+            <Plus size={20} strokeWidth={3} />
+          </button>
+        </div>
+
+        {/* Título da Página Desktop & Mobile */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
-            <h2 className="font-sans text-2xl sm:text-3xl font-bold text-white tracking-tight">
+            <h2 className="font-sans text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight">
               Contrôle total do cardápio
             </h2>
             <p className="text-white/50 text-xs sm:text-sm font-sans mt-0.5">
@@ -637,28 +682,8 @@ export default function AdminPage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3 flex-wrap">
-            {/* Campo de Busca em Pílula */}
-            <div className="relative w-full sm:w-72 md:w-80">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/30" size={16} />
-              <input 
-                type="text"
-                placeholder="Buscar por nome ou categoria..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-[#170a18] border border-white/10 rounded-xl py-2 pl-9 pr-8 text-white text-xs font-sans focus:outline-none focus:border-[#F0DF58]/60 transition-all placeholder:text-white/30"
-              />
-              {searchQuery && (
-                <button 
-                  onClick={() => setSearchQuery("")}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/40 hover:text-white"
-                >
-                  <X size={14} />
-                </button>
-              )}
-            </div>
-
-            {/* Botão + NOVO ITEM */}
+          {/* Desktop Button */}
+          <div className="hidden md:flex items-center gap-3">
             <button 
               onClick={() => { setEditingItem(null); setModalOpen(true); }}
               className="px-4 py-2 bg-[#F0DF58] hover:bg-[#e4d347] text-[#120714] font-heading font-black text-sm rounded-xl flex items-center gap-1.5 transition-all shadow-md active:scale-95 uppercase tracking-wide flex-shrink-0"
@@ -669,64 +694,73 @@ export default function AdminPage() {
           </div>
         </div>
 
-        {/* ================= CARDS DE MÉTRICAS (PROMINENTES E LEGÍVEIS) ================= */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {/* ================= CARDS DE MÉTRICAS (RESPONSIVO MOBILE/DESKTOP) ================= */}
+        <div className="grid grid-cols-3 gap-2.5 sm:gap-4">
           {/* TOTAL DE ITENS */}
-          <div className="bg-[#170a18]/90 border border-purple-900/40 rounded-3xl p-5 sm:p-6 flex items-center justify-between shadow-xl relative overflow-hidden group hover:border-purple-500/40 transition-all">
+          <div className="bg-[#170a18]/90 border border-purple-900/40 rounded-2xl sm:rounded-3xl p-3 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between shadow-lg relative overflow-hidden group">
             <div>
-              <p className="text-xs font-bold text-purple-300 uppercase tracking-widest">
+              <p className="text-[9px] sm:text-xs font-bold text-purple-300 uppercase tracking-wider">
                 TOTAL DE ITENS
               </p>
-              <p className="font-heading text-4xl sm:text-5xl font-bold text-white mt-2">
+              <p className="font-heading text-2xl sm:text-4xl lg:text-5xl font-bold text-white mt-1 sm:mt-2">
                 {stats.total}
               </p>
             </div>
-            <div className="w-14 h-14 rounded-2xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-300 shadow-inner group-hover:scale-105 transition-transform">
-              <Box size={24} />
+            <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-300 shadow-inner mt-2 sm:mt-0 self-end sm:self-auto">
+              <Box size={16} className="sm:hidden" />
+              <Box size={22} className="hidden sm:block" />
             </div>
           </div>
 
           {/* ATIVOS */}
-          <div className="bg-[#170a18]/90 border border-emerald-900/40 rounded-3xl p-5 sm:p-6 flex items-center justify-between shadow-xl relative overflow-hidden group hover:border-emerald-500/40 transition-all">
+          <div className="bg-[#170a18]/90 border border-emerald-900/40 rounded-2xl sm:rounded-3xl p-3 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between shadow-lg relative overflow-hidden group">
             <div>
-              <p className="text-xs font-bold text-emerald-400 uppercase tracking-widest">
+              <p className="text-[9px] sm:text-xs font-bold text-emerald-400 uppercase tracking-wider">
                 ATIVOS
               </p>
-              <p className="font-heading text-4xl sm:text-5xl font-bold text-emerald-400 mt-2">
+              <p className="font-heading text-2xl sm:text-4xl lg:text-5xl font-bold text-emerald-400 mt-1 sm:mt-2">
                 {stats.active}
               </p>
             </div>
-            <div className="w-14 h-14 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-inner group-hover:scale-105 transition-transform">
-              <CheckCircle2 size={24} />
+            <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-inner mt-2 sm:mt-0 self-end sm:self-auto">
+              <CheckCircle2 size={16} className="sm:hidden" />
+              <CheckCircle2 size={22} className="hidden sm:block" />
             </div>
           </div>
 
           {/* DESATIVADOS */}
-          <div className="bg-[#170a18]/90 border border-rose-900/40 rounded-3xl p-5 sm:p-6 flex items-center justify-between shadow-xl relative overflow-hidden group hover:border-rose-500/40 transition-all">
+          <div className="bg-[#170a18]/90 border border-rose-900/40 rounded-2xl sm:rounded-3xl p-3 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between shadow-lg relative overflow-hidden group">
             <div>
-              <p className="text-xs font-bold text-rose-400 uppercase tracking-widest">
+              <p className="text-[9px] sm:text-xs font-bold text-rose-400 uppercase tracking-wider">
                 DESATIVADOS
               </p>
-              <p className="font-heading text-4xl sm:text-5xl font-bold text-rose-400 mt-2">
+              <p className="font-heading text-2xl sm:text-4xl lg:text-5xl font-bold text-rose-400 mt-1 sm:mt-2">
                 {stats.inactive}
               </p>
             </div>
-            <div className="w-14 h-14 rounded-2xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-rose-400 shadow-inner group-hover:scale-105 transition-transform">
-              <XCircle size={24} />
+            <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-rose-400 shadow-inner mt-2 sm:mt-0 self-end sm:self-auto">
+              <XCircle size={16} className="sm:hidden" />
+              <XCircle size={22} className="hidden sm:block" />
             </div>
           </div>
         </div>
 
-        {/* ================= CATEGORIAS (BARRA CENTRALIZADA) ================= */}
-        <div className="flex flex-col items-center gap-3 bg-[#170a18]/60 border border-white/[0.06] rounded-3xl p-4 sm:p-6 shadow-lg">
-          <div className="flex items-center justify-center gap-2">
-            <Layers size={16} className="text-[#F0DF58]" />
-            <p className="text-xs font-bold text-white/75 uppercase tracking-widest text-center">
-              CATEGORIAS DO CARDÁPIO
+        {/* ================= CATEGORIAS (HORIZONTAL SCROLL / CENTRO) ================= */}
+        <div className="flex flex-col gap-2 bg-[#170a18]/60 border border-white/[0.06] rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 shadow-lg">
+          <div className="flex items-center justify-between px-1">
+            <p className="text-[11px] sm:text-xs font-bold text-white/70 uppercase tracking-widest flex items-center gap-1.5">
+              <Layers size={14} className="text-[#F0DF58]" />
+              CATEGORIAS
             </p>
+            <button 
+              onClick={() => setSelectedCategory("all")}
+              className="text-[11px] font-semibold text-white/40 hover:text-white transition-colors"
+            >
+              Ver todas
+            </button>
           </div>
 
-          <div className="flex items-center justify-center flex-wrap gap-2.5 sm:gap-3 w-full pt-1">
+          <div className="flex items-center md:justify-center gap-2 sm:gap-3 overflow-x-auto pb-1 no-scrollbar pt-1">
             {CATEGORIES_CONFIG.map(cat => {
               const IconComponent = cat.Icon;
               const isSelected = selectedCategory === cat.key;
@@ -737,25 +771,25 @@ export default function AdminPage() {
                   key={cat.key}
                   onClick={() => setSelectedCategory(cat.key)}
                   className={cn(
-                    "flex flex-col items-center justify-center py-3.5 px-4 sm:px-5 rounded-2xl border transition-all flex-shrink-0 min-w-[90px] sm:min-w-[105px] gap-1.5 group shadow-md",
+                    "flex flex-col items-center justify-center py-2.5 sm:py-3.5 px-3.5 sm:px-5 rounded-2xl border transition-all flex-shrink-0 min-w-[72px] sm:min-w-[95px] gap-1 group shadow-md",
                     isSelected 
-                      ? "border-[#F0DF58] bg-[#F0DF58]/15 text-[#F0DF58] shadow-[0_0_18px_rgba(240,223,88,0.2)] scale-[1.03]" 
-                      : "border-white/[0.08] bg-[#130716]/90 text-white/70 hover:border-white/25 hover:text-white hover:bg-[#200d22]"
+                      ? "border-[#F0DF58] bg-[#F0DF58]/15 text-[#F0DF58] shadow-[0_0_16px_rgba(240,223,88,0.2)] scale-[1.02]" 
+                      : "border-white/[0.08] bg-[#130716]/90 text-white/70 hover:border-white/25 hover:text-white"
                   )}
                 >
                   <IconComponent 
-                    size={22} 
-                    className={isSelected ? "text-[#F0DF58]" : cat.iconColor} 
+                    size={18} 
+                    className={cn("sm:w-[22px] sm:h-[22px]", isSelected ? "text-[#F0DF58]" : cat.iconColor)} 
                   />
-                  <span className="text-xs font-bold tracking-tight whitespace-nowrap">
+                  <span className="text-[10px] sm:text-xs font-bold tracking-tight whitespace-nowrap">
                     {cat.shortLabel}
                     <span className="sr-only"> {cat.label}</span>
                   </span>
                   <span className={cn(
-                    "text-[10px] font-bold px-2 py-0.5 rounded-full transition-colors",
+                    "text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded-full transition-colors",
                     isSelected 
                       ? "bg-[#F0DF58] text-[#120714]" 
-                      : "bg-white/10 text-white/70 group-hover:text-white"
+                      : "bg-white/10 text-white/70"
                   )}>
                     {count}
                   </span>
@@ -765,24 +799,57 @@ export default function AdminPage() {
           </div>
         </div>
 
+        {/* ================= SEARCH INPUT EM MOBILE COM ÍCONE DE FILTRO ================= */}
+        <div className="flex md:hidden items-center gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/30" size={16} />
+            <input 
+              type="text"
+              placeholder="Buscar por nome ou categoria..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-[#170a18] border border-white/10 rounded-xl py-2.5 pl-9 pr-8 text-white text-xs font-sans focus:outline-none focus:border-[#F0DF58]/60 transition-all placeholder:text-white/30"
+            />
+            {searchQuery && (
+              <button 
+                onClick={() => setSearchQuery("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/40 hover:text-white"
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
+          <button 
+            onClick={() => {
+              if (statusFilter === "all") setStatusFilter("active");
+              else if (statusFilter === "active") setStatusFilter("inactive");
+              else setStatusFilter("all");
+            }}
+            title="Filtrar Status"
+            className="w-10 h-10 rounded-xl bg-[#170a18] border border-white/10 flex items-center justify-center text-white/70 active:scale-95"
+          >
+            <SlidersHorizontal size={17} />
+          </button>
+        </div>
+
         {/* ================= SUB-FILTROS DE STATUS & MODO DE EXIBIÇÃO ================= */}
         <div className="flex items-center justify-between pt-1">
-          <div className="flex items-center gap-2.5 flex-wrap">
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
             <button
               onClick={() => setStatusFilter("all")}
               className={cn(
-                "px-4 sm:px-5 py-2 rounded-2xl text-xs sm:text-sm font-bold transition-all shadow-sm",
+                "px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs font-bold transition-all shadow-sm whitespace-nowrap",
                 statusFilter === "all"
                   ? "bg-[#F0DF58] text-[#120714] shadow-md shadow-[#F0DF58]/10"
                   : "bg-[#170a18] text-white/70 hover:text-white border border-white/[0.08]"
               )}
             >
-              Todos os itens ({stats.total})
+              Todos ({stats.total})
             </button>
             <button
               onClick={() => setStatusFilter("active")}
               className={cn(
-                "px-4 sm:px-5 py-2 rounded-2xl text-xs sm:text-sm font-bold transition-all shadow-sm",
+                "px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs font-bold transition-all shadow-sm whitespace-nowrap",
                 statusFilter === "active"
                   ? "bg-emerald-500/25 text-emerald-400 border border-emerald-500/40 font-black"
                   : "bg-[#170a18] text-white/70 hover:text-white border border-white/[0.08]"
@@ -793,7 +860,7 @@ export default function AdminPage() {
             <button
               onClick={() => setStatusFilter("inactive")}
               className={cn(
-                "px-4 sm:px-5 py-2 rounded-2xl text-xs sm:text-sm font-bold transition-all shadow-sm",
+                "px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs font-bold transition-all shadow-sm whitespace-nowrap",
                 statusFilter === "inactive"
                   ? "bg-rose-500/25 text-rose-300 border border-rose-500/40 font-black"
                   : "bg-[#170a18] text-white/70 hover:text-white border border-white/[0.08]"
@@ -803,7 +870,7 @@ export default function AdminPage() {
             </button>
           </div>
 
-          <div className="flex items-center gap-1.5 bg-[#170a18] p-1.5 rounded-2xl border border-white/[0.08]">
+          <div className="hidden md:flex items-center gap-1.5 bg-[#170a18] p-1.5 rounded-2xl border border-white/[0.08]">
             <button
               onClick={() => setViewMode("grid")}
               className={cn(
@@ -827,7 +894,7 @@ export default function AdminPage() {
           </div>
         </div>
 
-        {/* ================= GRADE DE PRODUTOS (4 COLUNAS) ================= */}
+        {/* ================= GRADE DE PRODUTOS ================= */}
         {filteredItems.length === 0 ? (
           <div className="text-center py-16 bg-[#170a18]/40 border border-white/[0.06] rounded-3xl p-8">
             <p className="text-white/60 text-sm font-sans mb-4">Nenhum item encontrado com os filtros selecionados.</p>
@@ -839,107 +906,20 @@ export default function AdminPage() {
             </button>
           </div>
         ) : (
-          <div className={cn(
-            viewMode === "grid" 
-              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" 
-              : "flex flex-col gap-3"
-          )}>
+          <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-3 sm:gap-4">
             {filteredItems.map(item => {
               const itemImg = item.image || resolveItemImage(item);
-
-              if (viewMode === "list") {
-                return (
-                  <div 
-                    key={item._id}
-                    className={cn(
-                      "bg-[#170a18]/90 border border-white/[0.07] hover:border-[#F0DF58]/30 rounded-2xl p-3.5 flex items-center justify-between gap-4 transition-all shadow-md",
-                      item.active === false && "opacity-60 grayscale bg-black/40 border-white/5"
-                    )}
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-14 h-14 rounded-xl bg-black/50 border border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0">
-                        {itemImg ? (
-                          <img 
-                            src={itemImg} 
-                            alt={item.name} 
-                            className="w-full h-full object-cover"
-                            onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
-                          />
-                        ) : (
-                          <ImageIcon className="text-white/30" size={18} />
-                        )}
-                      </div>
-                      <div className="min-w-0">
-                        <span className="text-[9px] font-black text-purple-300 uppercase bg-purple-950/70 border border-purple-800/40 px-2 py-0.5 rounded-md">
-                          {item.category || item.original_category}
-                        </span>
-                        <h4 className="font-heading text-lg text-white truncate mt-1">
-                          {item.name}
-                        </h4>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-4 flex-shrink-0">
-                      <span className="font-heading text-xl text-[#F0DF58] font-bold">
-                        R$ {item.price.toFixed(2).replace('.', ',')}
-                      </span>
-                      <button 
-                        onClick={() => updateItemQuick(item._id, { active: item.active === false ? true : false })}
-                        className={cn(
-                          "px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border transition-all",
-                          item.active !== false 
-                            ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" 
-                            : "bg-rose-500/10 border-rose-500/20 text-rose-400"
-                        )}
-                      >
-                        {item.active !== false ? "Ativo" : "Desativado"}
-                      </button>
-                      <div className="flex items-center gap-1.5">
-                        <button 
-                          onClick={() => { setEditingItem(item); setModalOpen(true); }}
-                          title="Editar"
-                          className="p-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.1] text-white/60 hover:text-white border border-white/5 transition-all"
-                        >
-                          <Edit3 size={14} />
-                        </button>
-                        <button 
-                          onClick={() => setItemToDelete(item)}
-                          title="Excluir"
-                          className="p-2 rounded-xl bg-rose-500/[0.08] hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/10 transition-all"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                );
-              }
 
               return (
                 <div 
                   key={item._id}
                   className={cn(
-                    "group relative bg-[#130716]/95 border border-white/[0.08] hover:border-[#F0DF58]/35 rounded-3xl p-4 transition-all hover:bg-[#1a0c1e] shadow-xl flex items-center justify-between gap-3",
+                    "group relative bg-[#130716]/95 border border-white/[0.08] hover:border-[#F0DF58]/35 rounded-2xl sm:rounded-3xl p-3 sm:p-4 transition-all hover:bg-[#1a0c1e] shadow-xl flex items-center justify-between gap-3",
                     item.active === false && "opacity-55 grayscale bg-black/40 border-white/5"
                   )}
                 >
-                  {/* Lado Esquerdo: Categoria, Nome e Preço */}
-                  <div className="flex flex-col justify-between h-28 min-w-0 flex-1 pr-1">
-                    <div>
-                      <span className="inline-block text-[10px] font-black text-[#c084fc] uppercase bg-[#3b174a]/80 border border-[#7e22ce]/30 px-2.5 py-0.5 rounded-md tracking-wider">
-                        {item.category || item.original_category}
-                      </span>
-                      <h4 className="font-heading text-lg sm:text-xl uppercase text-white font-bold tracking-wide mt-2 line-clamp-2 leading-tight group-hover:text-[#F0DF58] transition-colors">
-                        {item.name}
-                      </h4>
-                    </div>
-                    <div className="font-heading text-xl sm:text-2xl text-[#F0DF58] font-bold tracking-wide select-none">
-                      R$ {item.price.toFixed(2).replace('.', ',')}
-                    </div>
-                  </div>
-
-                  {/* Centro: Foto do Produto */}
-                  <div className="w-28 h-28 sm:w-28 sm:h-28 rounded-2xl bg-black/40 border border-white/10 overflow-hidden flex items-center justify-center p-1 flex-shrink-0 shadow-inner group-hover:border-[#F0DF58]/20 transition-all">
+                  {/* Foto do Produto (Esquerda) */}
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-black/40 border border-white/10 overflow-hidden flex items-center justify-center p-1 flex-shrink-0 shadow-inner group-hover:border-[#F0DF58]/20 transition-all">
                     {itemImg ? (
                       <img 
                         src={itemImg} 
@@ -959,13 +939,28 @@ export default function AdminPage() {
                     )}
                   </div>
 
-                  {/* Lado Direito: Status no Topo e Botões ✏️ / 🗑️ na Base */}
-                  <div className="flex flex-col justify-between items-end h-28 flex-shrink-0 pl-1">
+                  {/* Informações: Categoria, Nome e Preço (Centro) */}
+                  <div className="flex flex-col justify-between h-20 sm:h-24 min-w-0 flex-1 pr-1">
+                    <div>
+                      <span className="inline-block text-[9px] font-black text-[#c084fc] uppercase bg-[#3b174a]/80 border border-[#7e22ce]/30 px-2 py-0.5 rounded-md tracking-wider">
+                        {item.category || item.original_category}
+                      </span>
+                      <h4 className="font-heading text-base sm:text-lg uppercase text-white font-bold tracking-wide mt-1 line-clamp-1 group-hover:text-[#F0DF58] transition-colors">
+                        {item.name}
+                      </h4>
+                    </div>
+                    <div className="font-heading text-lg sm:text-xl text-[#F0DF58] font-bold tracking-wide select-none">
+                      R$ {item.price.toFixed(2).replace('.', ',')}
+                    </div>
+                  </div>
+
+                  {/* Status no Topo e Botões ✏️ / 🗑️ na Base (Direita) */}
+                  <div className="flex flex-col justify-between items-end h-20 sm:h-24 flex-shrink-0">
                     <button 
                       onClick={() => updateItemQuick(item._id, { active: item.active === false ? true : false })}
                       title={item.active === false ? "Clique para ativar" : "Clique para desativar"}
                       className={cn(
-                        "px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border flex items-center gap-1.5 transition-all active:scale-95",
+                        "px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border flex items-center gap-1 transition-all active:scale-95",
                         item.active !== false 
                           ? "bg-[#0c2417] border-[#166534]/60 text-[#4ade80] hover:bg-[#113522]" 
                           : "bg-[#281119] border-rose-900/50 text-rose-400 hover:bg-[#381522]"
@@ -982,16 +977,16 @@ export default function AdminPage() {
                       <button 
                         onClick={() => { setEditingItem(item); setModalOpen(true); }}
                         title="Editar"
-                        className="w-10 h-10 rounded-2xl bg-[#1d1222] hover:bg-white/10 text-white/70 hover:text-white border border-white/10 flex items-center justify-center transition-all active:scale-95 shadow-sm"
+                        className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#1d1222] hover:bg-white/10 text-white/70 hover:text-white border border-white/10 flex items-center justify-center transition-all active:scale-95 shadow-sm"
                       >
-                        <Edit3 size={15} />
+                        <Edit3 size={14} />
                       </button>
                       <button 
                         onClick={() => setItemToDelete(item)}
                         title="Excluir"
-                        className="w-10 h-10 rounded-2xl bg-[#281119] hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/20 flex items-center justify-center transition-all active:scale-95 shadow-sm"
+                        className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#281119] hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/20 flex items-center justify-center transition-all active:scale-95 shadow-sm"
                       >
-                        <Trash2 size={15} />
+                        <Trash2 size={14} />
                       </button>
                     </div>
                   </div>
@@ -1001,6 +996,65 @@ export default function AdminPage() {
           </div>
         )}
       </main>
+
+      {/* ================= BOTTOM NAVIGATION BAR (FIXA NO MOBILE) ================= */}
+      <nav className="md:hidden fixed bottom-0 inset-x-0 bg-[#120714]/95 border-t border-white/[0.08] backdrop-blur-xl px-4 py-2 flex items-center justify-around z-[100] shadow-[0_-4px_20px_rgba(0,0,0,0.5)]">
+        {/* Tab 1: Cardápio */}
+        <button
+          onClick={() => setActiveTab("menu")}
+          className={cn(
+            "flex flex-col items-center gap-1 text-[10px] font-bold uppercase transition-colors",
+            activeTab === "menu" ? "text-[#F0DF58]" : "text-white/40 hover:text-white"
+          )}
+        >
+          <Box size={18} />
+          <span>Cardápio</span>
+        </button>
+
+        {/* Tab 2: Pedidos */}
+        <button
+          onClick={() => setActiveTab("orders")}
+          className={cn(
+            "flex flex-col items-center gap-1 text-[10px] font-bold uppercase transition-colors relative",
+            activeTab === "orders" ? "text-[#F0DF58]" : "text-white/40 hover:text-white"
+          )}
+        >
+          <div className="relative">
+            <LayoutDashboard size={18} />
+            <span className="absolute -top-1.5 -right-2 bg-[#F0DF58] text-[#120714] text-[8px] font-black px-1 rounded-full">
+              {orders.length}
+            </span>
+          </div>
+          <span>Pedidos</span>
+        </button>
+
+        {/* Botão Central Destacado (+) */}
+        <button
+          onClick={() => { setEditingItem(null); setModalOpen(true); }}
+          title="Adicionar Item"
+          className="w-12 h-12 rounded-2xl bg-[#F0DF58] text-[#120714] flex items-center justify-center shadow-lg shadow-[#F0DF58]/30 -translate-y-3 active:scale-95 transition-transform"
+        >
+          <Plus size={24} strokeWidth={3} />
+        </button>
+
+        {/* Tab 4: Relatórios */}
+        <button
+          onClick={() => setActiveTab("orders")}
+          className="flex flex-col items-center gap-1 text-[10px] font-bold uppercase text-white/40 hover:text-white transition-colors"
+        >
+          <BarChart3 size={18} />
+          <span>Relatórios</span>
+        </button>
+
+        {/* Tab 5: Mais */}
+        <button
+          onClick={() => setMobileDrawerOpen(true)}
+          className="flex flex-col items-center gap-1 text-[10px] font-bold uppercase text-white/40 hover:text-white transition-colors"
+        >
+          <MoreHorizontal size={18} />
+          <span>Mais</span>
+        </button>
+      </nav>
 
       {/* ================= MODAL DE CRIAÇÃO / EDIÇÃO ================= */}
       {modalOpen && (
@@ -1098,7 +1152,7 @@ function ItemModal({ item, onClose, onSave, loading }: ItemModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[130] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200">
       <div className="bg-[#170a18] border border-white/15 rounded-3xl p-6 sm:p-8 max-w-xl w-full shadow-2xl space-y-6 my-8 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between pb-4 border-b border-white/10">
           <div>
