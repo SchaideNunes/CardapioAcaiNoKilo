@@ -612,30 +612,14 @@ export default function AdminPage() {
           </button>
         </div>
 
-        {/* Card "Dica do dia" */}
-        <div className="mt-auto pt-4">
-          <div className="bg-[#180918]/90 border border-white/[0.08] rounded-2xl p-4 flex flex-col items-center text-center shadow-lg relative overflow-hidden group">
-            <div className="w-20 h-20 flex items-center justify-center mb-1">
-              <img 
-                src="/assets/Acai_fechado.webp" 
-                alt="Dica do dia" 
-                className="w-full h-full object-contain drop-shadow-md group-hover:scale-105 transition-transform" 
-              />
-            </div>
-            <h4 className="font-heading text-base uppercase text-[#F0DF58] tracking-wide">
-              Dica do dia
-            </h4>
-            <p className="text-white/50 text-[11px] leading-snug mt-1 font-sans">
-              Mantenha seus itens e preços sempre atualizados para vender mais!
-            </p>
-          </div>
-
+        {/* Rodapé da Sidebar */}
+        <div className="mt-auto pt-4 border-t border-white/[0.06]">
           {/* Sair do Painel */}
           <button 
             onClick={handleLogout} 
-            className="w-full mt-3 flex items-center justify-center gap-2 py-2 rounded-xl text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 text-xs font-semibold uppercase tracking-wider transition-all"
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/20 text-xs font-bold uppercase tracking-wider transition-all active:scale-95 shadow-sm"
           >
-            <LogOut size={14} /> Sair do Painel
+            <LogOut size={16} /> Sair do Painel
           </button>
         </div>
       </aside>
@@ -733,19 +717,16 @@ export default function AdminPage() {
           </div>
         </div>
 
-        {/* ================= CATEGORIAS (BARRA ESPAÇOSA E DE ALTA VISIBILIDADE) ================= */}
-        <div className="flex flex-col gap-2.5 bg-[#170a18]/60 border border-white/[0.06] rounded-3xl p-4 sm:p-5 shadow-lg">
-          <div className="flex items-center justify-between px-1">
-            <p className="text-xs font-bold text-white/70 uppercase tracking-widest flex items-center gap-2">
-              <Layers size={16} className="text-[#F0DF58]" />
+        {/* ================= CATEGORIAS (BARRA CENTRALIZADA) ================= */}
+        <div className="flex flex-col items-center gap-3 bg-[#170a18]/60 border border-white/[0.06] rounded-3xl p-4 sm:p-6 shadow-lg">
+          <div className="flex items-center justify-center gap-2">
+            <Layers size={16} className="text-[#F0DF58]" />
+            <p className="text-xs font-bold text-white/75 uppercase tracking-widest text-center">
               CATEGORIAS DO CARDÁPIO
             </p>
-            <span className="text-xs font-medium text-white/40 hidden sm:inline">
-              Filtre produtos por categoria
-            </span>
           </div>
 
-          <div className="flex items-center gap-3 overflow-x-auto pb-1 no-scrollbar pt-1">
+          <div className="flex items-center justify-center flex-wrap gap-2.5 sm:gap-3 w-full pt-1">
             {CATEGORIES_CONFIG.map(cat => {
               const IconComponent = cat.Icon;
               const isSelected = selectedCategory === cat.key;
