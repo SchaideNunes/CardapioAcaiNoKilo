@@ -73,7 +73,10 @@ app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
   console.log(`Tentativa de login para usuário: ${username}`);
   try {
-    const user = await db.collection('usuarios').findOne({ username });
+    const searchRegex = new RegExp(`^${(username || '').trim()}$`, 'i');
+    const user = await db.collection('usuarios').findOne({ 
+      $or: [{ username: searchRegex }, { email: searchRegex }] 
+    });
     if (!user) {
       console.log('Usuário não encontrado no banco.');
       return res.status(404).json({ error: 'Usuário não encontrado' });

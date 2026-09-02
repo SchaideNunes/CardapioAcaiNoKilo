@@ -29,9 +29,9 @@ O projeto suporta dois modos de funcionamento para facilitar demonstrações sem
 
 ### 🟢 Modo Demonstração (Ativo por Fallback)
 - **Como funciona:** O frontend tenta carregar os dados do backend local. Se o servidor estiver desligado ou o banco inacessível, o sistema carrega automaticamente os dados estáticos do arquivo `src/data/menu.ts`.
-- **Admin Demo:** É possível acessar o painel mesmo com o servidor offline usando:
-  - **Usuário:** `admin`
-  - **Senha:** `admin`
+- **Admin Demo / Login:** É possível acessar o painel mesmo com o servidor offline ou online usando:
+  - **E-mail / Usuário:** `Schaidenunes@gmail.com` (ou `admin`)
+  - **Senha:** `schaide123.` (ou `admin`)
 - **Ideal para:** Apresentações rápidas ou execução quando o MongoDB não estiver rodando.
 - **Limitação:** Pedidos e alterações de preço no Modo Demo são apenas visuais (não persistem no banco).
 
