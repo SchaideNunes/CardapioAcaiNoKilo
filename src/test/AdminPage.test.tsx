@@ -100,4 +100,35 @@ describe("AdminPage - Painel Administrativo", () => {
       expect(screen.queryByText("Abacaxi ao vinho 50ml")).not.toBeInTheDocument();
     });
   });
+
+  it("switches to 'Pedidos do Dia' tab and displays orders list", async () => {
+    render(
+      <BrowserRouter>
+        <AdminPage />
+      </BrowserRouter>
+    );
+
+    const ordersBtn = (await screen.findAllByText(/pedidos do dia/i))[0];
+    fireEvent.click(ordersBtn);
+
+    expect(await screen.findByText(/faturamento hoje/i)).toBeInTheDocument();
+    expect(screen.getByText(/total de pedidos/i)).toBeInTheDocument();
+    expect(screen.getByText(/retirada no balcão/i)).toBeInTheDocument();
+  });
+
+  it("switches to 'Relatórios' tab and displays analytics metrics", async () => {
+    render(
+      <BrowserRouter>
+        <AdminPage />
+      </BrowserRouter>
+    );
+
+    const reportsBtn = (await screen.findAllByText(/relatórios/i))[0];
+    fireEvent.click(reportsBtn);
+
+    expect(await screen.findByText(/relatórios & desempenho/i)).toBeInTheDocument();
+    expect(screen.getByText(/faturamento bruto/i)).toBeInTheDocument();
+    expect(screen.getByText(/ticket médio/i)).toBeInTheDocument();
+    expect(screen.getByText(/divisão por forma de pagamento/i)).toBeInTheDocument();
+  });
 });

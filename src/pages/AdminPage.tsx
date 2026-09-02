@@ -7,7 +7,6 @@ import {
   PlusCircle,
   Layers,
   BarChart3,
-  Settings,
   CheckCircle2,
   XCircle,
   Plus, 
@@ -31,7 +30,17 @@ import {
   RefreshCw,
   Menu,
   SlidersHorizontal,
-  MoreHorizontal
+  MoreHorizontal,
+  DollarSign,
+  TrendingUp,
+  CreditCard,
+  Wallet,
+  QrCode,
+  MapPin,
+  Clock,
+  Award,
+  ArrowUpRight,
+  Receipt
 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -133,17 +142,31 @@ const demoOrders: OrderAdmin[] = [
     items: ["Açaí Zero Açúcar 1L (Pronto)"],
     createdAt: new Date(Date.now() - 7200000).toISOString(),
     address: { street: "Rua das Flores", neighborhood: "Jardim América", number: "45" }
+  },
+  {
+    _id: "demo_4",
+    total: 42.50,
+    paymentMethod: "Pix",
+    deliveryMethod: "Entrega",
+    items: ["Pote de 750ml", "Nutella", "Leite em pó", "Morango", "Banana"],
+    createdAt: new Date(Date.now() - 10800000).toISOString(),
+    address: { street: "Rua Santos Dumont", neighborhood: "Vila Nova", number: "302" }
   }
 ];
 
 export default function AdminPage() {
-  const [activeTab, setActiveTab] = useState<"overview" | "menu" | "orders">("menu");
+  const [activeTab, setActiveTab] = useState<"overview" | "menu" | "orders" | "reports">("menu");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   
+  // Filtros da aba de pedidos
+  const [orderFilter, setOrderFilter] = useState<"all" | "delivery" | "pickup" | "pix" | "card" | "cash">("all");
+  // Filtro de período da aba de relatórios
+  const [reportPeriod, setReportPeriod] = useState<"today" | "week" | "month">("today");
+
   const [menuItems, setMenuItems] = useState<ItemAdmin[]>([]);
   const [orders, setOrders] = useState<OrderAdmin[]>([]);
   const [loading, setLoading] = useState(true);
@@ -283,6 +306,7 @@ export default function AdminPage() {
         setMenuItems(getInitialFallbackItems());
       }
       setOrders(await ordersRes.json());
+      showToast("Dados sincronizados com sucesso!", "info");
     } catch (err) {
       console.log("Modo Demo Admin: Carregando banco de dados local sincronizado.");
       setMenuItems(getInitialFallbackItems());
@@ -436,7 +460,7 @@ export default function AdminPage() {
     setItemToDelete(null);
   };
 
-  // Filtragem dos Itens
+  // Filtragem dos Itens do Cardápio
   const filteredItems = useMemo(() => {
     return menuItems.filter(item => {
       const matchCategory = selectedCategory === "all" || item.original_category === selectedCategory;
@@ -454,7 +478,19 @@ export default function AdminPage() {
     });
   }, [menuItems, selectedCategory, statusFilter, searchQuery]);
 
-  // Contadores de estatísticas gerais
+  // Filtragem dos Pedidos
+  const filteredOrders = useMemo(() => {
+    return orders.filter(order => {
+      if (orderFilter === "delivery") return order.deliveryMethod?.toLowerCase().includes("entrega");
+      if (orderFilter === "pickup") return order.deliveryMethod?.toLowerCase().includes("retirada");
+      if (orderFilter === "pix") return order.paymentMethod?.toLowerCase().includes("pix");
+      if (orderFilter === "card") return order.paymentMethod?.toLowerCase().includes("cartão") || order.paymentMethod?.toLowerCase().includes("cartao");
+      if (orderFilter === "cash") return order.paymentMethod?.toLowerCase().includes("dinheiro");
+      return true;
+    });
+  }, [orders, orderFilter]);
+
+  // Contadores de estatísticas gerais do cardápio
   const stats = useMemo(() => {
     const total = menuItems.length;
     const active = menuItems.filter(i => i.active !== false).length;
@@ -472,6 +508,55 @@ export default function AdminPage() {
     });
     return counts;
   }, [menuItems]);
+
+  // Métricas calculadas para Relatórios e Pedidos
+  const reportMetrics = useMemo(() => {
+    const totalOrdersCount = orders.length;
+    const totalRevenue = orders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
+    const avgTicket = totalOrdersCount > 0 ? totalRevenue / totalOrdersCount : 0;
+
+    const deliveryCount = orders.filter(o => o.deliveryMethod?.toLowerCase().includes("entrega")).length;
+    const pickupCount = totalOrdersCount - deliveryCount;
+
+    // Formas de pagamento
+    const pixOrders = orders.filter(o => o.paymentMethod?.toLowerCase().includes("pix"));
+    const cardOrders = orders.filter(o => o.paymentMethod?.toLowerCase().includes("cart"));
+    const cashOrders = orders.filter(o => o.paymentMethod?.toLowerCase().includes("dinheiro"));
+
+    const pixRevenue = pixOrders.reduce((sum, o) => sum + o.total, 0);
+    const cardRevenue = cardOrders.reduce((sum, o) => sum + o.total, 0);
+    const cashRevenue = cashOrders.reduce((sum, o) => sum + o.total, 0);
+
+    // Itens mais pedidos (ranking de frequência)
+    const itemFrequency: Record<string, number> = {};
+    orders.forEach(order => {
+      if (Array.isArray(order.items)) {
+        order.items.forEach(it => {
+          const trimmed = it.trim();
+          if (trimmed) {
+            itemFrequency[trimmed] = (itemFrequency[trimmed] || 0) + 1;
+          }
+        });
+      }
+    });
+
+    const topItems = Object.entries(itemFrequency)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 6)
+      .map(([name, count]) => ({ name, count }));
+
+    return {
+      totalOrdersCount,
+      totalRevenue,
+      avgTicket,
+      deliveryCount,
+      pickupCount,
+      pix: { count: pixOrders.length, revenue: pixRevenue },
+      card: { count: cardOrders.length, revenue: cardRevenue },
+      cash: { count: cashOrders.length, revenue: cashRevenue },
+      topItems
+    };
+  }, [orders]);
 
   if (loading) {
     return (
@@ -591,9 +676,24 @@ export default function AdminPage() {
               {orders.length}
             </span>
           </button>
+
+          <button 
+            onClick={() => { setActiveTab("reports"); setMobileDrawerOpen(false); }} 
+            className={cn(
+              "flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all",
+              activeTab === "reports"
+                ? "border border-[#F0DF58]/80 bg-[#F0DF58]/10 text-[#F0DF58]"
+                : "text-white/60 hover:text-white hover:bg-white/[0.04]"
+            )}
+          >
+            <div className="flex items-center gap-2.5">
+              <BarChart3 size={17} />
+              <span>Relatórios</span>
+            </div>
+          </button>
         </nav>
 
-        {/* Seção RÁPIDAS */}
+        {/* Seção RÁPIDAS (Sem categorias e sem configurações conforme solicitado) */}
         <div className="flex flex-col gap-1 pt-1">
           <p className="text-[10px] font-bold uppercase tracking-widest text-white/30 px-3 mb-1">
             RÁPIDAS
@@ -602,29 +702,15 @@ export default function AdminPage() {
             onClick={() => { setEditingItem(null); setModalOpen(true); setMobileDrawerOpen(false); }}
             className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs font-medium text-white/60 hover:text-white hover:bg-white/[0.04] transition-all text-left"
           >
-            <PlusCircle size={16} className="text-white/40" />
+            <PlusCircle size={16} className="text-[#F0DF58]" />
             <span>Adicionar Item</span>
           </button>
           <button 
-            onClick={() => { setActiveTab("menu"); setSelectedCategory("all"); setMobileDrawerOpen(false); }}
+            onClick={() => { fetchData(); setMobileDrawerOpen(false); }}
             className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs font-medium text-white/60 hover:text-white hover:bg-white/[0.04] transition-all text-left"
           >
-            <Layers size={16} className="text-white/40" />
-            <span>Categorias</span>
-          </button>
-          <button 
-            onClick={() => { setActiveTab("orders"); setMobileDrawerOpen(false); }}
-            className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs font-medium text-white/60 hover:text-white hover:bg-white/[0.04] transition-all text-left"
-          >
-            <BarChart3 size={16} className="text-white/40" />
-            <span>Relatórios</span>
-          </button>
-          <button 
-            onClick={fetchData}
-            className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs font-medium text-white/60 hover:text-white hover:bg-white/[0.04] transition-all text-left"
-          >
-            <Settings size={16} className="text-white/40" />
-            <span>Configurações</span>
+            <RefreshCw size={16} className="text-white/40" />
+            <span>Sincronizar Dados</span>
           </button>
         </div>
 
@@ -641,8 +727,7 @@ export default function AdminPage() {
 
       {/* ================= CONTEÚDO PRINCIPAL ================= */}
       <main className="flex-1 p-3.5 sm:p-7 lg:p-8 overflow-y-auto overflow-x-hidden space-y-4 sm:space-y-6 w-full max-w-full">
-        {/* ================= CABEÇALHO MOBILE / DESKTOP ================= */}
-        {/* Top Header Mobile com Hamburger, Logo e Botão + */}
+        {/* ================= CABEÇALHO MOBILE ================= */}
         <div className="flex md:hidden items-center justify-between gap-3 pb-2">
           <button 
             onClick={() => setMobileDrawerOpen(true)}
@@ -671,328 +756,749 @@ export default function AdminPage() {
           </button>
         </div>
 
-        {/* Título da Página Desktop & Mobile */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div>
-            <h2 className="font-sans text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight">
-              Contrôle total do cardápio
-            </h2>
-            <p className="text-white/50 text-xs sm:text-sm font-sans mt-0.5">
-              Adicione, edite valores, ative/desative qualquer item
-            </p>
-          </div>
+        {/* ========================================================================= */}
+        {/* ======================= ABA: GESTÃO DO CARDÁPIO ========================= */}
+        {/* ========================================================================= */}
+        {activeTab === "menu" && (
+          <div className="space-y-4 sm:space-y-6">
+            {/* Título da Página Desktop & Mobile */}
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+              <div>
+                <h2 className="font-sans text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight">
+                  Contrôle total do cardápio
+                </h2>
+                <p className="text-white/50 text-xs sm:text-sm font-sans mt-0.5">
+                  Adicione, edite valores, ative/desative qualquer item
+                </p>
+              </div>
 
-          {/* Desktop Button */}
-          <div className="hidden md:flex items-center gap-3">
-            <button 
-              onClick={() => { setEditingItem(null); setModalOpen(true); }}
-              className="px-4 py-2 bg-[#F0DF58] hover:bg-[#e4d347] text-[#120714] font-heading font-black text-sm rounded-xl flex items-center gap-1.5 transition-all shadow-md active:scale-95 uppercase tracking-wide flex-shrink-0"
-            >
-              <Plus size={16} strokeWidth={3} />
-              <span>Novo Item</span>
-            </button>
-          </div>
-        </div>
-
-        {/* ================= CARDS DE MÉTRICAS (RESPONSIVO MOBILE/DESKTOP) ================= */}
-        <div className="grid grid-cols-3 gap-2.5 sm:gap-4">
-          {/* TOTAL DE ITENS */}
-          <div className="bg-[#170a18]/90 border border-purple-900/40 rounded-2xl sm:rounded-3xl p-3 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between shadow-lg relative overflow-hidden group">
-            <div>
-              <p className="text-[9px] sm:text-xs font-bold text-purple-300 uppercase tracking-wider">
-                TOTAL DE ITENS
-              </p>
-              <p className="font-heading text-2xl sm:text-4xl lg:text-5xl font-bold text-white mt-1 sm:mt-2">
-                {stats.total}
-              </p>
-            </div>
-            <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-300 shadow-inner mt-2 sm:mt-0 self-end sm:self-auto">
-              <Box size={16} className="sm:hidden" />
-              <Box size={22} className="hidden sm:block" />
-            </div>
-          </div>
-
-          {/* ATIVOS */}
-          <div className="bg-[#170a18]/90 border border-emerald-900/40 rounded-2xl sm:rounded-3xl p-3 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between shadow-lg relative overflow-hidden group">
-            <div>
-              <p className="text-[9px] sm:text-xs font-bold text-emerald-400 uppercase tracking-wider">
-                ATIVOS
-              </p>
-              <p className="font-heading text-2xl sm:text-4xl lg:text-5xl font-bold text-emerald-400 mt-1 sm:mt-2">
-                {stats.active}
-              </p>
-            </div>
-            <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-inner mt-2 sm:mt-0 self-end sm:self-auto">
-              <CheckCircle2 size={16} className="sm:hidden" />
-              <CheckCircle2 size={22} className="hidden sm:block" />
-            </div>
-          </div>
-
-          {/* DESATIVADOS */}
-          <div className="bg-[#170a18]/90 border border-rose-900/40 rounded-2xl sm:rounded-3xl p-3 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between shadow-lg relative overflow-hidden group">
-            <div>
-              <p className="text-[9px] sm:text-xs font-bold text-rose-400 uppercase tracking-wider">
-                DESATIVADOS
-              </p>
-              <p className="font-heading text-2xl sm:text-4xl lg:text-5xl font-bold text-rose-400 mt-1 sm:mt-2">
-                {stats.inactive}
-              </p>
-            </div>
-            <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-rose-400 shadow-inner mt-2 sm:mt-0 self-end sm:self-auto">
-              <XCircle size={16} className="sm:hidden" />
-              <XCircle size={22} className="hidden sm:block" />
-            </div>
-          </div>
-        </div>
-
-        {/* ================= CATEGORIAS (SLIDE CARROSSEL HORIZONTAL) ================= */}
-        <div className="flex flex-col gap-2 bg-[#170a18]/60 border border-white/[0.06] rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-lg w-full max-w-full">
-          <div className="flex items-center justify-between px-1">
-            <p className="text-[11px] sm:text-xs font-bold text-white/70 uppercase tracking-widest flex items-center gap-1.5">
-              <Layers size={14} className="text-[#F0DF58]" />
-              CATEGORIAS
-            </p>
-            <button 
-              onClick={() => setSelectedCategory("all")}
-              className="text-[11px] font-semibold text-white/40 hover:text-white transition-colors"
-            >
-              Ver todas
-            </button>
-          </div>
-
-          <div className="flex items-center md:justify-center gap-2.5 overflow-x-auto pb-1.5 pt-1 no-scrollbar w-full scroll-smooth">
-            {CATEGORIES_CONFIG.map(cat => {
-              const IconComponent = cat.Icon;
-              const isSelected = selectedCategory === cat.key;
-              const count = categoryCounts[cat.key] ?? 0;
-
-              return (
-                <button
-                  key={cat.key}
-                  onClick={() => setSelectedCategory(cat.key)}
-                  className={cn(
-                    "flex flex-col items-center justify-center py-2.5 sm:py-3.5 px-3.5 sm:px-5 rounded-2xl border transition-all flex-shrink-0 min-w-[78px] sm:min-w-[95px] gap-1 group shadow-sm",
-                    isSelected 
-                      ? "border-[#F0DF58] bg-[#F0DF58]/15 text-[#F0DF58] shadow-[0_0_14px_rgba(240,223,88,0.2)] scale-[1.02]" 
-                      : "border-white/[0.08] bg-[#130716]/90 text-white/70 hover:border-white/25 hover:text-white"
-                  )}
+              {/* Desktop Button */}
+              <div className="hidden md:flex items-center gap-3">
+                <button 
+                  onClick={() => { setEditingItem(null); setModalOpen(true); }}
+                  className="px-4 py-2 bg-[#F0DF58] hover:bg-[#e4d347] text-[#120714] font-heading font-black text-sm rounded-xl flex items-center gap-1.5 transition-all shadow-md active:scale-95 uppercase tracking-wide flex-shrink-0"
                 >
-                  <IconComponent 
-                    size={18} 
-                    className={cn("sm:w-[22px] sm:h-[22px]", isSelected ? "text-[#F0DF58]" : cat.iconColor)} 
-                  />
-                  <span className="text-[11px] sm:text-xs font-bold tracking-tight whitespace-nowrap">
-                    {cat.shortLabel}
-                    <span className="sr-only"> {cat.label}</span>
-                  </span>
-                  <span className={cn(
-                    "text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full transition-colors",
-                    isSelected 
-                      ? "bg-[#F0DF58] text-[#120714]" 
-                      : "bg-white/10 text-white/70"
-                  )}>
-                    {count}
-                  </span>
+                  <Plus size={16} strokeWidth={3} />
+                  <span>Novo Item</span>
                 </button>
-              );
-            })}
-          </div>
-        </div>
+              </div>
+            </div>
 
-        {/* ================= SEARCH INPUT EM MOBILE COM ÍCONE DE FILTRO ================= */}
-        <div className="flex md:hidden items-center gap-2 w-full max-w-full">
-          <div className="relative flex-1">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/30" size={16} />
-            <input 
-              type="text"
-              placeholder="Buscar por nome ou categoria..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#170a18] border border-white/10 rounded-xl py-2.5 pl-9 pr-8 text-white text-xs font-sans focus:outline-none focus:border-[#F0DF58]/60 transition-all placeholder:text-white/30"
-            />
-            {searchQuery && (
-              <button 
-                onClick={() => setSearchQuery("")}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/40 hover:text-white"
-              >
-                <X size={14} />
-              </button>
-            )}
-          </div>
-          <button 
-            onClick={() => {
-              if (statusFilter === "all") setStatusFilter("active");
-              else if (statusFilter === "active") setStatusFilter("inactive");
-              else setStatusFilter("all");
-            }}
-            title="Filtrar Status"
-            className="w-10 h-10 rounded-xl bg-[#170a18] border border-white/10 flex items-center justify-center text-white/70 active:scale-95 flex-shrink-0"
-          >
-            <SlidersHorizontal size={17} />
-          </button>
-        </div>
+            {/* CARDS DE MÉTRICAS */}
+            <div className="grid grid-cols-3 gap-2.5 sm:gap-4">
+              {/* TOTAL DE ITENS */}
+              <div className="bg-[#170a18]/90 border border-purple-900/40 rounded-2xl sm:rounded-3xl p-3 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between shadow-lg relative overflow-hidden group">
+                <div>
+                  <p className="text-[9px] sm:text-xs font-bold text-purple-300 uppercase tracking-wider">
+                    TOTAL DE ITENS
+                  </p>
+                  <p className="font-heading text-2xl sm:text-4xl lg:text-5xl font-bold text-white mt-1 sm:mt-2">
+                    {stats.total}
+                  </p>
+                </div>
+                <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-300 shadow-inner mt-2 sm:mt-0 self-end sm:self-auto">
+                  <Box size={16} className="sm:hidden" />
+                  <Box size={22} className="hidden sm:block" />
+                </div>
+              </div>
 
-        {/* ================= SUB-FILTROS DE STATUS & MODO DE EXIBIÇÃO ================= */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-1 w-full max-w-full">
-          <div className="grid grid-cols-3 gap-1.5 sm:gap-2 w-full sm:w-auto">
-            <button
-              onClick={() => setStatusFilter("all")}
-              className={cn(
-                "py-2 px-1 text-center rounded-xl sm:rounded-full text-[11px] sm:text-xs font-bold transition-all shadow-sm truncate",
-                statusFilter === "all"
-                  ? "bg-[#F0DF58] text-[#120714] shadow-md shadow-[#F0DF58]/10"
-                  : "bg-[#170a18] text-white/70 hover:text-white border border-white/[0.08]"
-              )}
-            >
-              Todos ({stats.total})
-            </button>
-            <button
-              onClick={() => setStatusFilter("active")}
-              className={cn(
-                "py-2 px-1 text-center rounded-xl sm:rounded-full text-[11px] sm:text-xs font-bold transition-all shadow-sm truncate",
-                statusFilter === "active"
-                  ? "bg-emerald-500/25 text-emerald-400 border border-emerald-500/40 font-black"
-                  : "bg-[#170a18] text-white/70 hover:text-white border border-white/[0.08]"
-              )}
-            >
-              Ativos ({stats.active})
-            </button>
-            <button
-              onClick={() => setStatusFilter("inactive")}
-              className={cn(
-                "py-2 px-1 text-center rounded-xl sm:rounded-full text-[11px] sm:text-xs font-bold transition-all shadow-sm truncate",
-                statusFilter === "inactive"
-                  ? "bg-rose-500/25 text-rose-300 border border-rose-500/40 font-black"
-                  : "bg-[#170a18] text-white/70 hover:text-white border border-white/[0.08]"
-              )}
-            >
-              Desativados ({stats.inactive})
-            </button>
-          </div>
+              {/* ATIVOS */}
+              <div className="bg-[#170a18]/90 border border-emerald-900/40 rounded-2xl sm:rounded-3xl p-3 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between shadow-lg relative overflow-hidden group">
+                <div>
+                  <p className="text-[9px] sm:text-xs font-bold text-emerald-400 uppercase tracking-wider">
+                    ATIVOS
+                  </p>
+                  <p className="font-heading text-2xl sm:text-4xl lg:text-5xl font-bold text-emerald-400 mt-1 sm:mt-2">
+                    {stats.active}
+                  </p>
+                </div>
+                <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-inner mt-2 sm:mt-0 self-end sm:self-auto">
+                  <CheckCircle2 size={16} className="sm:hidden" />
+                  <CheckCircle2 size={22} className="hidden sm:block" />
+                </div>
+              </div>
 
-          <div className="hidden md:flex items-center gap-1.5 bg-[#170a18] p-1.5 rounded-2xl border border-white/[0.08]">
-            <button
-              onClick={() => setViewMode("grid")}
-              className={cn(
-                "p-2 rounded-xl transition-all",
-                viewMode === "grid" ? "text-[#F0DF58] bg-[#F0DF58]/15 shadow-sm" : "text-white/40 hover:text-white"
-              )}
-              title="Visualização em Grade"
-            >
-              <LayoutGrid size={18} />
-            </button>
-            <button
-              onClick={() => setViewMode("list")}
-              className={cn(
-                "p-2 rounded-xl transition-all",
-                viewMode === "list" ? "text-[#F0DF58] bg-[#F0DF58]/15 shadow-sm" : "text-white/40 hover:text-white"
-              )}
-              title="Visualização em Lista"
-            >
-              <List size={18} />
-            </button>
-          </div>
-        </div>
+              {/* DESATIVADOS */}
+              <div className="bg-[#170a18]/90 border border-rose-900/40 rounded-2xl sm:rounded-3xl p-3 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between shadow-lg relative overflow-hidden group">
+                <div>
+                  <p className="text-[9px] sm:text-xs font-bold text-rose-400 uppercase tracking-wider">
+                    DESATIVADOS
+                  </p>
+                  <p className="font-heading text-2xl sm:text-4xl lg:text-5xl font-bold text-rose-400 mt-1 sm:mt-2">
+                    {stats.inactive}
+                  </p>
+                </div>
+                <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-rose-400 shadow-inner mt-2 sm:mt-0 self-end sm:self-auto">
+                  <XCircle size={16} className="sm:hidden" />
+                  <XCircle size={22} className="hidden sm:block" />
+                </div>
+              </div>
+            </div>
 
-        {/* ================= GRADE DE PRODUTOS ================= */}
-        {filteredItems.length === 0 ? (
-          <div className="text-center py-16 bg-[#170a18]/40 border border-white/[0.06] rounded-3xl p-8">
-            <p className="text-white/60 text-sm font-sans mb-4">Nenhum item encontrado com os filtros selecionados.</p>
-            <button 
-              onClick={() => { setSelectedCategory("all"); setStatusFilter("all"); setSearchQuery(""); }}
-              className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-bold uppercase text-white transition-all border border-white/10"
-            >
-              Limpar Filtros
-            </button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-2.5 sm:gap-4 w-full max-w-full">
-            {filteredItems.map(item => {
-              const itemImg = item.image || resolveItemImage(item);
-
-              return (
-                <div 
-                  key={item._id}
-                  className={cn(
-                    "group relative bg-[#130716]/95 border border-white/[0.08] hover:border-[#F0DF58]/35 rounded-2xl sm:rounded-3xl p-2.5 sm:p-4 transition-all hover:bg-[#1a0c1e] shadow-xl flex items-center justify-between gap-2.5 sm:gap-3 w-full max-w-full overflow-hidden",
-                    item.active === false && "opacity-55 grayscale bg-black/40 border-white/5"
-                  )}
+            {/* CATEGORIAS (SLIDE CARROSSEL HORIZONTAL) */}
+            <div className="flex flex-col gap-2 bg-[#170a18]/60 border border-white/[0.06] rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-lg w-full max-w-full">
+              <div className="flex items-center justify-between px-1">
+                <p className="text-[11px] sm:text-xs font-bold text-white/70 uppercase tracking-widest flex items-center gap-1.5">
+                  <Layers size={14} className="text-[#F0DF58]" />
+                  CATEGORIAS
+                </p>
+                <button 
+                  onClick={() => setSelectedCategory("all")}
+                  className="text-[11px] font-semibold text-white/40 hover:text-white transition-colors"
                 >
-                  {/* Foto do Produto (Esquerda) */}
-                  <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-2xl bg-black/40 border border-white/10 overflow-hidden flex items-center justify-center p-1 flex-shrink-0 shadow-inner group-hover:border-[#F0DF58]/20 transition-all">
-                    {itemImg ? (
-                      <img 
-                        src={itemImg} 
-                        alt={item.name} 
-                        className={cn(
-                          "w-full h-full rounded-xl transition-transform duration-300 group-hover:scale-110",
-                          (item.original_category === 'sizes' || item.original_category === 'ready_made')
-                            ? "object-contain p-0.5"
-                            : "object-cover scale-105"
-                        )}
-                        onError={(e) => {
-                          (e.target as HTMLElement).style.display = 'none';
-                        }}
-                      />
-                    ) : (
-                      <ImageIcon className="text-white/20" size={20} />
-                    )}
-                  </div>
+                  Ver todas
+                </button>
+              </div>
 
-                  {/* Informações: Categoria, Nome e Preço (Centro) */}
-                  <div className="flex flex-col justify-between h-16 sm:h-24 min-w-0 flex-1 pr-1">
-                    <div>
-                      <span className="inline-block text-[8px] sm:text-[9px] font-black text-[#c084fc] uppercase bg-[#3b174a]/80 border border-[#7e22ce]/30 px-1.5 sm:px-2 py-0.5 rounded tracking-wider truncate max-w-full">
-                        {item.category || item.original_category}
-                      </span>
-                      <h4 className="font-heading text-sm sm:text-lg uppercase text-white font-bold tracking-wide mt-0.5 sm:mt-1 line-clamp-1 group-hover:text-[#F0DF58] transition-colors">
-                        {item.name}
-                      </h4>
-                    </div>
-                    <div className="font-heading text-base sm:text-xl text-[#F0DF58] font-bold tracking-wide select-none">
-                      R$ {item.price.toFixed(2).replace('.', ',')}
-                    </div>
-                  </div>
+              <div className="flex items-center md:justify-center gap-2.5 overflow-x-auto pb-1.5 pt-1 no-scrollbar w-full scroll-smooth">
+                {CATEGORIES_CONFIG.map(cat => {
+                  const IconComponent = cat.Icon;
+                  const isSelected = selectedCategory === cat.key;
+                  const count = categoryCounts[cat.key] ?? 0;
 
-                  {/* Status no Topo e Botões ✏️ / 🗑️ na Base (Direita) */}
-                  <div className="flex flex-col justify-between items-end h-16 sm:h-24 flex-shrink-0">
-                    <button 
-                      onClick={() => updateItemQuick(item._id, { active: item.active === false ? true : false })}
-                      title={item.active === false ? "Clique para ativar" : "Clique para desativar"}
+                  return (
+                    <button
+                      key={cat.key}
+                      onClick={() => setSelectedCategory(cat.key)}
                       className={cn(
-                        "px-1.5 sm:px-2 py-0.5 rounded-full text-[8px] sm:text-[9px] font-bold uppercase tracking-wider border flex items-center gap-1 transition-all active:scale-95",
-                        item.active !== false 
-                          ? "bg-[#0c2417] border-[#166534]/60 text-[#4ade80] hover:bg-[#113522]" 
-                          : "bg-[#281119] border-rose-900/50 text-rose-400 hover:bg-[#381522]"
+                        "flex flex-col items-center justify-center py-2.5 sm:py-3.5 px-3.5 sm:px-5 rounded-2xl border transition-all flex-shrink-0 min-w-[78px] sm:min-w-[95px] gap-1 group shadow-sm",
+                        isSelected 
+                          ? "border-[#F0DF58] bg-[#F0DF58]/15 text-[#F0DF58] shadow-[0_0_14px_rgba(240,223,88,0.2)] scale-[1.02]" 
+                          : "border-white/[0.08] bg-[#130716]/90 text-white/70 hover:border-white/25 hover:text-white"
                       )}
                     >
-                      <span>{item.active !== false ? "ATIVO" : "DESATIVADO"}</span>
+                      <IconComponent 
+                        size={18} 
+                        className={cn("sm:w-[22px] sm:h-[22px]", isSelected ? "text-[#F0DF58]" : cat.iconColor)} 
+                      />
+                      <span className="text-[11px] sm:text-xs font-bold tracking-tight whitespace-nowrap">
+                        {cat.shortLabel}
+                        <span className="sr-only"> {cat.label}</span>
+                      </span>
                       <span className={cn(
-                        "w-1.5 h-1.5 rounded-full",
-                        item.active !== false ? "bg-[#4ade80] animate-pulse" : "bg-rose-400"
-                      )} />
+                        "text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full transition-colors",
+                        isSelected 
+                          ? "bg-[#F0DF58] text-[#120714]" 
+                          : "bg-white/10 text-white/70"
+                      )}>
+                        {count}
+                      </span>
                     </button>
+                  );
+                })}
+              </div>
+            </div>
 
-                    <div className="flex items-center gap-1 sm:gap-1.5">
-                      <button 
-                        onClick={() => { setEditingItem(item); setModalOpen(true); }}
-                        title="Editar"
-                        className="w-7 h-7 sm:w-9 sm:h-9 rounded-xl bg-[#1d1222] hover:bg-white/10 text-white/70 hover:text-white border border-white/10 flex items-center justify-center transition-all active:scale-95 shadow-sm"
-                      >
-                        <Edit3 size={13} />
-                      </button>
-                      <button 
-                        onClick={() => setItemToDelete(item)}
-                        title="Excluir"
-                        className="w-7 h-7 sm:w-9 sm:h-9 rounded-xl bg-[#281119] hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/20 flex items-center justify-center transition-all active:scale-95 shadow-sm"
-                      >
-                        <Trash2 size={13} />
-                      </button>
+            {/* SEARCH INPUT */}
+            <div className="flex items-center gap-2 w-full max-w-full">
+              <div className="relative flex-1">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/30" size={16} />
+                <input 
+                  type="text"
+                  placeholder="Buscar por nome ou categoria..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-[#170a18] border border-white/10 rounded-xl py-2.5 pl-9 pr-8 text-white text-xs font-sans focus:outline-none focus:border-[#F0DF58]/60 transition-all placeholder:text-white/30"
+                />
+                {searchQuery && (
+                  <button 
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/40 hover:text-white"
+                  >
+                    <X size={14} />
+                  </button>
+                )}
+              </div>
+              <button 
+                onClick={() => {
+                  if (statusFilter === "all") setStatusFilter("active");
+                  else if (statusFilter === "active") setStatusFilter("inactive");
+                  else setStatusFilter("all");
+                }}
+                title="Filtrar Status"
+                className="w-10 h-10 rounded-xl bg-[#170a18] border border-white/10 flex items-center justify-center text-white/70 active:scale-95 flex-shrink-0 md:hidden"
+              >
+                <SlidersHorizontal size={17} />
+              </button>
+            </div>
+
+            {/* SUB-FILTROS DE STATUS & MODO DE EXIBIÇÃO */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-1 w-full max-w-full">
+              <div className="grid grid-cols-3 gap-1.5 sm:gap-2 w-full sm:w-auto">
+                <button
+                  onClick={() => setStatusFilter("all")}
+                  className={cn(
+                    "py-2 px-1 text-center rounded-xl sm:rounded-full text-[11px] sm:text-xs font-bold transition-all shadow-sm truncate",
+                    statusFilter === "all"
+                      ? "bg-[#F0DF58] text-[#120714] shadow-md shadow-[#F0DF58]/10"
+                      : "bg-[#170a18] text-white/70 hover:text-white border border-white/[0.08]"
+                  )}
+                >
+                  Todos ({stats.total})
+                </button>
+                <button
+                  onClick={() => setStatusFilter("active")}
+                  className={cn(
+                    "py-2 px-1 text-center rounded-xl sm:rounded-full text-[11px] sm:text-xs font-bold transition-all shadow-sm truncate",
+                    statusFilter === "active"
+                      ? "bg-emerald-500/25 text-emerald-400 border border-emerald-500/40 font-black"
+                      : "bg-[#170a18] text-white/70 hover:text-white border border-white/[0.08]"
+                  )}
+                >
+                  Ativos ({stats.active})
+                </button>
+                <button
+                  onClick={() => setStatusFilter("inactive")}
+                  className={cn(
+                    "py-2 px-1 text-center rounded-xl sm:rounded-full text-[11px] sm:text-xs font-bold transition-all shadow-sm truncate",
+                    statusFilter === "inactive"
+                      ? "bg-rose-500/25 text-rose-300 border border-rose-500/40 font-black"
+                      : "bg-[#170a18] text-white/70 hover:text-white border border-white/[0.08]"
+                  )}
+                >
+                  Desativados ({stats.inactive})
+                </button>
+              </div>
+
+              <div className="hidden md:flex items-center gap-1.5 bg-[#170a18] p-1.5 rounded-2xl border border-white/[0.08]">
+                <button
+                  onClick={() => setViewMode("grid")}
+                  className={cn(
+                    "p-2 rounded-xl transition-all",
+                    viewMode === "grid" ? "text-[#F0DF58] bg-[#F0DF58]/15 shadow-sm" : "text-white/40 hover:text-white"
+                  )}
+                  title="Visualização em Grade"
+                >
+                  <LayoutGrid size={18} />
+                </button>
+                <button
+                  onClick={() => setViewMode("list")}
+                  className={cn(
+                    "p-2 rounded-xl transition-all",
+                    viewMode === "list" ? "text-[#F0DF58] bg-[#F0DF58]/15 shadow-sm" : "text-white/40 hover:text-white"
+                  )}
+                  title="Visualização em Lista"
+                >
+                  <List size={18} />
+                </button>
+              </div>
+            </div>
+
+            {/* GRADE DE PRODUTOS */}
+            {filteredItems.length === 0 ? (
+              <div className="text-center py-16 bg-[#170a18]/40 border border-white/[0.06] rounded-3xl p-8">
+                <p className="text-white/60 text-sm font-sans mb-4">Nenhum item encontrado com os filtros selecionados.</p>
+                <button 
+                  onClick={() => { setSelectedCategory("all"); setStatusFilter("all"); setSearchQuery(""); }}
+                  className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-bold uppercase text-white transition-all border border-white/10"
+                >
+                  Limpar Filtros
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-2.5 sm:gap-4 w-full max-w-full">
+                {filteredItems.map(item => {
+                  const itemImg = item.image || resolveItemImage(item);
+
+                  return (
+                    <div 
+                      key={item._id}
+                      className={cn(
+                        "group relative bg-[#130716]/95 border border-white/[0.08] hover:border-[#F0DF58]/35 rounded-2xl sm:rounded-3xl p-2.5 sm:p-4 transition-all hover:bg-[#1a0c1e] shadow-xl flex items-center justify-between gap-2.5 sm:gap-3 w-full max-w-full overflow-hidden",
+                        item.active === false && "opacity-55 grayscale bg-black/40 border-white/5"
+                      )}
+                    >
+                      {/* Foto do Produto (Esquerda) */}
+                      <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-2xl bg-black/40 border border-white/10 overflow-hidden flex items-center justify-center p-1 flex-shrink-0 shadow-inner group-hover:border-[#F0DF58]/20 transition-all">
+                        {itemImg ? (
+                          <img 
+                            src={itemImg} 
+                            alt={item.name} 
+                            className={cn(
+                              "w-full h-full rounded-xl transition-transform duration-300 group-hover:scale-110",
+                              (item.original_category === 'sizes' || item.original_category === 'ready_made')
+                                ? "object-contain p-0.5"
+                                : "object-cover scale-105"
+                            )}
+                            onError={(e) => {
+                              (e.target as HTMLElement).style.display = 'none';
+                            }}
+                          />
+                        ) : (
+                          <ImageIcon className="text-white/20" size={20} />
+                        )}
+                      </div>
+
+                      {/* Informações: Categoria, Nome e Preço (Centro) */}
+                      <div className="flex flex-col justify-between h-16 sm:h-24 min-w-0 flex-1 pr-1">
+                        <div>
+                          <span className="inline-block text-[8px] sm:text-[9px] font-black text-[#c084fc] uppercase bg-[#3b174a]/80 border border-[#7e22ce]/30 px-1.5 sm:px-2 py-0.5 rounded tracking-wider truncate max-w-full">
+                            {item.category || item.original_category}
+                          </span>
+                          <h4 className="font-heading text-sm sm:text-lg uppercase text-white font-bold tracking-wide mt-0.5 sm:mt-1 line-clamp-1 group-hover:text-[#F0DF58] transition-colors">
+                            {item.name}
+                          </h4>
+                        </div>
+                        <div className="font-heading text-base sm:text-xl text-[#F0DF58] font-bold tracking-wide select-none">
+                          R$ {item.price.toFixed(2).replace('.', ',')}
+                        </div>
+                      </div>
+
+                      {/* Status no Topo e Botões ✏️ / 🗑️ na Base (Direita) */}
+                      <div className="flex flex-col justify-between items-end h-16 sm:h-24 flex-shrink-0">
+                        <button 
+                          onClick={() => updateItemQuick(item._id, { active: item.active === false ? true : false })}
+                          title={item.active === false ? "Clique para ativar" : "Clique para desativar"}
+                          className={cn(
+                            "px-1.5 sm:px-2 py-0.5 rounded-full text-[8px] sm:text-[9px] font-bold uppercase tracking-wider border flex items-center gap-1 transition-all active:scale-95",
+                            item.active !== false 
+                              ? "bg-[#0c2417] border-[#166534]/60 text-[#4ade80] hover:bg-[#113522]" 
+                              : "bg-[#281119] border-rose-900/50 text-rose-400 hover:bg-[#381522]"
+                          )}
+                        >
+                          <span>{item.active !== false ? "ATIVO" : "DESATIVADO"}</span>
+                          <span className={cn(
+                            "w-1.5 h-1.5 rounded-full",
+                            item.active !== false ? "bg-[#4ade80] animate-pulse" : "bg-rose-400"
+                          )} />
+                        </button>
+
+                        <div className="flex items-center gap-1 sm:gap-1.5">
+                          <button 
+                            onClick={() => { setEditingItem(item); setModalOpen(true); }}
+                            title="Editar"
+                            className="w-7 h-7 sm:w-9 sm:h-9 rounded-xl bg-[#1d1222] hover:bg-white/10 text-white/70 hover:text-white border border-white/10 flex items-center justify-center transition-all active:scale-95 shadow-sm"
+                          >
+                            <Edit3 size={13} />
+                          </button>
+                          <button 
+                            onClick={() => setItemToDelete(item)}
+                            title="Excluir"
+                            className="w-7 h-7 sm:w-9 sm:h-9 rounded-xl bg-[#281119] hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/20 flex items-center justify-center transition-all active:scale-95 shadow-sm"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ========================================================================= */}
+        {/* ======================= ABA: PEDIDOS DO DIA ============================= */}
+        {/* ========================================================================= */}
+        {activeTab === "orders" && (
+          <div className="space-y-5 animate-in fade-in duration-200">
+            {/* Cabeçalho de Pedidos */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="font-sans text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight flex items-center gap-2.5">
+                  <LayoutDashboard className="text-[#F0DF58]" size={26} />
+                  Pedidos do Dia
+                </h2>
+                <p className="text-white/50 text-xs sm:text-sm font-sans mt-0.5">
+                  Histórico e pedidos em tempo real gravados no sistema
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={fetchData}
+                  className="px-3.5 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold uppercase transition-all flex items-center gap-1.5 border border-white/10"
+                >
+                  <RefreshCw size={14} /> Sincronizar
+                </button>
+              </div>
+            </div>
+
+            {/* Métricas dos Pedidos */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              <div className="bg-[#170a18] border border-white/[0.08] p-4 rounded-2xl">
+                <p className="text-[10px] uppercase font-bold text-white/50">Total de Pedidos</p>
+                <p className="font-heading text-3xl font-bold text-white mt-1">{orders.length}</p>
+              </div>
+              <div className="bg-[#170a18] border border-white/[0.08] p-4 rounded-2xl">
+                <p className="text-[10px] uppercase font-bold text-emerald-400">Faturamento Hoje</p>
+                <p className="font-heading text-3xl font-bold text-emerald-400 mt-1">
+                  R$ {reportMetrics.totalRevenue.toFixed(2).replace('.', ',')}
+                </p>
+              </div>
+              <div className="bg-[#170a18] border border-white/[0.08] p-4 rounded-2xl">
+                <p className="text-[10px] uppercase font-bold text-cyan-300">Para Entrega</p>
+                <p className="font-heading text-3xl font-bold text-cyan-300 mt-1">{reportMetrics.deliveryCount}</p>
+              </div>
+              <div className="bg-[#170a18] border border-white/[0.08] p-4 rounded-2xl">
+                <p className="text-[10px] uppercase font-bold text-amber-300">Retirada no Balcão</p>
+                <p className="font-heading text-3xl font-bold text-amber-300 mt-1">{reportMetrics.pickupCount}</p>
+              </div>
+            </div>
+
+            {/* Filtros de Pedidos */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+              {[
+                { key: "all", label: `Todos (${orders.length})` },
+                { key: "delivery", label: `🛵 Entrega (${reportMetrics.deliveryCount})` },
+                { key: "pickup", label: `🛍️ Retirada (${reportMetrics.pickupCount})` },
+                { key: "pix", label: "Pix" },
+                { key: "card", label: "Cartão" },
+                { key: "cash", label: "Dinheiro" },
+              ].map(f => (
+                <button
+                  key={f.key}
+                  onClick={() => setOrderFilter(f.key as any)}
+                  className={cn(
+                    "px-3.5 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap",
+                    orderFilter === f.key 
+                      ? "bg-[#F0DF58] text-[#120714] shadow-md"
+                      : "bg-[#170a18] text-white/70 hover:text-white border border-white/10"
+                  )}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Lista de Pedidos */}
+            {filteredOrders.length === 0 ? (
+              <div className="text-center py-16 bg-[#170a18]/40 border border-white/[0.06] rounded-3xl p-8">
+                <Receipt className="mx-auto text-white/20 mb-3" size={40} />
+                <p className="text-white/60 text-sm font-sans">Nenhum pedido encontrado para o filtro selecionado.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {filteredOrders.map(order => {
+                  const isDelivery = order.deliveryMethod?.toLowerCase().includes("entrega");
+                  const dateFormatted = new Date(order.createdAt).toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' });
+
+                  return (
+                    <div 
+                      key={order._id}
+                      className="bg-[#140816]/95 border border-white/[0.08] rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg hover:border-white/20 transition-all"
+                    >
+                      <div className="space-y-2 flex-1">
+                        <div className="flex items-center gap-2.5 flex-wrap">
+                          <span className="font-heading text-sm text-[#F0DF58] bg-[#F0DF58]/10 px-2 py-0.5 rounded-md border border-[#F0DF58]/20">
+                            #{order._id.slice(-6).toUpperCase()}
+                          </span>
+                          <span className="text-xs text-white/50 flex items-center gap-1">
+                            <Clock size={12} /> {dateFormatted}
+                          </span>
+                          <span className={cn(
+                            "text-[10px] font-bold px-2 py-0.5 rounded-full uppercase",
+                            isDelivery ? "bg-cyan-500/15 text-cyan-300 border border-cyan-500/30" : "bg-amber-500/15 text-amber-300 border border-amber-500/30"
+                          )}>
+                            {order.deliveryMethod || "Retirada"}
+                          </span>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/15 text-purple-300 border border-purple-500/30">
+                            💳 {order.paymentMethod || "Pix"}
+                          </span>
+                        </div>
+
+                        {/* Itens do Pedido */}
+                        <div className="flex flex-wrap gap-1.5 pt-1">
+                          {order.items?.map((item, idx) => (
+                            <span 
+                              key={idx}
+                              className="text-xs font-medium text-white/80 bg-white/[0.04] border border-white/5 px-2.5 py-1 rounded-lg"
+                            >
+                              {item}
+                            </span>
+                          ))}
+                        </div>
+
+                        {/* Endereço se entrega */}
+                        {isDelivery && order.address && (
+                          <div className="text-xs text-white/50 flex items-center gap-1.5 pt-1">
+                            <MapPin size={12} className="text-rose-400" />
+                            <span>{order.address.street}, {order.address.number || 'S/N'} - {order.address.neighborhood}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Total do Pedido */}
+                      <div className="flex sm:flex-col items-center sm:items-end justify-between border-t sm:border-t-0 pt-3 sm:pt-0 border-white/5">
+                        <span className="text-[10px] font-bold uppercase text-white/40">Total</span>
+                        <span className="font-heading text-2xl font-bold text-[#F0DF58]">
+                          R$ {(Number(order.total) || 0).toFixed(2).replace('.', ',')}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ========================================================================= */}
+        {/* ======================= ABA: RELATÓRIOS & ANALYTICS ==================== */}
+        {/* ========================================================================= */}
+        {activeTab === "reports" && (
+          <div className="space-y-6 animate-in fade-in duration-200">
+            {/* Cabeçalho */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="font-sans text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight flex items-center gap-2.5">
+                  <BarChart3 className="text-[#F0DF58]" size={26} />
+                  Relatórios & Desempenho
+                </h2>
+                <p className="text-white/50 text-xs sm:text-sm font-sans mt-0.5">
+                  Métricas financeiras, itens mais pedidos e comportamento de vendas
+                </p>
+              </div>
+
+              {/* Período */}
+              <div className="flex items-center gap-1 bg-[#170a18] p-1 rounded-2xl border border-white/10">
+                <button
+                  onClick={() => setReportPeriod("today")}
+                  className={cn(
+                    "px-3 py-1.5 rounded-xl text-xs font-bold transition-all",
+                    reportPeriod === "today" ? "bg-[#F0DF58] text-[#120714]" : "text-white/60 hover:text-white"
+                  )}
+                >
+                  Hoje
+                </button>
+                <button
+                  onClick={() => setReportPeriod("week")}
+                  className={cn(
+                    "px-3 py-1.5 rounded-xl text-xs font-bold transition-all",
+                    reportPeriod === "week" ? "bg-[#F0DF58] text-[#120714]" : "text-white/60 hover:text-white"
+                  )}
+                >
+                  7 Dias
+                </button>
+                <button
+                  onClick={() => setReportPeriod("month")}
+                  className={cn(
+                    "px-3 py-1.5 rounded-xl text-xs font-bold transition-all",
+                    reportPeriod === "month" ? "bg-[#F0DF58] text-[#120714]" : "text-white/60 hover:text-white"
+                  )}
+                >
+                  Mês
+                </button>
+              </div>
+            </div>
+
+            {/* 4 Cards de Métricas Principais */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Faturamento */}
+              <div className="bg-[#170a18] border border-white/[0.08] p-5 rounded-3xl relative overflow-hidden shadow-lg">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase text-white/50">Faturamento Bruto</span>
+                  <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
+                    <DollarSign size={18} />
+                  </div>
+                </div>
+                <p className="font-heading text-4xl font-bold text-emerald-400 mt-2">
+                  R$ {reportMetrics.totalRevenue.toFixed(2).replace('.', ',')}
+                </p>
+                <span className="text-[11px] text-white/40 mt-1 block">Baseado em {reportMetrics.totalOrdersCount} pedidos</span>
+              </div>
+
+              {/* Ticket Médio */}
+              <div className="bg-[#170a18] border border-white/[0.08] p-5 rounded-3xl relative overflow-hidden shadow-lg">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase text-white/50">Ticket Médio</span>
+                  <div className="p-2 rounded-xl bg-purple-500/10 text-purple-300">
+                    <TrendingUp size={18} />
+                  </div>
+                </div>
+                <p className="font-heading text-4xl font-bold text-white mt-2">
+                  R$ {reportMetrics.avgTicket.toFixed(2).replace('.', ',')}
+                </p>
+                <span className="text-[11px] text-white/40 mt-1 block">Média por cliente</span>
+              </div>
+
+              {/* Volume de Pedidos */}
+              <div className="bg-[#170a18] border border-white/[0.08] p-5 rounded-3xl relative overflow-hidden shadow-lg">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase text-white/50">Total de Pedidos</span>
+                  <div className="p-2 rounded-xl bg-amber-500/10 text-amber-300">
+                    <ShoppingBag size={18} />
+                  </div>
+                </div>
+                <p className="font-heading text-4xl font-bold text-[#F0DF58] mt-2">
+                  {reportMetrics.totalOrdersCount}
+                </p>
+                <span className="text-[11px] text-white/40 mt-1 block">Pedidos concluídos</span>
+              </div>
+
+              {/* Taxa de Entrega */}
+              <div className="bg-[#170a18] border border-white/[0.08] p-5 rounded-3xl relative overflow-hidden shadow-lg">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase text-white/50">Taxa Delivery</span>
+                  <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-300">
+                    <ArrowUpRight size={18} />
+                  </div>
+                </div>
+                <p className="font-heading text-4xl font-bold text-cyan-300 mt-2">
+                  {reportMetrics.totalOrdersCount > 0 
+                    ? `${Math.round((reportMetrics.deliveryCount / reportMetrics.totalOrdersCount) * 100)}%` 
+                    : "0%"}
+                </p>
+                <span className="text-[11px] text-white/40 mt-1 block">{reportMetrics.deliveryCount} entregas vs {reportMetrics.pickupCount} retiradas</span>
+              </div>
+            </div>
+
+            {/* Painéis Gráficos e Distribuição */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+              {/* Ranking de Itens Mais Vendidos */}
+              <div className="bg-[#170a18] border border-white/[0.08] p-5 rounded-3xl shadow-lg space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-bold uppercase text-white/90 flex items-center gap-2">
+                    <Award size={18} className="text-[#F0DF58]" />
+                    Top Complementos e Itens Mais Pedidos
+                  </h3>
+                  <span className="text-xs text-white/40">Frequência</span>
+                </div>
+
+                {reportMetrics.topItems.length === 0 ? (
+                  <p className="text-white/40 text-xs text-center py-6">Nenhum dado de pedido registrado ainda.</p>
+                ) : (
+                  <div className="space-y-3">
+                    {reportMetrics.topItems.map((item, idx) => {
+                      const maxCount = reportMetrics.topItems[0]?.count || 1;
+                      const pct = Math.round((item.count / maxCount) * 100);
+
+                      return (
+                        <div key={item.name} className="space-y-1">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="font-semibold text-white/90 flex items-center gap-2">
+                              <span className="w-5 text-[#F0DF58] font-bold">#{idx + 1}</span>
+                              {item.name}
+                            </span>
+                            <span className="text-white/50">{item.count} pedidos</span>
+                          </div>
+                          <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
+                            <div 
+                              className="h-full bg-gradient-to-r from-[#F0DF58] to-amber-500 rounded-full transition-all duration-500" 
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* Formas de Pagamento e Entregas */}
+              <div className="bg-[#170a18] border border-white/[0.08] p-5 rounded-3xl shadow-lg space-y-5">
+                <div>
+                  <h3 className="text-sm font-bold uppercase text-white/90 mb-3 flex items-center gap-2">
+                    <CreditCard size={18} className="text-emerald-400" />
+                    Divisão por Forma de Pagamento
+                  </h3>
+
+                  <div className="space-y-2.5">
+                    {/* Pix */}
+                    <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+                          <QrCode size={16} />
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-white">Pix</p>
+                          <p className="text-[10px] text-white/40">{reportMetrics.pix.count} pedidos</p>
+                        </div>
+                      </div>
+                      <span className="font-heading text-lg text-emerald-400 font-bold">
+                        R$ {reportMetrics.pix.revenue.toFixed(2).replace('.', ',')}
+                      </span>
+                    </div>
+
+                    {/* Cartão */}
+                    <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-xl bg-purple-500/10 text-purple-300 flex items-center justify-center">
+                          <CreditCard size={16} />
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-white">Cartão</p>
+                          <p className="text-[10px] text-white/40">{reportMetrics.card.count} pedidos</p>
+                        </div>
+                      </div>
+                      <span className="font-heading text-lg text-white font-bold">
+                        R$ {reportMetrics.card.revenue.toFixed(2).replace('.', ',')}
+                      </span>
+                    </div>
+
+                    {/* Dinheiro */}
+                    <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center">
+                          <Wallet size={16} />
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-white">Dinheiro</p>
+                          <p className="text-[10px] text-white/40">{reportMetrics.cash.count} pedidos</p>
+                        </div>
+                      </div>
+                      <span className="font-heading text-lg text-amber-400 font-bold">
+                        R$ {reportMetrics.cash.revenue.toFixed(2).replace('.', ',')}
+                      </span>
                     </div>
                   </div>
                 </div>
-              );
-            })}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================================= */}
+        {/* ======================= ABA: VISÃO GERAL ================================ */}
+        {/* ========================================================================= */}
+        {activeTab === "overview" && (
+          <div className="space-y-6 animate-in fade-in duration-200">
+            <div>
+              <h2 className="font-sans text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight flex items-center gap-2.5">
+                <Home className="text-[#F0DF58]" size={26} />
+                Visão Geral do Negócio
+              </h2>
+              <p className="text-white/50 text-xs sm:text-sm font-sans mt-0.5">
+                Resumo rápido de operações e atalhos de gestão
+              </p>
+            </div>
+
+            {/* Ações Rápidas em Cards Grandes */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <button
+                onClick={() => setActiveTab("menu")}
+                className="bg-[#170a18] border border-white/[0.08] hover:border-[#F0DF58]/40 p-6 rounded-3xl text-left transition-all group shadow-xl"
+              >
+                <div className="w-12 h-12 rounded-2xl bg-[#F0DF58]/10 text-[#F0DF58] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <Box size={24} />
+                </div>
+                <h3 className="font-heading text-xl uppercase text-white">Gestão do Cardápio</h3>
+                <p className="text-white/50 text-xs mt-1">Gerencie preços, estoque e fotos dos {stats.total} itens cadastrados.</p>
+              </button>
+
+              <button
+                onClick={() => setActiveTab("orders")}
+                className="bg-[#170a18] border border-white/[0.08] hover:border-emerald-500/40 p-6 rounded-3xl text-left transition-all group shadow-xl"
+              >
+                <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <LayoutDashboard size={24} />
+                </div>
+                <h3 className="font-heading text-xl uppercase text-white">Pedidos do Dia</h3>
+                <p className="text-white/50 text-xs mt-1">Monitore {orders.length} pedidos em tempo real com total e endereços.</p>
+              </button>
+
+              <button
+                onClick={() => setActiveTab("reports")}
+                className="bg-[#170a18] border border-white/[0.08] hover:border-cyan-500/40 p-6 rounded-3xl text-left transition-all group shadow-xl"
+              >
+                <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 text-cyan-300 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <BarChart3 size={24} />
+                </div>
+                <h3 className="font-heading text-xl uppercase text-white">Relatórios & Vendas</h3>
+                <p className="text-white/50 text-xs mt-1">Consulte faturamento, ticket médio e ingredientes mais vendidos.</p>
+              </button>
+            </div>
           </div>
         )}
       </main>
@@ -1039,8 +1545,11 @@ export default function AdminPage() {
 
         {/* Tab 4: Relatórios */}
         <button
-          onClick={() => setActiveTab("orders")}
-          className="flex flex-col items-center gap-1 text-[10px] font-bold uppercase text-white/40 hover:text-white transition-colors"
+          onClick={() => setActiveTab("reports")}
+          className={cn(
+            "flex flex-col items-center gap-1 text-[10px] font-bold uppercase transition-colors",
+            activeTab === "reports" ? "text-[#F0DF58]" : "text-white/40 hover:text-white"
+          )}
         >
           <BarChart3 size={18} />
           <span>Relatórios</span>
