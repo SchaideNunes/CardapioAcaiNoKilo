@@ -170,6 +170,7 @@ export default function AdminPage() {
   const [menuItems, setMenuItems] = useState<ItemAdmin[]>([]);
   const [orders, setOrders] = useState<OrderAdmin[]>([]);
   const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
   
   // Modals & Form State
   const [modalOpen, setModalOpen] = useState(false);
@@ -306,13 +307,54 @@ export default function AdminPage() {
         setMenuItems(getInitialFallbackItems());
       }
       setOrders(await ordersRes.json());
-      showToast("Dados sincronizados com sucesso!", "info");
     } catch (err) {
       console.log("Modo Demo Admin: Carregando banco de dados local sincronizado.");
       setMenuItems(getInitialFallbackItems());
       setOrders(demoOrders);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Ação manual com feedback visual interativo
+  const handleSyncData = async () => {
+    setSyncing(true);
+    try {
+      if (token === "demo-token-123") {
+        await new Promise(res => setTimeout(res, 600)); // Delay para sensação tátil de sincronização
+        setMenuItems(getInitialFallbackItems());
+        setOrders(demoOrders);
+        showToast("Dados sincronizados com sucesso!", "success");
+      } else {
+        const [menuRes, ordersRes] = await Promise.all([
+          fetch("http://localhost:3001/api/admin/menu", { headers: { Authorization: `Bearer ${token}` } }),
+          fetch("http://localhost:3001/api/admin/orders", { headers: { Authorization: `Bearer ${token}` } })
+        ]);
+        
+        if (menuRes.status === 401 || ordersRes.status === 401) {
+          handleLogout();
+          return;
+        }
+
+        const backendItems = await menuRes.json();
+        if (Array.isArray(backendItems) && backendItems.length > 0) {
+          setMenuItems(backendItems.map((item: ItemAdmin) => ({
+            ...item,
+            image: item.image || resolveItemImage(item)
+          })));
+        } else {
+          setMenuItems(getInitialFallbackItems());
+        }
+        setOrders(await ordersRes.json());
+        showToast("Dados sincronizados com sucesso!", "success");
+      }
+    } catch (err) {
+      console.log("Modo Demo Admin: Sincronização local.");
+      setMenuItems(getInitialFallbackItems());
+      setOrders(demoOrders);
+      showToast("Dados sincronizados localmente!", "info");
+    } finally {
+      setSyncing(false);
     }
   };
 
@@ -706,11 +748,23 @@ export default function AdminPage() {
             <span>Adicionar Item</span>
           </button>
           <button 
-            onClick={() => { fetchData(); setMobileDrawerOpen(false); }}
-            className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs font-medium text-white/60 hover:text-white hover:bg-white/[0.04] transition-all text-left"
+            onClick={() => { handleSyncData(); setMobileDrawerOpen(false); }}
+            disabled={syncing}
+            className={cn(
+              "flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs font-medium transition-all text-left group",
+              syncing 
+                ? "bg-[#F0DF58]/15 text-[#F0DF58] border border-[#F0DF58]/30 shadow-[0_0_12px_rgba(240,223,88,0.15)]" 
+                : "text-white/60 hover:text-white hover:bg-white/[0.04]"
+            )}
           >
-            <RefreshCw size={16} className="text-white/40" />
-            <span>Sincronizar Dados</span>
+            <RefreshCw 
+              size={16} 
+              className={cn(
+                "text-white/40 transition-transform",
+                syncing ? "animate-spin text-[#F0DF58]" : "group-hover:rotate-180 duration-500"
+              )} 
+            />
+            <span>{syncing ? "Sincronizando..." : "Sincronizar Dados"}</span>
           </button>
         </div>
 
@@ -1107,10 +1161,17 @@ export default function AdminPage() {
 
               <div className="flex items-center gap-2">
                 <button
-                  onClick={fetchData}
-                  className="px-3.5 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold uppercase transition-all flex items-center gap-1.5 border border-white/10"
+                  onClick={handleSyncData}
+                  disabled={syncing}
+                  className={cn(
+                    "px-3.5 py-2 rounded-xl text-xs font-bold uppercase transition-all flex items-center gap-2 border shadow-sm",
+                    syncing 
+                      ? "bg-[#F0DF58]/20 text-[#F0DF58] border-[#F0DF58]/40 shadow-[0_0_15px_rgba(240,223,88,0.2)]" 
+                      : "bg-white/10 hover:bg-white/20 text-white border-white/10 active:scale-95"
+                  )}
                 >
-                  <RefreshCw size={14} /> Sincronizar
+                  <RefreshCw size={14} className={syncing ? "animate-spin text-[#F0DF58]" : ""} />
+                  <span>{syncing ? "Sincronizando..." : "Sincronizar"}</span>
                 </button>
               </div>
             </div>
