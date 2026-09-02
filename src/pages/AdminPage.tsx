@@ -745,7 +745,7 @@ export default function AdminPage() {
           </div>
         </div>
 
-        {/* ================= CATEGORIAS (ENCAIXADAS SEM SCROLL) ================= */}
+        {/* ================= CATEGORIAS (SLIDE CARROSSEL HORIZONTAL) ================= */}
         <div className="flex flex-col gap-2 bg-[#170a18]/60 border border-white/[0.06] rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-lg w-full max-w-full">
           <div className="flex items-center justify-between px-1">
             <p className="text-[11px] sm:text-xs font-bold text-white/70 uppercase tracking-widest flex items-center gap-1.5">
@@ -760,7 +760,7 @@ export default function AdminPage() {
             </button>
           </div>
 
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:flex md:flex-wrap md:justify-center gap-1.5 sm:gap-2.5 w-full pt-1">
+          <div className="flex items-center md:justify-center gap-2.5 overflow-x-auto pb-1.5 pt-1 no-scrollbar w-full scroll-smooth">
             {CATEGORIES_CONFIG.map(cat => {
               const IconComponent = cat.Icon;
               const isSelected = selectedCategory === cat.key;
@@ -771,22 +771,22 @@ export default function AdminPage() {
                   key={cat.key}
                   onClick={() => setSelectedCategory(cat.key)}
                   className={cn(
-                    "flex flex-col items-center justify-center py-2 sm:py-3.5 px-1 sm:px-4 rounded-xl sm:rounded-2xl border transition-all w-full md:w-auto md:min-w-[95px] gap-1 group shadow-sm",
+                    "flex flex-col items-center justify-center py-2.5 sm:py-3.5 px-3.5 sm:px-5 rounded-2xl border transition-all flex-shrink-0 min-w-[78px] sm:min-w-[95px] gap-1 group shadow-sm",
                     isSelected 
                       ? "border-[#F0DF58] bg-[#F0DF58]/15 text-[#F0DF58] shadow-[0_0_14px_rgba(240,223,88,0.2)] scale-[1.02]" 
                       : "border-white/[0.08] bg-[#130716]/90 text-white/70 hover:border-white/25 hover:text-white"
                   )}
                 >
                   <IconComponent 
-                    size={16} 
-                    className={cn("sm:w-5 sm:h-5", isSelected ? "text-[#F0DF58]" : cat.iconColor)} 
+                    size={18} 
+                    className={cn("sm:w-[22px] sm:h-[22px]", isSelected ? "text-[#F0DF58]" : cat.iconColor)} 
                   />
-                  <span className="text-[10px] sm:text-xs font-bold tracking-tight truncate max-w-full px-0.5">
+                  <span className="text-[11px] sm:text-xs font-bold tracking-tight whitespace-nowrap">
                     {cat.shortLabel}
                     <span className="sr-only"> {cat.label}</span>
                   </span>
                   <span className={cn(
-                    "text-[8px] sm:text-[10px] font-bold px-1.5 py-0.2 rounded-full transition-colors",
+                    "text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full transition-colors",
                     isSelected 
                       ? "bg-[#F0DF58] text-[#120714]" 
                       : "bg-white/10 text-white/70"
