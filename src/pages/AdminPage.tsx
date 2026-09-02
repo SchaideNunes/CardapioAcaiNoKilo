@@ -61,15 +61,15 @@ export interface OrderAdmin {
 }
 
 export const CATEGORIES_CONFIG = [
-  { key: "all", label: "Todos os Itens", Icon: LayoutGrid, iconColor: "text-primary" },
-  { key: "sizes", label: "Tamanhos de Potes", Icon: Layers, iconColor: "text-purple-400" },
-  { key: "flavors", label: "Sabores de Açaí", Icon: Sparkles, iconColor: "text-violet-400" },
-  { key: "toppings", label: "Coberturas", Icon: Droplets, iconColor: "text-amber-400" },
-  { key: "addons", label: "Adicionais", Icon: PlusCircle, iconColor: "text-emerald-400" },
-  { key: "creams", label: "Cremes", Icon: Milk, iconColor: "text-pink-400" },
-  { key: "fruits", label: "Frutas Frescas", Icon: Apple, iconColor: "text-rose-400" },
-  { key: "fillings", label: "Recheios Especiais", Icon: Cookie, iconColor: "text-amber-500" },
-  { key: "ready_made", label: "Prontos para Levar", Icon: ShoppingBag, iconColor: "text-cyan-400" },
+  { key: "all", label: "Todos os Itens", Icon: LayoutGrid, iconColor: "text-[#F0DF58]" },
+  { key: "sizes", label: "Tamanhos de Potes", Icon: Layers, iconColor: "text-purple-300" },
+  { key: "flavors", label: "Sabores de Açaí", Icon: Sparkles, iconColor: "text-violet-300" },
+  { key: "toppings", label: "Coberturas", Icon: Droplets, iconColor: "text-amber-300" },
+  { key: "addons", label: "Adicionais", Icon: PlusCircle, iconColor: "text-emerald-300" },
+  { key: "creams", label: "Cremes", Icon: Milk, iconColor: "text-pink-300" },
+  { key: "fruits", label: "Frutas Frescas", Icon: Apple, iconColor: "text-rose-300" },
+  { key: "fillings", label: "Recheios Especiais", Icon: Cookie, iconColor: "text-amber-400" },
+  { key: "ready_made", label: "Prontos para Levar", Icon: ShoppingBag, iconColor: "text-cyan-300" },
 ];
 
 export function resolveItemImage(item: Partial<ItemAdmin>): string {
@@ -455,21 +455,21 @@ export default function AdminPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#180a15] flex flex-col items-center justify-center">
-        <RefreshCw className="text-primary animate-spin mb-4" size={48} />
+        <RefreshCw className="text-[#F0DF58] animate-spin mb-4" size={48} />
         <span className="font-heading text-xl text-white uppercase tracking-widest">Sincronizando Painel...</span>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#180a15] text-white flex flex-col md:flex-row relative selection:bg-primary selection:text-secondary">
+    <div className="min-h-screen bg-[#180a15] text-white flex flex-col md:flex-row relative selection:bg-[#F0DF58] selection:text-[#180a15]">
       {/* Toast Notification */}
       {toast && (
         <div className={cn(
           "fixed bottom-6 right-6 z-[100] px-5 py-3.5 rounded-2xl shadow-2xl font-sans text-sm flex items-center gap-3 animate-in slide-in-from-bottom-5 duration-300 border",
           toast.type === "success" && "bg-[#25D366]/20 border-[#25D366]/40 text-[#25D366] backdrop-blur-xl",
           toast.type === "error" && "bg-red-500/20 border-red-500/40 text-red-300 backdrop-blur-xl",
-          toast.type === "info" && "bg-primary/20 border-primary/40 text-primary backdrop-blur-xl"
+          toast.type === "info" && "bg-[#F0DF58]/20 border-[#F0DF58]/40 text-[#F0DF58] backdrop-blur-xl"
         )}>
           {toast.type === "success" ? <Check size={18} /> : <AlertTriangle size={18} />}
           <span className="font-medium text-white">{toast.message}</span>
@@ -477,56 +477,57 @@ export default function AdminPage() {
       )}
 
       {/* Sidebar Navigation */}
-      <aside className="w-full md:w-72 bg-[#120610]/90 border-b md:border-b-0 md:border-r border-white/5 p-6 flex flex-col gap-6 backdrop-blur-xl">
-        <div className="flex items-center justify-between md:justify-start gap-3 pb-4 border-b border-white/5">
+      <aside className="w-full md:w-72 bg-[#120610]/95 border-b md:border-b-0 md:border-r border-white/10 p-6 flex flex-col gap-6 backdrop-blur-xl">
+        <div className="flex items-center justify-between md:justify-start gap-3 pb-4 border-b border-white/10">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 bg-primary rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20">
-              <LayoutDashboard className="text-[#180a15]" size={24} />
+            <div className="w-11 h-11 bg-[#F0DF58]/15 border border-[#F0DF58]/35 rounded-2xl flex items-center justify-center shadow-lg shadow-[#F0DF58]/5">
+              <LayoutDashboard className="text-[#F0DF58]" size={22} />
             </div>
             <div>
-              <h1 className="font-heading text-2xl uppercase text-primary leading-none tracking-wide">Admin Painel</h1>
-              <p className="text-[10px] text-white/40 uppercase font-bold tracking-widest mt-1">Açaí no Kilo</p>
+              <h1 className="font-heading text-2xl uppercase text-[#F0DF58] leading-none tracking-wide">Admin Painel</h1>
+              <p className="text-xs text-white/75 uppercase font-bold tracking-widest mt-1">Açaí no Kilo</p>
             </div>
           </div>
           <button 
             onClick={fetchData} 
             title="Recarregar Dados"
-            className="p-2 text-white/40 hover:text-primary transition-colors md:hidden"
+            className="p-2 text-white/70 hover:text-[#F0DF58] transition-colors md:hidden"
           >
             <RefreshCw size={18} />
           </button>
         </div>
 
         {/* Status Pills */}
-        <div className="grid grid-cols-3 gap-2 bg-white/[0.02] p-3 rounded-2xl border border-white/5">
+        <div className="grid grid-cols-3 gap-2 bg-white/[0.04] p-3 rounded-2xl border border-white/10">
           <div className="text-center">
-            <p className="text-[10px] text-white/40 font-bold uppercase">Total</p>
-            <p className="font-heading text-lg text-white">{stats.total}</p>
+            <p className="text-[10px] text-white/80 font-bold uppercase tracking-wider">Total</p>
+            <p className="font-heading text-xl text-white mt-0.5">{stats.total}</p>
           </div>
-          <div className="text-center border-x border-white/5">
-            <p className="text-[10px] text-[#25D366] font-bold uppercase">Ativos</p>
-            <p className="font-heading text-lg text-[#25D366]">{stats.active}</p>
+          <div className="text-center border-x border-white/10">
+            <p className="text-[10px] text-[#25D366] font-bold uppercase tracking-wider">Ativos</p>
+            <p className="font-heading text-xl text-[#25D366] mt-0.5">{stats.active}</p>
           </div>
           <div className="text-center">
-            <p className="text-[10px] text-red-400 font-bold uppercase">Desativados</p>
-            <p className="font-heading text-lg text-red-400">{stats.inactive}</p>
+            <p className="text-[10px] text-red-300 font-bold uppercase tracking-wider">Desativados</p>
+            <p className="font-heading text-xl text-red-400 mt-0.5">{stats.inactive}</p>
           </div>
         </div>
 
-        <nav className="flex flex-col gap-2">
+        <nav className="flex flex-col gap-2.5">
           <button 
             onClick={() => setActiveTab("menu")} 
             className={cn(
-              "flex items-center justify-between p-4 rounded-2xl font-bold text-xs uppercase tracking-wider transition-all", 
+              "flex items-center justify-between p-4 rounded-2xl font-bold text-xs uppercase tracking-wider transition-all border", 
               activeTab === "menu" 
-                ? "bg-primary text-secondary shadow-lg shadow-primary/20 font-black" 
-                : "text-white/60 hover:bg-white/5 hover:text-white"
+                ? "bg-[#F0DF58]/15 text-[#F0DF58] border-[#F0DF58]/40 shadow-[0_0_20px_rgba(240,223,88,0.12)] font-black" 
+                : "text-white/80 hover:bg-white/[0.06] hover:text-white border-transparent"
             )}
           >
             <div className="flex items-center gap-3">
-              <Box size={20} /> Gestão do Cardápio
+              <Box size={20} className={activeTab === "menu" ? "text-[#F0DF58]" : "text-white/70"} /> 
+              <span>Gestão do Cardápio</span>
             </div>
-            <span className={cn("px-2 py-0.5 rounded-full text-[10px]", activeTab === "menu" ? "bg-secondary text-primary font-bold" : "bg-white/10 text-white/60")}>
+            <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-bold", activeTab === "menu" ? "bg-[#F0DF58] text-[#180a15]" : "bg-white/10 text-white/80")}>
               {stats.total}
             </span>
           </button>
@@ -534,33 +535,34 @@ export default function AdminPage() {
           <button 
             onClick={() => setActiveTab("orders")} 
             className={cn(
-              "flex items-center justify-between p-4 rounded-2xl font-bold text-xs uppercase tracking-wider transition-all", 
+              "flex items-center justify-between p-4 rounded-2xl font-bold text-xs uppercase tracking-wider transition-all border", 
               activeTab === "orders" 
-                ? "bg-primary text-secondary shadow-lg shadow-primary/20 font-black" 
-                : "text-white/60 hover:bg-white/5 hover:text-white"
+                ? "bg-[#F0DF58]/15 text-[#F0DF58] border-[#F0DF58]/40 shadow-[0_0_20px_rgba(240,223,88,0.12)] font-black" 
+                : "text-white/80 hover:bg-white/[0.06] hover:text-white border-transparent"
             )}
           >
             <div className="flex items-center gap-3">
-              <LayoutDashboard size={20} /> Pedidos do Dia
+              <LayoutDashboard size={20} className={activeTab === "orders" ? "text-[#F0DF58]" : "text-white/70"} /> 
+              <span>Pedidos do Dia</span>
             </div>
-            <span className={cn("px-2 py-0.5 rounded-full text-[10px]", activeTab === "orders" ? "bg-secondary text-primary font-bold" : "bg-white/10 text-white/60")}>
+            <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-bold", activeTab === "orders" ? "bg-[#F0DF58] text-[#180a15]" : "bg-white/10 text-white/80")}>
               {orders.length}
             </span>
           </button>
         </nav>
 
         {/* Bottom Actions */}
-        <div className="mt-auto pt-6 border-t border-white/5 flex flex-col gap-3">
+        <div className="mt-auto pt-6 border-t border-white/10 flex flex-col gap-3">
           <button 
             onClick={fetchData} 
-            className="flex items-center justify-center gap-2 p-3 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 text-xs font-bold uppercase transition-all"
+            className="flex items-center justify-center gap-2 p-3.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-white/90 text-xs font-bold uppercase transition-all border border-white/10"
           >
-            <RefreshCw size={14} /> Sincronizar
+            <RefreshCw size={15} /> Sincronizar Dados
           </button>
           
           <button 
             onClick={handleLogout} 
-            className="flex items-center justify-center gap-2 p-3 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 text-xs font-bold uppercase transition-all"
+            className="flex items-center justify-center gap-2 p-3.5 rounded-xl bg-red-500/15 text-red-300 hover:bg-red-500/25 text-xs font-bold uppercase transition-all border border-red-500/20"
           >
             <LogOut size={16} /> Sair do Painel
           </button>
@@ -575,25 +577,25 @@ export default function AdminPage() {
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="font-heading text-3xl sm:text-4xl uppercase text-white tracking-wide">Últimos Pedidos</h2>
-                <p className="text-white/50 text-xs sm:text-sm font-sans">Histórico de pedidos recebidos via WhatsApp e sistema</p>
+                <p className="text-white/80 text-xs sm:text-sm font-sans mt-0.5">Histórico de pedidos recebidos via WhatsApp e sistema</p>
               </div>
-              <span className="px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-bold text-primary uppercase">
+              <span className="px-4 py-1.5 rounded-full bg-white/[0.06] border border-white/15 text-xs font-bold text-[#F0DF58] uppercase">
                 {orders.length} Pedidos
               </span>
             </div>
 
             <div className="grid gap-4">
               {orders.map(order => (
-                <div key={order._id} className="bg-[#1f0d1b]/80 border border-white/[0.08] p-6 rounded-3xl flex flex-col md:flex-row justify-between gap-6 hover:bg-[#261122] transition-all shadow-xl">
+                <div key={order._id} className="bg-[#1f0d1b]/90 border border-white/10 p-6 rounded-3xl flex flex-col md:flex-row justify-between gap-6 hover:bg-[#281223] transition-all shadow-xl">
                   <div className="space-y-2.5">
                     <div className="flex items-center gap-3 flex-wrap">
-                      <span className="bg-primary text-secondary px-3 py-1 rounded-full text-xs font-black uppercase font-heading tracking-wide">
+                      <span className="bg-[#F0DF58]/15 border border-[#F0DF58]/30 text-[#F0DF58] px-3.5 py-1 rounded-full text-xs font-black uppercase font-heading tracking-wide">
                         R$ {order.total.toFixed(2)}
                       </span>
-                      <span className="px-2.5 py-0.5 rounded-lg bg-white/10 text-white/80 text-[10px] font-bold uppercase">
+                      <span className="px-3 py-0.5 rounded-lg bg-white/10 text-white font-bold text-[10px] uppercase border border-white/10">
                         {order.deliveryMethod || "Entrega"}
                       </span>
-                      <span className="text-white/40 text-xs font-sans">
+                      <span className="text-white/75 text-xs font-sans">
                         {new Date(order.createdAt).toLocaleString('pt-BR')}
                       </span>
                     </div>
@@ -601,15 +603,15 @@ export default function AdminPage() {
                       {order.items.join(" • ")}
                     </p>
                     {order.address && (
-                      <p className="text-white/40 text-xs font-sans italic flex items-center gap-1.5">
+                      <p className="text-white/75 text-xs font-sans italic flex items-center gap-1.5">
                         📍 {order.address.street}{order.address.number ? `, ${order.address.number}` : ''} - {order.address.neighborhood}
                       </p>
                     )}
                   </div>
-                  <div className="flex items-center justify-between md:justify-end gap-6 border-t md:border-t-0 border-white/5 pt-4 md:pt-0">
+                  <div className="flex items-center justify-between md:justify-end gap-6 border-t md:border-t-0 border-white/10 pt-4 md:pt-0">
                     <div className="text-left md:text-right">
-                      <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest">Pagamento</p>
-                      <p className="font-heading text-xl text-primary uppercase tracking-wide">{order.paymentMethod}</p>
+                      <p className="text-[10px] font-bold text-white/60 uppercase tracking-widest">Pagamento</p>
+                      <p className="font-heading text-xl text-[#F0DF58] uppercase tracking-wide">{order.paymentMethod}</p>
                     </div>
                   </div>
                 </div>
@@ -623,19 +625,19 @@ export default function AdminPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h2 className="font-heading text-3xl sm:text-4xl uppercase text-white tracking-wide">Controle Total do Cardápio</h2>
-                <p className="text-white/50 text-xs sm:text-sm font-sans">Adicione, edite valores, altere fotos e ative/pause qualquer item</p>
+                <p className="text-white/80 text-xs sm:text-sm font-sans mt-0.5">Adicione, edite valores, altere fotos e ative/desative qualquer item</p>
               </div>
               
               <button 
                 onClick={() => { setEditingItem(null); setModalOpen(true); }}
-                className="px-6 py-3.5 bg-primary text-secondary font-heading text-lg rounded-2xl flex items-center justify-center gap-2 hover:bg-[#ebd93a] transition-all shadow-lg shadow-primary/20 active:scale-95 uppercase font-black"
+                className="px-6 py-3.5 bg-gradient-to-r from-[#F0DF58] to-[#E5CF38] hover:from-[#f6e66b] hover:to-[#ebdb4a] text-[#180a15] font-heading text-lg rounded-2xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-[#F0DF58]/10 active:scale-95 uppercase font-black tracking-wide"
               >
                 <Plus size={20} /> Novo Item
               </button>
             </div>
 
-            {/* Categorias Tabs (Com Ícones Modernos SVG) */}
-            <div className="flex items-center gap-2.5 overflow-x-auto pb-2 no-scrollbar border-b border-white/5">
+            {/* Categorias Tabs (Com Ícones Modernos SVG e Contraste Balanceado) */}
+            <div className="flex items-center gap-2.5 overflow-x-auto pb-2 no-scrollbar border-b border-white/10">
               {CATEGORIES_CONFIG.map(cat => {
                 const IconComponent = cat.Icon;
                 const isSelected = selectedCategory === cat.key;
@@ -646,11 +648,11 @@ export default function AdminPage() {
                     className={cn(
                       "px-4 py-2.5 rounded-2xl font-sans text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center gap-2.5 border",
                       isSelected 
-                        ? "bg-primary text-secondary border-primary shadow-lg shadow-primary/20 font-black scale-[1.02]" 
-                        : "bg-white/[0.03] text-white/70 hover:bg-white/[0.08] hover:text-white border-white/5 hover:border-white/10"
+                        ? "bg-[#F0DF58]/20 text-[#F0DF58] border-[#F0DF58]/50 shadow-[0_0_15px_rgba(240,223,88,0.15)] font-black scale-[1.02]" 
+                        : "bg-white/[0.04] text-white/80 hover:bg-white/[0.09] hover:text-white border-white/10"
                     )}
                   >
-                    <IconComponent size={16} className={isSelected ? "text-secondary" : cat.iconColor} />
+                    <IconComponent size={16} className={isSelected ? "text-[#F0DF58]" : cat.iconColor} />
                     <span>{cat.label}</span>
                   </button>
                 );
@@ -661,18 +663,18 @@ export default function AdminPage() {
             <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
               {/* Barra de Pesquisa */}
               <div className="relative w-full sm:max-w-md">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40" size={18} />
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/60" size={18} />
                 <input 
                   type="text"
                   placeholder="Buscar por nome ou categoria..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-2.5 pl-10 pr-4 text-white text-sm font-sans focus:outline-none focus:border-primary/50 transition-all placeholder:text-white/30"
+                  className="w-full bg-white/[0.05] border border-white/15 rounded-2xl py-2.5 pl-10 pr-4 text-white text-sm font-sans focus:outline-none focus:border-[#F0DF58]/60 transition-all placeholder:text-white/50"
                 />
                 {searchQuery && (
                   <button 
                     onClick={() => setSearchQuery("")}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white"
                   >
                     <X size={16} />
                   </button>
@@ -680,22 +682,22 @@ export default function AdminPage() {
               </div>
 
               {/* Filtro de Status */}
-              <div className="flex items-center gap-1.5 bg-white/[0.03] p-1.5 rounded-2xl border border-white/5 w-full sm:w-auto justify-center">
+              <div className="flex items-center gap-1.5 bg-white/[0.04] p-1.5 rounded-2xl border border-white/10 w-full sm:w-auto justify-center">
                 <button 
                   onClick={() => setStatusFilter("all")} 
-                  className={cn("px-3 py-1.5 rounded-xl text-xs font-bold uppercase transition-all", statusFilter === "all" ? "bg-white/15 text-white" : "text-white/40 hover:text-white")}
+                  className={cn("px-3.5 py-1.5 rounded-xl text-xs font-bold uppercase transition-all", statusFilter === "all" ? "bg-white/20 text-white shadow-sm" : "text-white/70 hover:text-white")}
                 >
                   Todos ({stats.total})
                 </button>
                 <button 
                   onClick={() => setStatusFilter("active")} 
-                  className={cn("px-3 py-1.5 rounded-xl text-xs font-bold uppercase transition-all", statusFilter === "active" ? "bg-[#25D366]/20 text-[#25D366]" : "text-white/40 hover:text-[#25D366]")}
+                  className={cn("px-3.5 py-1.5 rounded-xl text-xs font-bold uppercase transition-all", statusFilter === "active" ? "bg-[#25D366]/25 text-[#25D366] border border-[#25D366]/30 font-black" : "text-white/70 hover:text-[#25D366]")}
                 >
                   Ativos ({stats.active})
                 </button>
                 <button 
                   onClick={() => setStatusFilter("inactive")} 
-                  className={cn("px-3 py-1.5 rounded-xl text-xs font-bold uppercase transition-all", statusFilter === "inactive" ? "bg-red-500/20 text-red-400" : "text-white/40 hover:text-red-400")}
+                  className={cn("px-3.5 py-1.5 rounded-xl text-xs font-bold uppercase transition-all", statusFilter === "inactive" ? "bg-red-500/25 text-red-300 border border-red-500/30 font-black" : "text-white/70 hover:text-red-300")}
                 >
                   Desativados ({stats.inactive})
                 </button>
@@ -704,11 +706,11 @@ export default function AdminPage() {
 
             {/* Grid de Itens */}
             {filteredItems.length === 0 ? (
-              <div className="text-center py-16 bg-white/[0.02] border border-white/5 rounded-3xl p-8">
-                <p className="text-white/40 text-sm font-sans mb-4">Nenhum item encontrado com os filtros selecionados.</p>
+              <div className="text-center py-16 bg-white/[0.03] border border-white/10 rounded-3xl p-8">
+                <p className="text-white/70 text-sm font-sans mb-4">Nenhum item encontrado com os filtros selecionados.</p>
                 <button 
                   onClick={() => { setSelectedCategory("all"); setStatusFilter("all"); setSearchQuery(""); }}
-                  className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-bold uppercase text-white transition-all"
+                  className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-bold uppercase text-white transition-all border border-white/10"
                 >
                   Limpar Filtros
                 </button>
@@ -719,8 +721,8 @@ export default function AdminPage() {
                   <div 
                     key={item._id} 
                     className={cn(
-                      "group relative bg-[#1f0d1b]/85 border p-5 rounded-3xl flex flex-col justify-between gap-5 transition-all hover:bg-[#281223] hover:border-primary/30 shadow-xl",
-                      item.active === false ? "opacity-60 grayscale border-white/5 bg-black/40" : "border-white/[0.08]"
+                      "group relative bg-[#1f0d1b]/90 border p-5 rounded-3xl flex flex-col justify-between gap-5 transition-all hover:bg-[#281223] hover:border-[#F0DF58]/30 shadow-xl",
+                      item.active === false ? "opacity-60 grayscale border-white/5 bg-black/40" : "border-white/10"
                     )}
                   >
                     {/* Botão Power / Status no Canto Superior Direito */}
@@ -731,7 +733,7 @@ export default function AdminPage() {
                         "absolute top-4 right-4 px-2.5 py-1.5 rounded-xl transition-all border flex items-center gap-1.5 shadow-sm active:scale-95 group/power z-10",
                         item.active !== false 
                           ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/25 shadow-[0_0_12px_rgba(16,185,129,0.15)]" 
-                          : "bg-red-500/15 border-red-500/30 text-red-400 hover:bg-red-500/25 shadow-[0_0_12px_rgba(239,68,68,0.15)]"
+                          : "bg-red-500/15 border-red-500/30 text-red-300 hover:bg-red-500/25 shadow-[0_0_12px_rgba(239,68,68,0.15)]"
                       )}
                     >
                       <Power size={14} className="group-hover/power:rotate-12 transition-transform" />
@@ -745,7 +747,7 @@ export default function AdminPage() {
                       {(() => {
                         const itemImg = item.image || resolveItemImage(item);
                         return (
-                          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-black/50 border border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0 relative group-hover:border-primary/40 transition-colors shadow-inner">
+                          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-black/50 border border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0 relative group-hover:border-[#F0DF58]/40 transition-colors shadow-inner">
                             {itemImg ? (
                               <img 
                                 src={itemImg} 
@@ -761,7 +763,7 @@ export default function AdminPage() {
                                 }}
                               />
                             ) : (
-                              <ImageIcon className="text-white/20" size={24} />
+                              <ImageIcon className="text-white/30" size={24} />
                             )}
                           </div>
                         );
@@ -770,20 +772,20 @@ export default function AdminPage() {
                       {/* Informações do Item */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1 flex-wrap">
-                          <span className="text-[10px] font-black text-primary uppercase tracking-widest bg-primary/10 px-2 py-0.5 rounded-md border border-primary/20">
+                          <span className="text-[10px] font-black text-[#F0DF58] uppercase tracking-widest bg-[#F0DF58]/10 px-2 py-0.5 rounded-md border border-[#F0DF58]/20">
                             {item.category || item.original_category}
                           </span>
                           {item.type && (
-                            <span className="text-[9px] font-bold text-white/40 uppercase bg-white/5 px-1.5 py-0.5 rounded border border-white/5">
+                            <span className="text-[9px] font-bold text-white/60 uppercase bg-white/10 px-1.5 py-0.5 rounded border border-white/10">
                               {item.type}
                             </span>
                           )}
                         </div>
-                        <h4 className="font-heading text-xl uppercase text-white truncate group-hover:text-primary transition-colors">
+                        <h4 className="font-heading text-xl uppercase text-white truncate group-hover:text-[#F0DF58] transition-colors">
                           {item.name}
                         </h4>
                         {item.description && (
-                          <p className="text-white/40 text-xs font-sans truncate mt-0.5">
+                          <p className="text-white/70 text-xs font-sans truncate mt-0.5">
                             {item.description}
                           </p>
                         )}
@@ -791,10 +793,10 @@ export default function AdminPage() {
                     </div>
 
                     {/* Preço e Ações Rápidas */}
-                    <div className="flex items-center justify-between gap-3 pt-3 border-t border-white/5">
+                    <div className="flex items-center justify-between gap-3 pt-3 border-t border-white/10">
                       {/* Campo de Preço Rápido e Sofisticado */}
-                      <div className="flex items-center gap-1.5 bg-[#120610]/90 border border-primary/30 hover:border-primary/60 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/25 rounded-2xl px-3 py-1.5 transition-all shadow-inner group/price">
-                        <span className="text-primary font-heading font-black text-sm tracking-wider select-none">
+                      <div className="flex items-center gap-1.5 bg-[#120610]/95 border border-[#F0DF58]/35 hover:border-[#F0DF58]/70 focus-within:border-[#F0DF58] focus-within:ring-2 focus-within:ring-[#F0DF58]/20 rounded-2xl px-3 py-1.5 transition-all shadow-inner group/price">
+                        <span className="text-[#F0DF58] font-heading font-black text-sm tracking-wider select-none">
                           R$
                         </span>
                         <input 
@@ -809,9 +811,9 @@ export default function AdminPage() {
                               e.target.value = val.toFixed(2);
                             }
                           }}
-                          className="w-16 sm:w-20 bg-transparent text-primary font-heading text-xl font-bold tracking-wide focus:outline-none text-left [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
+                          className="w-16 sm:w-20 bg-transparent text-[#F0DF58] font-heading text-xl font-bold tracking-wide focus:outline-none text-left [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
                         />
-                        <Edit3 size={12} className="text-primary/40 group-hover/price:text-primary transition-colors flex-shrink-0" />
+                        <Edit3 size={12} className="text-[#F0DF58]/50 group-hover/price:text-[#F0DF58] transition-colors flex-shrink-0" />
                       </div>
 
                       {/* Botões de Ação */}
@@ -820,9 +822,9 @@ export default function AdminPage() {
                         <button 
                           onClick={() => { setEditingItem(item); setModalOpen(true); }}
                           title="Editar Detalhes e Foto"
-                          className="px-3.5 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-white/80 hover:text-white transition-all border border-white/10 hover:border-primary/40 flex items-center gap-1.5 text-xs font-bold uppercase active:scale-95 shadow-sm"
+                          className="px-3.5 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.14] text-white/90 hover:text-white transition-all border border-white/15 hover:border-[#F0DF58]/40 flex items-center gap-1.5 text-xs font-bold uppercase active:scale-95 shadow-sm"
                         >
-                          <Edit3 size={14} className="text-primary" />
+                          <Edit3 size={14} className="text-[#F0DF58]" />
                           <span>Editar</span>
                         </button>
 
@@ -830,7 +832,7 @@ export default function AdminPage() {
                         <button 
                           onClick={() => setItemToDelete(item)}
                           title="Excluir Item do Cardápio"
-                          className="p-2 rounded-xl bg-red-500/[0.08] hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-all border border-red-500/20 hover:border-red-500/40 flex items-center justify-center active:scale-95 shadow-sm"
+                          className="p-2 rounded-xl bg-red-500/[0.1] hover:bg-red-500/25 text-red-300 hover:text-white transition-all border border-red-500/25 hover:border-red-500/40 flex items-center justify-center active:scale-95 shadow-sm"
                         >
                           <Trash2 size={15} />
                         </button>
@@ -864,18 +866,18 @@ export default function AdminPage() {
               </div>
               <div>
                 <h3 className="font-heading text-2xl uppercase text-white">Excluir Item?</h3>
-                <p className="text-white/40 text-xs font-sans">Esta ação removerá o produto do cardápio.</p>
+                <p className="text-white/70 text-xs font-sans">Esta ação removerá o produto do cardápio.</p>
               </div>
             </div>
 
-            <p className="text-white/70 text-sm font-sans bg-white/5 p-4 rounded-2xl border border-white/5">
+            <p className="text-white/90 text-sm font-sans bg-white/5 p-4 rounded-2xl border border-white/10">
               Tem certeza que deseja excluir <strong>"{itemToDelete.name}"</strong>?
             </p>
 
             <div className="flex gap-3">
               <button 
                 onClick={() => setItemToDelete(null)}
-                className="flex-1 py-3 bg-white/10 hover:bg-white/20 text-white font-heading text-base rounded-xl transition-all uppercase"
+                className="flex-1 py-3 bg-white/10 hover:bg-white/20 text-white font-heading text-base rounded-xl transition-all uppercase border border-white/10"
               >
                 Cancelar
               </button>
@@ -941,15 +943,15 @@ function ItemModal({ item, onClose, onSave, loading }: ItemModalProps) {
 
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200">
-      <div className="bg-[#1f0d1b] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-xl w-full shadow-2xl space-y-6 my-8 max-h-[90vh] overflow-y-auto">
+      <div className="bg-[#1f0d1b] border border-white/15 rounded-3xl p-6 sm:p-8 max-w-xl w-full shadow-2xl space-y-6 my-8 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between pb-4 border-b border-white/10">
           <div>
-            <h3 className="font-heading text-2xl uppercase text-primary">
+            <h3 className="font-heading text-2xl uppercase text-[#F0DF58]">
               {item ? "Editar Item do Cardápio" : "Adicionar Novo Item"}
             </h3>
-            <p className="text-white/40 text-xs font-sans">Preencha as informações do produto</p>
+            <p className="text-white/70 text-xs font-sans">Preencha as informações do produto</p>
           </div>
-          <button onClick={onClose} className="p-2 text-white/40 hover:text-white rounded-xl">
+          <button onClick={onClose} className="p-2 text-white/60 hover:text-white rounded-xl">
             <X size={20} />
           </button>
         </div>
@@ -957,12 +959,12 @@ function ItemModal({ item, onClose, onSave, loading }: ItemModalProps) {
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Seção de Imagem com Dica de WebP */}
           <div className="space-y-3">
-            <label className="text-xs font-bold uppercase text-white/70 block">
+            <label className="text-xs font-bold uppercase text-white/90 block">
               Imagem do Produto
             </label>
 
             {/* Dica WebP em destaque */}
-            <div className="flex items-start gap-2.5 bg-primary/10 border border-primary/20 p-3 rounded-2xl text-primary text-xs font-sans leading-relaxed">
+            <div className="flex items-start gap-2.5 bg-[#F0DF58]/10 border border-[#F0DF58]/25 p-3 rounded-2xl text-[#F0DF58] text-xs font-sans leading-relaxed">
               <Sparkles size={16} className="flex-shrink-0 mt-0.5" />
               <span>
                 <strong>Dica de Performance:</strong> Utilize imagens no formato <strong>.webp</strong> otimizado (&lt;30KB) para garantir carregamento instantâneo no celular.
@@ -984,7 +986,7 @@ function ItemModal({ item, onClose, onSave, loading }: ItemModalProps) {
                     )} 
                   />
                 ) : (
-                  <ImageIcon className="text-white/20" size={28} />
+                  <ImageIcon className="text-white/30" size={28} />
                 )}
               </div>
 
@@ -995,10 +997,10 @@ function ItemModal({ item, onClose, onSave, loading }: ItemModalProps) {
                   placeholder="URL ou Caminho (ex: /assets/items/fr_morango.webp)"
                   value={image}
                   onChange={(e) => setImage(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl py-2 px-3 text-white text-xs font-sans focus:outline-none focus:border-primary transition-all"
+                  className="w-full bg-white/[0.06] border border-white/15 rounded-xl py-2 px-3 text-white text-xs font-sans focus:outline-none focus:border-[#F0DF58]/60 transition-all placeholder:text-white/40"
                 />
                 
-                <label className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white/80 text-xs font-bold uppercase cursor-pointer transition-all border border-white/10">
+                <label className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white/90 text-xs font-bold uppercase cursor-pointer transition-all border border-white/15">
                   <Upload size={14} /> Selecionar Arquivo
                   <input 
                     type="file" 
@@ -1013,7 +1015,7 @@ function ItemModal({ item, onClose, onSave, loading }: ItemModalProps) {
 
           {/* Nome do Item */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold uppercase text-white/70 block">
+            <label className="text-xs font-bold uppercase text-white/90 block">
               Nome do Item *
             </label>
             <input 
@@ -1022,14 +1024,14 @@ function ItemModal({ item, onClose, onSave, loading }: ItemModalProps) {
               placeholder="Ex: Açaí c/ Morango Especial"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white text-sm font-sans focus:outline-none focus:border-primary transition-all"
+              className="w-full bg-white/[0.06] border border-white/15 rounded-xl py-3 px-4 text-white text-sm font-sans focus:outline-none focus:border-[#F0DF58]/60 transition-all placeholder:text-white/40"
             />
           </div>
 
           {/* Categoria e Subcategoria */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-bold uppercase text-white/70 block">
+              <label className="text-xs font-bold uppercase text-white/90 block">
                 Categoria do Sistema *
               </label>
               <select 
@@ -1041,7 +1043,7 @@ function ItemModal({ item, onClose, onSave, loading }: ItemModalProps) {
                     setCategory(selectedCat.label);
                   }
                 }}
-                className="w-full bg-[#120610] border border-white/10 rounded-xl py-3 px-3 text-white text-sm font-sans focus:outline-none focus:border-primary transition-all"
+                className="w-full bg-[#120610] border border-white/15 rounded-xl py-3 px-3 text-white text-sm font-sans focus:outline-none focus:border-[#F0DF58]/60 transition-all"
               >
                 <option value="sizes">🥣 Tamanho de Pote (sizes)</option>
                 <option value="flavors">🍇 Sabor de Açaí (flavors)</option>
@@ -1055,7 +1057,7 @@ function ItemModal({ item, onClose, onSave, loading }: ItemModalProps) {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold uppercase text-white/70 block">
+              <label className="text-xs font-bold uppercase text-white/90 block">
                 Rótulo de Exibição
               </label>
               <input 
@@ -1063,7 +1065,7 @@ function ItemModal({ item, onClose, onSave, loading }: ItemModalProps) {
                 placeholder="Ex: Adicional, Cobertura, Fruta"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white text-sm font-sans focus:outline-none focus:border-primary transition-all"
+                className="w-full bg-white/[0.06] border border-white/15 rounded-xl py-3 px-4 text-white text-sm font-sans focus:outline-none focus:border-[#F0DF58]/60 transition-all placeholder:text-white/40"
               />
             </div>
           </div>
@@ -1071,11 +1073,11 @@ function ItemModal({ item, onClose, onSave, loading }: ItemModalProps) {
           {/* Preço e Volume */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-bold uppercase text-white/70 block">
+              <label className="text-xs font-bold uppercase text-white/90 block">
                 Preço (R$) *
               </label>
               <div className="relative">
-                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-primary font-bold text-sm">R$</span>
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#F0DF58] font-bold text-sm">R$</span>
                 <input 
                   type="number"
                   step="0.25"
@@ -1083,13 +1085,13 @@ function ItemModal({ item, onClose, onSave, loading }: ItemModalProps) {
                   placeholder="0.00"
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white text-sm font-sans focus:outline-none focus:border-primary transition-all"
+                  className="w-full bg-white/[0.06] border border-white/15 rounded-xl py-3 pl-10 pr-4 text-white text-sm font-sans focus:outline-none focus:border-[#F0DF58]/60 transition-all"
                 />
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold uppercase text-white/70 block">
+              <label className="text-xs font-bold uppercase text-white/90 block">
                 Volume / Tipo (Opcional)
               </label>
               <input 
@@ -1097,14 +1099,14 @@ function ItemModal({ item, onClose, onSave, loading }: ItemModalProps) {
                 placeholder="Ex: 50ml, 100ml, Pote"
                 value={type}
                 onChange={(e) => setType(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white text-sm font-sans focus:outline-none focus:border-primary transition-all"
+                className="w-full bg-white/[0.06] border border-white/15 rounded-xl py-3 px-4 text-white text-sm font-sans focus:outline-none focus:border-[#F0DF58]/60 transition-all placeholder:text-white/40"
               />
             </div>
           </div>
 
           {/* Descrição Opcional */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold uppercase text-white/70 block">
+            <label className="text-xs font-bold uppercase text-white/90 block">
               Descrição (Opcional)
             </label>
             <input 
@@ -1112,15 +1114,15 @@ function ItemModal({ item, onClose, onSave, loading }: ItemModalProps) {
               placeholder="Ex: Açaí puro batido sem conservantes"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white text-sm font-sans focus:outline-none focus:border-primary transition-all"
+              className="w-full bg-white/[0.06] border border-white/15 rounded-xl py-3 px-4 text-white text-sm font-sans focus:outline-none focus:border-[#F0DF58]/60 transition-all placeholder:text-white/40"
             />
           </div>
 
           {/* Status Ativo / Em Estoque */}
-          <div className="flex items-center justify-between p-4 bg-white/5 border border-white/5 rounded-2xl">
+          <div className="flex items-center justify-between p-4 bg-white/[0.04] border border-white/10 rounded-2xl">
             <div>
               <p className="font-heading text-lg uppercase text-white">Disponível no Cardápio</p>
-              <p className="text-white/40 text-xs font-sans">Se desativado, o item ficará oculto para os clientes</p>
+              <p className="text-white/70 text-xs font-sans">Se desativado, o item ficará oculto para os clientes</p>
             </div>
             <button
               type="button"
@@ -1142,14 +1144,14 @@ function ItemModal({ item, onClose, onSave, loading }: ItemModalProps) {
             <button 
               type="button"
               onClick={onClose}
-              className="flex-1 py-3.5 bg-white/10 hover:bg-white/20 text-white font-heading text-base rounded-xl transition-all uppercase"
+              className="flex-1 py-3.5 bg-white/10 hover:bg-white/20 text-white font-heading text-base rounded-xl transition-all uppercase border border-white/10"
             >
               Cancelar
             </button>
             <button 
               type="submit"
               disabled={loading}
-              className="flex-1 py-3.5 bg-primary text-secondary font-heading text-lg rounded-xl hover:bg-[#ebd93a] transition-all shadow-lg shadow-primary/20 active:scale-95 uppercase font-black flex items-center justify-center gap-2"
+              className="flex-1 py-3.5 bg-gradient-to-r from-[#F0DF58] to-[#E5CF38] hover:from-[#f6e66b] hover:to-[#ebdb4a] text-[#180a15] font-heading text-lg rounded-xl transition-all shadow-lg shadow-[#F0DF58]/10 active:scale-95 uppercase font-black flex items-center justify-center gap-2"
             >
               {loading ? <RefreshCw className="animate-spin" size={20} /> : <Check size={20} />}
               Salvar Item
