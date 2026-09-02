@@ -685,154 +685,163 @@ export default function AdminPage() {
           </div>
         </div>
 
-        {/* Top Stats Cards & Categories Bar */}
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 items-start">
-          {/* 3 Metric Cards */}
-          <div className="xl:col-span-5 grid grid-cols-3 gap-3">
-            {/* TOTAL DE ITENS */}
-            <div className="bg-[#170a18]/80 border border-purple-900/30 rounded-2xl p-4 flex flex-col justify-between shadow-md relative overflow-hidden">
-              <p className="text-[10px] font-bold text-purple-300/60 uppercase tracking-wider">
+        {/* ================= CARDS DE MÉTRICAS (PROMINENTES E LEGÍVEIS) ================= */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {/* TOTAL DE ITENS */}
+          <div className="bg-[#170a18]/90 border border-purple-900/40 rounded-3xl p-5 sm:p-6 flex items-center justify-between shadow-xl relative overflow-hidden group hover:border-purple-500/40 transition-all">
+            <div>
+              <p className="text-xs font-bold text-purple-300 uppercase tracking-widest">
                 TOTAL DE ITENS
               </p>
-              <div className="flex items-baseline justify-between mt-2">
-                <span className="font-heading text-3xl font-bold text-white">
-                  {stats.total}
-                </span>
-                <div className="w-8 h-8 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-300">
-                  <Box size={16} />
-                </div>
-              </div>
-            </div>
-
-            {/* ATIVOS */}
-            <div className="bg-[#170a18]/80 border border-emerald-900/30 rounded-2xl p-4 flex flex-col justify-between shadow-md relative overflow-hidden">
-              <p className="text-[10px] font-bold text-emerald-400/80 uppercase tracking-wider">
-                ATIVOS
+              <p className="font-heading text-4xl sm:text-5xl font-bold text-white mt-2">
+                {stats.total}
               </p>
-              <div className="flex items-baseline justify-between mt-2">
-                <span className="font-heading text-3xl font-bold text-emerald-400">
-                  {stats.active}
-                </span>
-                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
-                  <CheckCircle2 size={16} />
-                </div>
-              </div>
             </div>
-
-            {/* DESATIVADOS */}
-            <div className="bg-[#170a18]/80 border border-rose-900/30 rounded-2xl p-4 flex flex-col justify-between shadow-md relative overflow-hidden">
-              <p className="text-[10px] font-bold text-rose-400/80 uppercase tracking-wider">
-                DESATIVADOS
-              </p>
-              <div className="flex items-baseline justify-between mt-2">
-                <span className="font-heading text-3xl font-bold text-rose-400">
-                  {stats.inactive}
-                </span>
-                <div className="w-8 h-8 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400">
-                  <XCircle size={16} />
-                </div>
-              </div>
+            <div className="w-14 h-14 rounded-2xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-300 shadow-inner group-hover:scale-105 transition-transform">
+              <Box size={24} />
             </div>
           </div>
 
-          {/* Seção CATEGORIAS (Chips Verticais) */}
-          <div className="xl:col-span-7 flex flex-col gap-1.5">
-            <p className="text-[10px] font-bold text-white/40 uppercase tracking-wider">
-              CATEGORIAS
-            </p>
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
-              {CATEGORIES_CONFIG.map(cat => {
-                const IconComponent = cat.Icon;
-                const isSelected = selectedCategory === cat.key;
-                const count = categoryCounts[cat.key] ?? 0;
+          {/* ATIVOS */}
+          <div className="bg-[#170a18]/90 border border-emerald-900/40 rounded-3xl p-5 sm:p-6 flex items-center justify-between shadow-xl relative overflow-hidden group hover:border-emerald-500/40 transition-all">
+            <div>
+              <p className="text-xs font-bold text-emerald-400 uppercase tracking-widest">
+                ATIVOS
+              </p>
+              <p className="font-heading text-4xl sm:text-5xl font-bold text-emerald-400 mt-2">
+                {stats.active}
+              </p>
+            </div>
+            <div className="w-14 h-14 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-inner group-hover:scale-105 transition-transform">
+              <CheckCircle2 size={24} />
+            </div>
+          </div>
 
-                return (
-                  <button
-                    key={cat.key}
-                    onClick={() => setSelectedCategory(cat.key)}
-                    className={cn(
-                      "flex flex-col items-center justify-center py-2 px-3 rounded-2xl border transition-all flex-shrink-0 min-w-[62px] gap-1 group",
-                      isSelected 
-                        ? "border-[#F0DF58] bg-[#F0DF58]/10 text-[#F0DF58] shadow-[0_0_12px_rgba(240,223,88,0.12)]" 
-                        : "border-white/[0.06] bg-[#170a18]/60 text-white/50 hover:border-white/15 hover:text-white"
-                    )}
-                  >
-                    <IconComponent 
-                      size={16} 
-                      className={isSelected ? "text-[#F0DF58]" : cat.iconColor} 
-                    />
-                    <span className="text-[10px] font-semibold tracking-tight whitespace-nowrap">
-                      {cat.shortLabel}
-                      <span className="sr-only"> {cat.label}</span>
-                    </span>
-                    <span className="text-[9px] text-white/40 font-bold">
-                      {count}
-                    </span>
-                  </button>
-                );
-              })}
+          {/* DESATIVADOS */}
+          <div className="bg-[#170a18]/90 border border-rose-900/40 rounded-3xl p-5 sm:p-6 flex items-center justify-between shadow-xl relative overflow-hidden group hover:border-rose-500/40 transition-all">
+            <div>
+              <p className="text-xs font-bold text-rose-400 uppercase tracking-widest">
+                DESATIVADOS
+              </p>
+              <p className="font-heading text-4xl sm:text-5xl font-bold text-rose-400 mt-2">
+                {stats.inactive}
+              </p>
+            </div>
+            <div className="w-14 h-14 rounded-2xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-rose-400 shadow-inner group-hover:scale-105 transition-transform">
+              <XCircle size={24} />
             </div>
           </div>
         </div>
 
-        {/* Sub-filtros (Todos os itens, Ativos, Desativados) e Toggle Grade/Lista */}
+        {/* ================= CATEGORIAS (BARRA ESPAÇOSA E DE ALTA VISIBILIDADE) ================= */}
+        <div className="flex flex-col gap-2.5 bg-[#170a18]/60 border border-white/[0.06] rounded-3xl p-4 sm:p-5 shadow-lg">
+          <div className="flex items-center justify-between px-1">
+            <p className="text-xs font-bold text-white/70 uppercase tracking-widest flex items-center gap-2">
+              <Layers size={16} className="text-[#F0DF58]" />
+              CATEGORIAS DO CARDÁPIO
+            </p>
+            <span className="text-xs font-medium text-white/40 hidden sm:inline">
+              Filtre produtos por categoria
+            </span>
+          </div>
+
+          <div className="flex items-center gap-3 overflow-x-auto pb-1 no-scrollbar pt-1">
+            {CATEGORIES_CONFIG.map(cat => {
+              const IconComponent = cat.Icon;
+              const isSelected = selectedCategory === cat.key;
+              const count = categoryCounts[cat.key] ?? 0;
+
+              return (
+                <button
+                  key={cat.key}
+                  onClick={() => setSelectedCategory(cat.key)}
+                  className={cn(
+                    "flex flex-col items-center justify-center py-3.5 px-4 sm:px-5 rounded-2xl border transition-all flex-shrink-0 min-w-[90px] sm:min-w-[105px] gap-1.5 group shadow-md",
+                    isSelected 
+                      ? "border-[#F0DF58] bg-[#F0DF58]/15 text-[#F0DF58] shadow-[0_0_18px_rgba(240,223,88,0.2)] scale-[1.03]" 
+                      : "border-white/[0.08] bg-[#130716]/90 text-white/70 hover:border-white/25 hover:text-white hover:bg-[#200d22]"
+                  )}
+                >
+                  <IconComponent 
+                    size={22} 
+                    className={isSelected ? "text-[#F0DF58]" : cat.iconColor} 
+                  />
+                  <span className="text-xs font-bold tracking-tight whitespace-nowrap">
+                    {cat.shortLabel}
+                    <span className="sr-only"> {cat.label}</span>
+                  </span>
+                  <span className={cn(
+                    "text-[10px] font-bold px-2 py-0.5 rounded-full transition-colors",
+                    isSelected 
+                      ? "bg-[#F0DF58] text-[#120714]" 
+                      : "bg-white/10 text-white/70 group-hover:text-white"
+                  )}>
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* ================= SUB-FILTROS DE STATUS & MODO DE EXIBIÇÃO ================= */}
         <div className="flex items-center justify-between pt-1">
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-2.5 flex-wrap">
             <button
               onClick={() => setStatusFilter("all")}
               className={cn(
-                "px-3.5 py-1.5 rounded-full text-xs font-bold transition-all",
+                "px-4 sm:px-5 py-2 rounded-2xl text-xs sm:text-sm font-bold transition-all shadow-sm",
                 statusFilter === "all"
-                  ? "bg-[#F0DF58] text-[#120714] shadow-sm"
-                  : "bg-[#170a18] text-white/60 hover:text-white border border-white/[0.06]"
+                  ? "bg-[#F0DF58] text-[#120714] shadow-md shadow-[#F0DF58]/10"
+                  : "bg-[#170a18] text-white/70 hover:text-white border border-white/[0.08]"
               )}
             >
-              Todos os itens
+              Todos os itens ({stats.total})
             </button>
             <button
               onClick={() => setStatusFilter("active")}
               className={cn(
-                "px-3.5 py-1.5 rounded-full text-xs font-bold transition-all",
+                "px-4 sm:px-5 py-2 rounded-2xl text-xs sm:text-sm font-bold transition-all shadow-sm",
                 statusFilter === "active"
-                  ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
-                  : "bg-[#170a18] text-white/60 hover:text-white border border-white/[0.06]"
+                  ? "bg-emerald-500/25 text-emerald-400 border border-emerald-500/40 font-black"
+                  : "bg-[#170a18] text-white/70 hover:text-white border border-white/[0.08]"
               )}
             >
-              Ativos
+              Ativos ({stats.active})
             </button>
             <button
               onClick={() => setStatusFilter("inactive")}
               className={cn(
-                "px-3.5 py-1.5 rounded-full text-xs font-bold transition-all",
+                "px-4 sm:px-5 py-2 rounded-2xl text-xs sm:text-sm font-bold transition-all shadow-sm",
                 statusFilter === "inactive"
-                  ? "bg-rose-500/20 text-rose-300 border border-rose-500/40"
-                  : "bg-[#170a18] text-white/60 hover:text-white border border-white/[0.06]"
+                  ? "bg-rose-500/25 text-rose-300 border border-rose-500/40 font-black"
+                  : "bg-[#170a18] text-white/70 hover:text-white border border-white/[0.08]"
               )}
             >
-              Desativados
+              Desativados ({stats.inactive})
             </button>
           </div>
 
-          <div className="flex items-center gap-1 bg-[#170a18] p-1 rounded-xl border border-white/[0.06]">
+          <div className="flex items-center gap-1.5 bg-[#170a18] p-1.5 rounded-2xl border border-white/[0.08]">
             <button
               onClick={() => setViewMode("grid")}
               className={cn(
-                "p-1.5 rounded-lg transition-colors",
-                viewMode === "grid" ? "text-[#F0DF58] bg-[#F0DF58]/10" : "text-white/40 hover:text-white"
+                "p-2 rounded-xl transition-all",
+                viewMode === "grid" ? "text-[#F0DF58] bg-[#F0DF58]/15 shadow-sm" : "text-white/40 hover:text-white"
               )}
               title="Visualização em Grade"
             >
-              <LayoutGrid size={16} />
+              <LayoutGrid size={18} />
             </button>
             <button
               onClick={() => setViewMode("list")}
               className={cn(
-                "p-1.5 rounded-lg transition-colors",
-                viewMode === "list" ? "text-[#F0DF58] bg-[#F0DF58]/10" : "text-white/40 hover:text-white"
+                "p-2 rounded-xl transition-all",
+                viewMode === "list" ? "text-[#F0DF58] bg-[#F0DF58]/15 shadow-sm" : "text-white/40 hover:text-white"
               )}
               title="Visualização em Lista"
             >
-              <List size={16} />
+              <List size={18} />
             </button>
           </div>
         </div>
