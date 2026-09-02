@@ -1,11 +1,15 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
-  LayoutDashboard, 
+  Home,
   Box, 
-  LogOut, 
-  RefreshCw, 
-  Power, 
+  LayoutDashboard,
+  PlusCircle,
+  Layers,
+  BarChart3,
+  Settings,
+  CheckCircle2,
+  XCircle,
   Plus, 
   Trash2, 
   Edit3, 
@@ -17,13 +21,14 @@ import {
   Upload,
   Sparkles,
   LayoutGrid,
-  Layers,
+  List,
   Droplets,
-  PlusCircle,
   Milk,
   Apple,
   Cookie,
-  ShoppingBag
+  ShoppingBag,
+  LogOut,
+  RefreshCw
 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -61,15 +66,15 @@ export interface OrderAdmin {
 }
 
 export const CATEGORIES_CONFIG = [
-  { key: "all", label: "Todos os Itens", Icon: LayoutGrid, iconColor: "text-[#F0DF58]" },
-  { key: "sizes", label: "Tamanhos de Potes", Icon: Layers, iconColor: "text-purple-300" },
-  { key: "flavors", label: "Sabores de Açaí", Icon: Sparkles, iconColor: "text-violet-300" },
-  { key: "toppings", label: "Coberturas", Icon: Droplets, iconColor: "text-amber-300" },
-  { key: "addons", label: "Adicionais", Icon: PlusCircle, iconColor: "text-emerald-300" },
-  { key: "creams", label: "Cremes", Icon: Milk, iconColor: "text-pink-300" },
-  { key: "fruits", label: "Frutas Frescas", Icon: Apple, iconColor: "text-rose-300" },
-  { key: "fillings", label: "Recheios Especiais", Icon: Cookie, iconColor: "text-amber-400" },
-  { key: "ready_made", label: "Prontos para Levar", Icon: ShoppingBag, iconColor: "text-cyan-300" },
+  { key: "all", label: "Todos os Itens", shortLabel: "Todos", Icon: LayoutGrid, iconColor: "text-[#F0DF58]" },
+  { key: "sizes", label: "Tamanhos de Potes", shortLabel: "Tamanhos", Icon: Layers, iconColor: "text-purple-300" },
+  { key: "flavors", label: "Sabores de Açaí", shortLabel: "Sabores", Icon: Sparkles, iconColor: "text-violet-300" },
+  { key: "toppings", label: "Coberturas", shortLabel: "Coberturas", Icon: Droplets, iconColor: "text-amber-300" },
+  { key: "addons", label: "Adicionais", shortLabel: "Adicionais", Icon: PlusCircle, iconColor: "text-emerald-300" },
+  { key: "creams", label: "Cremes", shortLabel: "Cremes", Icon: Milk, iconColor: "text-pink-300" },
+  { key: "fruits", label: "Frutas Frescas", shortLabel: "Frutas", Icon: Apple, iconColor: "text-rose-300" },
+  { key: "fillings", label: "Recheios Especiais", shortLabel: "Recheios", Icon: Cookie, iconColor: "text-amber-400" },
+  { key: "ready_made", label: "Prontos para Levar", shortLabel: "Prontos", Icon: ShoppingBag, iconColor: "text-cyan-300" },
 ];
 
 export function resolveItemImage(item: Partial<ItemAdmin>): string {
@@ -129,10 +134,11 @@ const demoOrders: OrderAdmin[] = [
 ];
 
 export default function AdminPage() {
-  const [activeTab, setActiveTab] = useState<"orders" | "menu">("menu");
+  const [activeTab, setActiveTab] = useState<"overview" | "menu" | "orders">("menu");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   
   const [menuItems, setMenuItems] = useState<ItemAdmin[]>([]);
   const [orders, setOrders] = useState<OrderAdmin[]>([]);
@@ -444,7 +450,7 @@ export default function AdminPage() {
     });
   }, [menuItems, selectedCategory, statusFilter, searchQuery]);
 
-  // Contadores de estatísticas
+  // Contadores de estatísticas gerais
   const stats = useMemo(() => {
     const total = menuItems.length;
     const active = menuItems.filter(i => i.active !== false).length;
@@ -452,9 +458,20 @@ export default function AdminPage() {
     return { total, active, inactive };
   }, [menuItems]);
 
+  // Contadores de itens por categoria individual
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = { all: menuItems.length };
+    CATEGORIES_CONFIG.forEach(cat => {
+      if (cat.key !== "all") {
+        counts[cat.key] = menuItems.filter(i => i.original_category === cat.key).length;
+      }
+    });
+    return counts;
+  }, [menuItems]);
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#180a15] flex flex-col items-center justify-center">
+      <div className="min-h-screen bg-[#0d0510] flex flex-col items-center justify-center">
         <RefreshCw className="text-[#F0DF58] animate-spin mb-4" size={48} />
         <span className="font-heading text-xl text-white uppercase tracking-widest">Sincronizando Painel...</span>
       </div>
@@ -462,13 +479,13 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#180a15] text-white flex flex-col md:flex-row relative selection:bg-[#F0DF58] selection:text-[#180a15]">
+    <div className="min-h-screen bg-[#0e0711] text-white flex flex-col md:flex-row relative selection:bg-[#F0DF58] selection:text-[#0e0711] font-sans">
       {/* Toast Notification */}
       {toast && (
         <div className={cn(
           "fixed bottom-6 right-6 z-[100] px-5 py-3.5 rounded-2xl shadow-2xl font-sans text-sm flex items-center gap-3 animate-in slide-in-from-bottom-5 duration-300 border",
           toast.type === "success" && "bg-[#25D366]/20 border-[#25D366]/40 text-[#25D366] backdrop-blur-xl",
-          toast.type === "error" && "bg-red-500/20 border-red-500/40 text-red-300 backdrop-blur-xl",
+          toast.type === "error" && "bg-rose-500/20 border-rose-500/40 text-rose-300 backdrop-blur-xl",
           toast.type === "info" && "bg-[#F0DF58]/20 border-[#F0DF58]/40 text-[#F0DF58] backdrop-blur-xl"
         )}>
           {toast.type === "success" ? <Check size={18} /> : <AlertTriangle size={18} />}
@@ -476,11 +493,12 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* Sidebar Navigation */}
-      <aside className="w-full md:w-72 bg-[#120610]/95 border-b md:border-b-0 md:border-r border-white/10 p-6 flex flex-col gap-6 backdrop-blur-xl">
-        <div className="flex items-center justify-between md:justify-start gap-3 pb-4 border-b border-white/10">
+      {/* ================= SIDEBAR (ESQUERDA) ================= */}
+      <aside className="w-full md:w-64 bg-[#120714] border-b md:border-b-0 md:border-r border-white/[0.06] p-5 flex flex-col gap-6 flex-shrink-0">
+        {/* Header da Sidebar */}
+        <div className="flex items-center justify-between gap-3 pb-3 border-b border-white/[0.06]">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-white/[0.04] border border-white/10 rounded-2xl flex items-center justify-center p-1.5 shadow-lg overflow-hidden flex-shrink-0">
+            <div className="w-10 h-10 rounded-full bg-black/40 border border-white/10 p-1 flex items-center justify-center overflow-hidden flex-shrink-0 shadow-md">
               <img 
                 src="/assets/Logo açai.webp" 
                 alt="Logo Açaí no Kilo" 
@@ -488,50 +506,54 @@ export default function AdminPage() {
               />
             </div>
             <div>
-              <h1 className="font-heading text-2xl uppercase text-[#F0DF58] leading-none tracking-wide">Admin Painel</h1>
-              <p className="text-xs text-white/75 uppercase font-bold tracking-widest mt-1">Açaí no Kilo</p>
+              <h1 className="font-heading text-lg uppercase text-[#F0DF58] leading-tight tracking-wider">
+                ADMIN PAINEL
+              </h1>
+              <p className="text-[10px] text-white/50 uppercase font-bold tracking-widest">
+                Açaí no Kilo
+              </p>
             </div>
           </div>
           <button 
             onClick={fetchData} 
             title="Recarregar Dados"
-            className="p-2 text-white/70 hover:text-[#F0DF58] transition-colors md:hidden"
+            className="p-1.5 text-white/40 hover:text-[#F0DF58] transition-colors md:hidden"
           >
-            <RefreshCw size={18} />
+            <RefreshCw size={16} />
           </button>
         </div>
 
-        {/* Status Pills */}
-        <div className="grid grid-cols-3 gap-2 bg-white/[0.04] p-3 rounded-2xl border border-white/10">
-          <div className="text-center">
-            <p className="text-[10px] text-white/80 font-bold uppercase tracking-wider">Total</p>
-            <p className="font-heading text-xl text-white mt-0.5">{stats.total}</p>
-          </div>
-          <div className="text-center border-x border-white/10">
-            <p className="text-[10px] text-[#25D366] font-bold uppercase tracking-wider">Ativos</p>
-            <p className="font-heading text-xl text-[#25D366] mt-0.5">{stats.active}</p>
-          </div>
-          <div className="text-center">
-            <p className="text-[10px] text-red-300 font-bold uppercase tracking-wider">Desativados</p>
-            <p className="font-heading text-xl text-red-400 mt-0.5">{stats.inactive}</p>
-          </div>
-        </div>
+        {/* Links Principais */}
+        <nav className="flex flex-col gap-1.5">
+          <button 
+            onClick={() => setActiveTab("overview")} 
+            className={cn(
+              "flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all",
+              activeTab === "overview"
+                ? "border border-[#F0DF58]/80 bg-[#F0DF58]/10 text-[#F0DF58]"
+                : "text-white/60 hover:text-white hover:bg-white/[0.04]"
+            )}
+          >
+            <div className="flex items-center gap-2.5">
+              <Home size={17} />
+              <span>Visão Geral</span>
+            </div>
+          </button>
 
-        <nav className="flex flex-col gap-2.5">
           <button 
             onClick={() => setActiveTab("menu")} 
             className={cn(
-              "flex items-center justify-between p-4 rounded-2xl font-bold text-xs uppercase tracking-wider transition-all border", 
-              activeTab === "menu" 
-                ? "bg-[#F0DF58]/15 text-[#F0DF58] border-[#F0DF58]/40 shadow-[0_0_20px_rgba(240,223,88,0.12)] font-black" 
-                : "text-white/80 hover:bg-white/[0.06] hover:text-white border-transparent"
+              "flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all",
+              activeTab === "menu"
+                ? "border border-[#F0DF58]/80 bg-[#F0DF58]/10 text-[#F0DF58]"
+                : "text-white/60 hover:text-white hover:bg-white/[0.04]"
             )}
           >
-            <div className="flex items-center gap-3">
-              <Box size={20} className={activeTab === "menu" ? "text-[#F0DF58]" : "text-white/70"} /> 
+            <div className="flex items-center gap-2.5">
+              <Box size={17} />
               <span>Gestão do Cardápio</span>
             </div>
-            <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-bold", activeTab === "menu" ? "bg-[#F0DF58] text-[#180a15]" : "bg-white/10 text-white/80")}>
+            <span className="bg-[#F0DF58] text-[#120714] font-heading font-black text-xs px-2 py-0.5 rounded-full">
               {stats.total}
             </span>
           </button>
@@ -539,313 +561,461 @@ export default function AdminPage() {
           <button 
             onClick={() => setActiveTab("orders")} 
             className={cn(
-              "flex items-center justify-between p-4 rounded-2xl font-bold text-xs uppercase tracking-wider transition-all border", 
-              activeTab === "orders" 
-                ? "bg-[#F0DF58]/15 text-[#F0DF58] border-[#F0DF58]/40 shadow-[0_0_20px_rgba(240,223,88,0.12)] font-black" 
-                : "text-white/80 hover:bg-white/[0.06] hover:text-white border-transparent"
+              "flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all",
+              activeTab === "orders"
+                ? "border border-[#F0DF58]/80 bg-[#F0DF58]/10 text-[#F0DF58]"
+                : "text-white/60 hover:text-white hover:bg-white/[0.04]"
             )}
           >
-            <div className="flex items-center gap-3">
-              <LayoutDashboard size={20} className={activeTab === "orders" ? "text-[#F0DF58]" : "text-white/70"} /> 
+            <div className="flex items-center gap-2.5">
+              <LayoutDashboard size={17} />
               <span>Pedidos do Dia</span>
             </div>
-            <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-bold", activeTab === "orders" ? "bg-[#F0DF58] text-[#180a15]" : "bg-white/10 text-white/80")}>
+            <span className="bg-white/10 text-white/70 text-[10px] font-bold px-2 py-0.5 rounded-full">
               {orders.length}
             </span>
           </button>
         </nav>
 
-        {/* Bottom Actions */}
-        <div className="mt-auto pt-6 border-t border-white/10 flex flex-col gap-3">
+        {/* Seção RÁPIDAS */}
+        <div className="flex flex-col gap-1 pt-1">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-white/30 px-3 mb-1">
+            RÁPIDAS
+          </p>
           <button 
-            onClick={fetchData} 
-            className="flex items-center justify-center gap-2 p-3.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-white/90 text-xs font-bold uppercase transition-all border border-white/10"
+            onClick={() => { setEditingItem(null); setModalOpen(true); }}
+            className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs font-medium text-white/60 hover:text-white hover:bg-white/[0.04] transition-all text-left"
           >
-            <RefreshCw size={15} /> Sincronizar Dados
+            <PlusCircle size={16} className="text-white/40" />
+            <span>Adicionar Item</span>
           </button>
-          
+          <button 
+            onClick={() => { setActiveTab("menu"); setSelectedCategory("all"); }}
+            className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs font-medium text-white/60 hover:text-white hover:bg-white/[0.04] transition-all text-left"
+          >
+            <Layers size={16} className="text-white/40" />
+            <span>Categorias</span>
+          </button>
+          <button 
+            onClick={() => setActiveTab("orders")}
+            className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs font-medium text-white/60 hover:text-white hover:bg-white/[0.04] transition-all text-left"
+          >
+            <BarChart3 size={16} className="text-white/40" />
+            <span>Relatórios</span>
+          </button>
+          <button 
+            onClick={fetchData}
+            className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs font-medium text-white/60 hover:text-white hover:bg-white/[0.04] transition-all text-left"
+          >
+            <Settings size={16} className="text-white/40" />
+            <span>Configurações</span>
+          </button>
+        </div>
+
+        {/* Card "Dica do dia" */}
+        <div className="mt-auto pt-4">
+          <div className="bg-[#180918]/90 border border-white/[0.08] rounded-2xl p-4 flex flex-col items-center text-center shadow-lg relative overflow-hidden group">
+            <div className="w-20 h-20 flex items-center justify-center mb-1">
+              <img 
+                src="/assets/Acai_fechado.webp" 
+                alt="Dica do dia" 
+                className="w-full h-full object-contain drop-shadow-md group-hover:scale-105 transition-transform" 
+              />
+            </div>
+            <h4 className="font-heading text-base uppercase text-[#F0DF58] tracking-wide">
+              Dica do dia
+            </h4>
+            <p className="text-white/50 text-[11px] leading-snug mt-1 font-sans">
+              Mantenha seus itens e preços sempre atualizados para vender mais!
+            </p>
+          </div>
+
+          {/* Sair do Painel */}
           <button 
             onClick={handleLogout} 
-            className="flex items-center justify-center gap-2 p-3.5 rounded-xl bg-red-500/15 text-red-300 hover:bg-red-500/25 text-xs font-bold uppercase transition-all border border-red-500/20"
+            className="w-full mt-3 flex items-center justify-center gap-2 py-2 rounded-xl text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 text-xs font-semibold uppercase tracking-wider transition-all"
           >
-            <LogOut size={16} /> Sair do Painel
+            <LogOut size={14} /> Sair do Painel
           </button>
         </div>
       </aside>
 
-      {/* Main Content Area */}
-      <main className="flex-1 p-5 sm:p-8 lg:p-10 overflow-y-auto">
-        {activeTab === "orders" ? (
-          /* ================= ABA PEDIDOS ================= */
-          <div className="space-y-8 animate-in fade-in duration-300">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="font-heading text-3xl sm:text-4xl uppercase text-white tracking-wide">Últimos Pedidos</h2>
-                <p className="text-white/80 text-xs sm:text-sm font-sans mt-0.5">Histórico de pedidos recebidos via WhatsApp e sistema</p>
-              </div>
-              <span className="px-4 py-1.5 rounded-full bg-white/[0.06] border border-white/15 text-xs font-bold text-[#F0DF58] uppercase">
-                {orders.length} Pedidos
-              </span>
+      {/* ================= CONTEÚDO PRINCIPAL (DIREITA) ================= */}
+      <main className="flex-1 p-5 sm:p-7 lg:p-8 overflow-y-auto space-y-6">
+        {/* Top Header Row */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div>
+            <h2 className="font-sans text-2xl sm:text-3xl font-bold text-white tracking-tight">
+              Contrôle total do cardápio
+            </h2>
+            <p className="text-white/50 text-xs sm:text-sm font-sans mt-0.5">
+              Adicione, edite valores, ative/desative qualquer item
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3 flex-wrap">
+            {/* Campo de Busca em Pílula */}
+            <div className="relative w-full sm:w-72 md:w-80">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/30" size={16} />
+              <input 
+                type="text"
+                placeholder="Buscar por nome ou categoria..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-[#170a18] border border-white/10 rounded-xl py-2 pl-9 pr-8 text-white text-xs font-sans focus:outline-none focus:border-[#F0DF58]/60 transition-all placeholder:text-white/30"
+              />
+              {searchQuery && (
+                <button 
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/40 hover:text-white"
+                >
+                  <X size={14} />
+                </button>
+              )}
             </div>
 
-            <div className="grid gap-4">
-              {orders.map(order => (
-                <div key={order._id} className="bg-[#1f0d1b]/90 border border-white/10 p-6 rounded-3xl flex flex-col md:flex-row justify-between gap-6 hover:bg-[#281223] transition-all shadow-xl">
-                  <div className="space-y-2.5">
-                    <div className="flex items-center gap-3 flex-wrap">
-                      <span className="bg-[#F0DF58]/15 border border-[#F0DF58]/30 text-[#F0DF58] px-3.5 py-1 rounded-full text-xs font-black uppercase font-heading tracking-wide">
-                        R$ {order.total.toFixed(2)}
-                      </span>
-                      <span className="px-3 py-0.5 rounded-lg bg-white/10 text-white font-bold text-[10px] uppercase border border-white/10">
-                        {order.deliveryMethod || "Entrega"}
-                      </span>
-                      <span className="text-white/75 text-xs font-sans">
-                        {new Date(order.createdAt).toLocaleString('pt-BR')}
-                      </span>
-                    </div>
-                    <p className="text-white font-sans text-sm leading-relaxed">
-                      {order.items.join(" • ")}
-                    </p>
-                    {order.address && (
-                      <p className="text-white/75 text-xs font-sans italic flex items-center gap-1.5">
-                        📍 {order.address.street}{order.address.number ? `, ${order.address.number}` : ''} - {order.address.neighborhood}
-                      </p>
-                    )}
-                  </div>
-                  <div className="flex items-center justify-between md:justify-end gap-6 border-t md:border-t-0 border-white/10 pt-4 md:pt-0">
-                    <div className="text-left md:text-right">
-                      <p className="text-[10px] font-bold text-white/60 uppercase tracking-widest">Pagamento</p>
-                      <p className="font-heading text-xl text-[#F0DF58] uppercase tracking-wide">{order.paymentMethod}</p>
-                    </div>
-                  </div>
+            {/* Botão + NOVO ITEM */}
+            <button 
+              onClick={() => { setEditingItem(null); setModalOpen(true); }}
+              className="px-4 py-2 bg-[#F0DF58] hover:bg-[#e4d347] text-[#120714] font-heading font-black text-sm rounded-xl flex items-center gap-1.5 transition-all shadow-md active:scale-95 uppercase tracking-wide flex-shrink-0"
+            >
+              <Plus size={16} strokeWidth={3} />
+              <span>Novo Item</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Top Stats Cards & Categories Bar */}
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 items-start">
+          {/* 3 Metric Cards */}
+          <div className="xl:col-span-5 grid grid-cols-3 gap-3">
+            {/* TOTAL DE ITENS */}
+            <div className="bg-[#170a18]/80 border border-purple-900/30 rounded-2xl p-4 flex flex-col justify-between shadow-md relative overflow-hidden">
+              <p className="text-[10px] font-bold text-purple-300/60 uppercase tracking-wider">
+                TOTAL DE ITENS
+              </p>
+              <div className="flex items-baseline justify-between mt-2">
+                <span className="font-heading text-3xl font-bold text-white">
+                  {stats.total}
+                </span>
+                <div className="w-8 h-8 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-300">
+                  <Box size={16} />
                 </div>
-              ))}
+              </div>
+            </div>
+
+            {/* ATIVOS */}
+            <div className="bg-[#170a18]/80 border border-emerald-900/30 rounded-2xl p-4 flex flex-col justify-between shadow-md relative overflow-hidden">
+              <p className="text-[10px] font-bold text-emerald-400/80 uppercase tracking-wider">
+                ATIVOS
+              </p>
+              <div className="flex items-baseline justify-between mt-2">
+                <span className="font-heading text-3xl font-bold text-emerald-400">
+                  {stats.active}
+                </span>
+                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                  <CheckCircle2 size={16} />
+                </div>
+              </div>
+            </div>
+
+            {/* DESATIVADOS */}
+            <div className="bg-[#170a18]/80 border border-rose-900/30 rounded-2xl p-4 flex flex-col justify-between shadow-md relative overflow-hidden">
+              <p className="text-[10px] font-bold text-rose-400/80 uppercase tracking-wider">
+                DESATIVADOS
+              </p>
+              <div className="flex items-baseline justify-between mt-2">
+                <span className="font-heading text-3xl font-bold text-rose-400">
+                  {stats.inactive}
+                </span>
+                <div className="w-8 h-8 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400">
+                  <XCircle size={16} />
+                </div>
+              </div>
             </div>
           </div>
-        ) : (
-          /* ================= ABA GESTÃO DE CARDÁPIO ================= */
-          <div className="space-y-6 animate-in fade-in duration-300">
-            {/* Header com Ação Principal */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div>
-                <h2 className="font-heading text-3xl sm:text-4xl uppercase text-white tracking-wide">Controle Total do Cardápio</h2>
-                <p className="text-white/80 text-xs sm:text-sm font-sans mt-0.5">Adicione, edite valores, altere fotos e ative/desative qualquer item</p>
-              </div>
-              
-              <button 
-                onClick={() => { setEditingItem(null); setModalOpen(true); }}
-                className="px-6 py-3.5 bg-gradient-to-r from-[#F0DF58] to-[#E5CF38] hover:from-[#f6e66b] hover:to-[#ebdb4a] text-[#180a15] font-heading text-lg rounded-2xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-[#F0DF58]/10 active:scale-95 uppercase font-black tracking-wide"
-              >
-                <Plus size={20} /> Novo Item
-              </button>
-            </div>
 
-            {/* Categorias Tabs (Com Ícones Modernos SVG e Contraste Balanceado) */}
-            <div className="flex items-center gap-2.5 overflow-x-auto pb-2 no-scrollbar border-b border-white/10">
+          {/* Seção CATEGORIAS (Chips Verticais) */}
+          <div className="xl:col-span-7 flex flex-col gap-1.5">
+            <p className="text-[10px] font-bold text-white/40 uppercase tracking-wider">
+              CATEGORIAS
+            </p>
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
               {CATEGORIES_CONFIG.map(cat => {
                 const IconComponent = cat.Icon;
                 const isSelected = selectedCategory === cat.key;
+                const count = categoryCounts[cat.key] ?? 0;
+
                 return (
                   <button
                     key={cat.key}
                     onClick={() => setSelectedCategory(cat.key)}
                     className={cn(
-                      "px-4 py-2.5 rounded-2xl font-sans text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center gap-2.5 border",
+                      "flex flex-col items-center justify-center py-2 px-3 rounded-2xl border transition-all flex-shrink-0 min-w-[62px] gap-1 group",
                       isSelected 
-                        ? "bg-[#F0DF58]/20 text-[#F0DF58] border-[#F0DF58]/50 shadow-[0_0_15px_rgba(240,223,88,0.15)] font-black scale-[1.02]" 
-                        : "bg-white/[0.04] text-white/80 hover:bg-white/[0.09] hover:text-white border-white/10"
+                        ? "border-[#F0DF58] bg-[#F0DF58]/10 text-[#F0DF58] shadow-[0_0_12px_rgba(240,223,88,0.12)]" 
+                        : "border-white/[0.06] bg-[#170a18]/60 text-white/50 hover:border-white/15 hover:text-white"
                     )}
                   >
-                    <IconComponent size={16} className={isSelected ? "text-[#F0DF58]" : cat.iconColor} />
-                    <span>{cat.label}</span>
+                    <IconComponent 
+                      size={16} 
+                      className={isSelected ? "text-[#F0DF58]" : cat.iconColor} 
+                    />
+                    <span className="text-[10px] font-semibold tracking-tight whitespace-nowrap">
+                      {cat.shortLabel}
+                      <span className="sr-only"> {cat.label}</span>
+                    </span>
+                    <span className="text-[9px] text-white/40 font-bold">
+                      {count}
+                    </span>
                   </button>
                 );
               })}
             </div>
+          </div>
+        </div>
 
-            {/* Filtros e Busca */}
-            <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
-              {/* Barra de Pesquisa */}
-              <div className="relative w-full sm:max-w-md">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/60" size={18} />
-                <input 
-                  type="text"
-                  placeholder="Buscar por nome ou categoria..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-white/[0.05] border border-white/15 rounded-2xl py-2.5 pl-10 pr-4 text-white text-sm font-sans focus:outline-none focus:border-[#F0DF58]/60 transition-all placeholder:text-white/50"
-                />
-                {searchQuery && (
-                  <button 
-                    onClick={() => setSearchQuery("")}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white"
-                  >
-                    <X size={16} />
-                  </button>
-                )}
-              </div>
+        {/* Sub-filtros (Todos os itens, Ativos, Desativados) e Toggle Grade/Lista */}
+        <div className="flex items-center justify-between pt-1">
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              onClick={() => setStatusFilter("all")}
+              className={cn(
+                "px-3.5 py-1.5 rounded-full text-xs font-bold transition-all",
+                statusFilter === "all"
+                  ? "bg-[#F0DF58] text-[#120714] shadow-sm"
+                  : "bg-[#170a18] text-white/60 hover:text-white border border-white/[0.06]"
+              )}
+            >
+              Todos os itens
+            </button>
+            <button
+              onClick={() => setStatusFilter("active")}
+              className={cn(
+                "px-3.5 py-1.5 rounded-full text-xs font-bold transition-all",
+                statusFilter === "active"
+                  ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
+                  : "bg-[#170a18] text-white/60 hover:text-white border border-white/[0.06]"
+              )}
+            >
+              Ativos
+            </button>
+            <button
+              onClick={() => setStatusFilter("inactive")}
+              className={cn(
+                "px-3.5 py-1.5 rounded-full text-xs font-bold transition-all",
+                statusFilter === "inactive"
+                  ? "bg-rose-500/20 text-rose-300 border border-rose-500/40"
+                  : "bg-[#170a18] text-white/60 hover:text-white border border-white/[0.06]"
+              )}
+            >
+              Desativados
+            </button>
+          </div>
 
-              {/* Filtro de Status */}
-              <div className="flex items-center gap-1.5 bg-white/[0.04] p-1.5 rounded-2xl border border-white/10 w-full sm:w-auto justify-center">
-                <button 
-                  onClick={() => setStatusFilter("all")} 
-                  className={cn("px-3.5 py-1.5 rounded-xl text-xs font-bold uppercase transition-all", statusFilter === "all" ? "bg-white/20 text-white shadow-sm" : "text-white/70 hover:text-white")}
-                >
-                  Todos ({stats.total})
-                </button>
-                <button 
-                  onClick={() => setStatusFilter("active")} 
-                  className={cn("px-3.5 py-1.5 rounded-xl text-xs font-bold uppercase transition-all", statusFilter === "active" ? "bg-[#25D366]/25 text-[#25D366] border border-[#25D366]/30 font-black" : "text-white/70 hover:text-[#25D366]")}
-                >
-                  Ativos ({stats.active})
-                </button>
-                <button 
-                  onClick={() => setStatusFilter("inactive")} 
-                  className={cn("px-3.5 py-1.5 rounded-xl text-xs font-bold uppercase transition-all", statusFilter === "inactive" ? "bg-red-500/25 text-red-300 border border-red-500/30 font-black" : "text-white/70 hover:text-red-300")}
-                >
-                  Desativados ({stats.inactive})
-                </button>
-              </div>
-            </div>
+          <div className="flex items-center gap-1 bg-[#170a18] p-1 rounded-xl border border-white/[0.06]">
+            <button
+              onClick={() => setViewMode("grid")}
+              className={cn(
+                "p-1.5 rounded-lg transition-colors",
+                viewMode === "grid" ? "text-[#F0DF58] bg-[#F0DF58]/10" : "text-white/40 hover:text-white"
+              )}
+              title="Visualização em Grade"
+            >
+              <LayoutGrid size={16} />
+            </button>
+            <button
+              onClick={() => setViewMode("list")}
+              className={cn(
+                "p-1.5 rounded-lg transition-colors",
+                viewMode === "list" ? "text-[#F0DF58] bg-[#F0DF58]/10" : "text-white/40 hover:text-white"
+              )}
+              title="Visualização em Lista"
+            >
+              <List size={16} />
+            </button>
+          </div>
+        </div>
 
-            {/* Grid de Itens */}
-            {filteredItems.length === 0 ? (
-              <div className="text-center py-16 bg-white/[0.03] border border-white/10 rounded-3xl p-8">
-                <p className="text-white/70 text-sm font-sans mb-4">Nenhum item encontrado com os filtros selecionados.</p>
-                <button 
-                  onClick={() => { setSelectedCategory("all"); setStatusFilter("all"); setSearchQuery(""); }}
-                  className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-bold uppercase text-white transition-all border border-white/10"
-                >
-                  Limpar Filtros
-                </button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                {filteredItems.map(item => (
+        {/* ================= GRADE DE PRODUTOS (4 COLUNAS) ================= */}
+        {filteredItems.length === 0 ? (
+          <div className="text-center py-16 bg-[#170a18]/40 border border-white/[0.06] rounded-3xl p-8">
+            <p className="text-white/60 text-sm font-sans mb-4">Nenhum item encontrado com os filtros selecionados.</p>
+            <button 
+              onClick={() => { setSelectedCategory("all"); setStatusFilter("all"); setSearchQuery(""); }}
+              className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-bold uppercase text-white transition-all border border-white/10"
+            >
+              Limpar Filtros
+            </button>
+          </div>
+        ) : (
+          <div className={cn(
+            viewMode === "grid" 
+              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" 
+              : "flex flex-col gap-3"
+          )}>
+            {filteredItems.map(item => {
+              const itemImg = item.image || resolveItemImage(item);
+
+              if (viewMode === "list") {
+                return (
                   <div 
-                    key={item._id} 
+                    key={item._id}
                     className={cn(
-                      "group relative bg-[#1f0d1b]/90 border p-5 rounded-3xl flex flex-col justify-between gap-5 transition-all hover:bg-[#281223] hover:border-[#F0DF58]/30 shadow-xl",
-                      item.active === false ? "opacity-60 grayscale border-white/5 bg-black/40" : "border-white/10"
+                      "bg-[#170a18]/90 border border-white/[0.07] hover:border-[#F0DF58]/30 rounded-2xl p-3.5 flex items-center justify-between gap-4 transition-all shadow-md",
+                      item.active === false && "opacity-60 grayscale bg-black/40 border-white/5"
                     )}
                   >
-                    {/* Botão Power / Status no Canto Superior Direito */}
-                    <button 
-                      onClick={() => updateItemQuick(item._id, { active: item.active === false ? true : false })}
-                      title={item.active === false ? "Item Desativado no Cardápio (Clique para Ativar)" : "Item Ativo no Cardápio (Clique para Desativar)"}
-                      className={cn(
-                        "absolute top-4 right-4 px-2.5 py-1.5 rounded-xl transition-all border flex items-center gap-1.5 shadow-sm active:scale-95 group/power z-10",
-                        item.active !== false 
-                          ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/25 shadow-[0_0_12px_rgba(16,185,129,0.15)]" 
-                          : "bg-red-500/15 border-red-500/30 text-red-300 hover:bg-red-500/25 shadow-[0_0_12px_rgba(239,68,68,0.15)]"
-                      )}
-                    >
-                      <Power size={14} className="group-hover/power:rotate-12 transition-transform" />
-                      <span className="text-[10px] font-bold uppercase tracking-wider">
-                        {item.active !== false ? "Ativo" : "Desativado"}
-                      </span>
-                    </button>
-
-                    <div className="flex items-start gap-4 pr-16 sm:pr-20">
-                      {/* Thumbnail da Imagem */}
-                      {(() => {
-                        const itemImg = item.image || resolveItemImage(item);
-                        return (
-                          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-black/50 border border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0 relative group-hover:border-[#F0DF58]/40 transition-colors shadow-inner">
-                            {itemImg ? (
-                              <img 
-                                src={itemImg} 
-                                alt={item.name} 
-                                className={cn(
-                                  "w-full h-full transition-transform duration-300 group-hover:scale-110",
-                                  (item.original_category === 'sizes' || item.original_category === 'ready_made')
-                                    ? "object-contain p-1.5"
-                                    : "object-cover scale-105"
-                                )}
-                                onError={(e) => {
-                                  (e.target as HTMLElement).style.display = 'none';
-                                }}
-                              />
-                            ) : (
-                              <ImageIcon className="text-white/30" size={24} />
-                            )}
-                          </div>
-                        );
-                      })()}
-
-                      {/* Informações do Item */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1 flex-wrap">
-                          <span className="text-[10px] font-black text-[#F0DF58] uppercase tracking-widest bg-[#F0DF58]/10 px-2 py-0.5 rounded-md border border-[#F0DF58]/20">
-                            {item.category || item.original_category}
-                          </span>
-                          {item.type && (
-                            <span className="text-[9px] font-bold text-white/60 uppercase bg-white/10 px-1.5 py-0.5 rounded border border-white/10">
-                              {item.type}
-                            </span>
-                          )}
-                        </div>
-                        <h4 className="font-heading text-xl uppercase text-white truncate group-hover:text-[#F0DF58] transition-colors">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-14 h-14 rounded-xl bg-black/50 border border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0">
+                        {itemImg ? (
+                          <img 
+                            src={itemImg} 
+                            alt={item.name} 
+                            className="w-full h-full object-cover"
+                            onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
+                          />
+                        ) : (
+                          <ImageIcon className="text-white/30" size={18} />
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <span className="text-[9px] font-black text-purple-300 uppercase bg-purple-950/70 border border-purple-800/40 px-2 py-0.5 rounded-md">
+                          {item.category || item.original_category}
+                        </span>
+                        <h4 className="font-heading text-lg text-white truncate mt-1">
                           {item.name}
                         </h4>
-                        {item.description && (
-                          <p className="text-white/70 text-xs font-sans truncate mt-0.5">
-                            {item.description}
-                          </p>
-                        )}
                       </div>
                     </div>
 
-                    {/* Preço e Ações Rápidas */}
-                    <div className="flex items-center justify-between gap-3 pt-3 border-t border-white/10">
-                      {/* Campo de Preço Rápido e Sofisticado */}
-                      <div className="flex items-center gap-1.5 bg-[#120610]/95 border border-[#F0DF58]/35 hover:border-[#F0DF58]/70 focus-within:border-[#F0DF58] focus-within:ring-2 focus-within:ring-[#F0DF58]/20 rounded-2xl px-3 py-1.5 transition-all shadow-inner group/price">
-                        <span className="text-[#F0DF58] font-heading font-black text-sm tracking-wider select-none">
-                          R$
-                        </span>
-                        <input 
-                          type="number" 
-                          step="0.50"
-                          min="0"
-                          defaultValue={item.price.toFixed(2)} 
-                          onBlur={(e) => {
-                            const val = parseFloat(e.target.value);
-                            if (!isNaN(val) && val !== item.price) {
-                              updateItemQuick(item._id, { price: val });
-                              e.target.value = val.toFixed(2);
-                            }
-                          }}
-                          className="w-16 sm:w-20 bg-transparent text-[#F0DF58] font-heading text-xl font-bold tracking-wide focus:outline-none text-left [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
-                        />
-                        <Edit3 size={12} className="text-[#F0DF58]/50 group-hover/price:text-[#F0DF58] transition-colors flex-shrink-0" />
-                      </div>
-
-                      {/* Botões de Ação */}
-                      <div className="flex items-center gap-2">
-                        {/* Editar Completo */}
+                    <div className="flex items-center gap-4 flex-shrink-0">
+                      <span className="font-heading text-xl text-[#F0DF58] font-bold">
+                        R$ {item.price.toFixed(2).replace('.', ',')}
+                      </span>
+                      <button 
+                        onClick={() => updateItemQuick(item._id, { active: item.active === false ? true : false })}
+                        className={cn(
+                          "px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border transition-all",
+                          item.active !== false 
+                            ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" 
+                            : "bg-rose-500/10 border-rose-500/20 text-rose-400"
+                        )}
+                      >
+                        {item.active !== false ? "Ativo" : "Desativado"}
+                      </button>
+                      <div className="flex items-center gap-1.5">
                         <button 
                           onClick={() => { setEditingItem(item); setModalOpen(true); }}
-                          title="Editar Detalhes e Foto"
-                          className="px-3.5 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.14] text-white/90 hover:text-white transition-all border border-white/15 hover:border-[#F0DF58]/40 flex items-center gap-1.5 text-xs font-bold uppercase active:scale-95 shadow-sm"
+                          title="Editar"
+                          className="p-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.1] text-white/60 hover:text-white border border-white/5 transition-all"
                         >
-                          <Edit3 size={14} className="text-[#F0DF58]" />
-                          <span>Editar</span>
+                          <Edit3 size={14} />
                         </button>
-
-                        {/* Excluir */}
                         <button 
                           onClick={() => setItemToDelete(item)}
-                          title="Excluir Item do Cardápio"
-                          className="p-2 rounded-xl bg-red-500/[0.1] hover:bg-red-500/25 text-red-300 hover:text-white transition-all border border-red-500/25 hover:border-red-500/40 flex items-center justify-center active:scale-95 shadow-sm"
+                          title="Excluir"
+                          className="p-2 rounded-xl bg-rose-500/[0.08] hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/10 transition-all"
                         >
-                          <Trash2 size={15} />
+                          <Trash2 size={14} />
                         </button>
                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
+                );
+              }
+
+              return (
+                <div 
+                  key={item._id}
+                  className={cn(
+                    "group bg-[#170a18]/90 border border-white/[0.07] hover:border-[#F0DF58]/30 rounded-2xl p-3.5 flex flex-col justify-between gap-3 shadow-lg transition-all hover:bg-[#1f0d20]",
+                    item.active === false && "opacity-60 grayscale bg-black/40 border-white/5"
+                  )}
+                >
+                  {/* Top: Tag da Categoria (Esquerda) e Status Interativo (Direita) */}
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[9px] font-black text-purple-300 uppercase bg-purple-950/70 border border-purple-800/40 px-2 py-0.5 rounded-md tracking-wider">
+                      {item.category || item.original_category}
+                    </span>
+
+                    <button 
+                      onClick={() => updateItemQuick(item._id, { active: item.active === false ? true : false })}
+                      title={item.active === false ? "Clique para ativar" : "Clique para desativar"}
+                      className={cn(
+                        "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border flex items-center gap-1 transition-all active:scale-95",
+                        item.active !== false 
+                          ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20" 
+                          : "bg-rose-500/10 border-rose-500/20 text-rose-400 hover:bg-rose-500/20"
+                      )}
+                    >
+                      <span className={cn(
+                        "w-1.5 h-1.5 rounded-full",
+                        item.active !== false ? "bg-emerald-400 animate-pulse" : "bg-rose-400"
+                      )} />
+                      <span>{item.active !== false ? "Ativo" : "Desativado"}</span>
+                    </button>
+                  </div>
+
+                  {/* Centro: Thumbnail da Imagem com Moldura Arredondada */}
+                  <div className="w-full h-28 sm:h-32 rounded-xl bg-black/40 border border-white/[0.06] overflow-hidden flex items-center justify-center p-2 relative group-hover:border-[#F0DF58]/20 transition-colors shadow-inner">
+                    {itemImg ? (
+                      <img 
+                        src={itemImg} 
+                        alt={item.name} 
+                        className={cn(
+                          "w-full h-full transition-transform duration-300 group-hover:scale-110",
+                          (item.original_category === 'sizes' || item.original_category === 'ready_made')
+                            ? "object-contain p-1"
+                            : "object-cover"
+                        )}
+                        onError={(e) => {
+                          (e.target as HTMLElement).style.display = 'none';
+                        }}
+                      />
+                    ) : (
+                      <ImageIcon className="text-white/20" size={28} />
+                    )}
+                  </div>
+
+                  {/* Nome do Produto */}
+                  <div>
+                    <h4 className="font-heading text-lg sm:text-xl uppercase text-white font-bold tracking-wide truncate group-hover:text-[#F0DF58] transition-colors">
+                      {item.name}
+                    </h4>
+                    {item.description && (
+                      <p className="text-white/50 text-xs truncate mt-0.5">
+                        {item.description}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Rodapé do Card: Preço à Esquerda e Botões ✏️ / 🗑️ à Direita */}
+                  <div className="flex items-center justify-between pt-2 border-t border-white/[0.06]">
+                    <span className="font-heading text-xl text-[#F0DF58] font-bold tracking-wide select-none">
+                      R$ {item.price.toFixed(2).replace('.', ',')}
+                    </span>
+
+                    <div className="flex items-center gap-1.5">
+                      <button 
+                        onClick={() => { setEditingItem(item); setModalOpen(true); }}
+                        title="Editar"
+                        className="p-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.1] text-white/60 hover:text-white border border-white/5 transition-all active:scale-95"
+                      >
+                        <Edit3 size={14} />
+                      </button>
+                      <button 
+                        onClick={() => setItemToDelete(item)}
+                        title="Excluir"
+                        className="p-2 rounded-xl bg-rose-500/[0.08] hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/10 transition-all active:scale-95"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </main>
@@ -863,9 +1033,9 @@ export default function AdminPage() {
       {/* ================= MODAL DE CONFIRMAÇÃO DE EXCLUSÃO ================= */}
       {itemToDelete && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="bg-[#1f0d1b] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-6">
-            <div className="flex items-center gap-4 text-red-400">
-              <div className="p-3 bg-red-500/10 rounded-2xl border border-red-500/20">
+          <div className="bg-[#170a18] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-6">
+            <div className="flex items-center gap-4 text-rose-400">
+              <div className="p-3 bg-rose-500/10 rounded-2xl border border-rose-500/20">
                 <Trash2 size={28} />
               </div>
               <div>
@@ -887,7 +1057,7 @@ export default function AdminPage() {
               </button>
               <button 
                 onClick={handleDeleteConfirm}
-                className="flex-1 py-3 bg-red-500 text-white font-heading text-base rounded-xl hover:bg-red-600 transition-all shadow-lg active:scale-95 uppercase font-bold"
+                className="flex-1 py-3 bg-rose-500 text-white font-heading text-base rounded-xl hover:bg-rose-600 transition-all shadow-lg active:scale-95 uppercase font-bold"
               >
                 Excluir Definitivamente
               </button>
@@ -947,7 +1117,7 @@ function ItemModal({ item, onClose, onSave, loading }: ItemModalProps) {
 
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200">
-      <div className="bg-[#1f0d1b] border border-white/15 rounded-3xl p-6 sm:p-8 max-w-xl w-full shadow-2xl space-y-6 my-8 max-h-[90vh] overflow-y-auto">
+      <div className="bg-[#170a18] border border-white/15 rounded-3xl p-6 sm:p-8 max-w-xl w-full shadow-2xl space-y-6 my-8 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between pb-4 border-b border-white/10">
           <div>
             <h3 className="font-heading text-2xl uppercase text-[#F0DF58]">
@@ -1047,7 +1217,7 @@ function ItemModal({ item, onClose, onSave, loading }: ItemModalProps) {
                     setCategory(selectedCat.label);
                   }
                 }}
-                className="w-full bg-[#120610] border border-white/15 rounded-xl py-3 px-3 text-white text-sm font-sans focus:outline-none focus:border-[#F0DF58]/60 transition-all"
+                className="w-full bg-[#120714] border border-white/15 rounded-xl py-3 px-3 text-white text-sm font-sans focus:outline-none focus:border-[#F0DF58]/60 transition-all"
               >
                 <option value="sizes">🥣 Tamanho de Pote (sizes)</option>
                 <option value="flavors">🍇 Sabor de Açaí (flavors)</option>
@@ -1155,7 +1325,7 @@ function ItemModal({ item, onClose, onSave, loading }: ItemModalProps) {
             <button 
               type="submit"
               disabled={loading}
-              className="flex-1 py-3.5 bg-gradient-to-r from-[#F0DF58] to-[#E5CF38] hover:from-[#f6e66b] hover:to-[#ebdb4a] text-[#180a15] font-heading text-lg rounded-xl transition-all shadow-lg shadow-[#F0DF58]/10 active:scale-95 uppercase font-black flex items-center justify-center gap-2"
+              className="flex-1 py-3.5 bg-[#F0DF58] hover:bg-[#e4d347] text-[#120714] font-heading text-lg rounded-xl transition-all shadow-lg active:scale-95 uppercase font-black flex items-center justify-center gap-2"
             >
               {loading ? <RefreshCw className="animate-spin" size={20} /> : <Check size={20} />}
               Salvar Item
