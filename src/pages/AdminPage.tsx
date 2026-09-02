@@ -929,87 +929,79 @@ export default function AdminPage() {
                 <div 
                   key={item._id}
                   className={cn(
-                    "group bg-[#170a18]/90 border border-white/[0.07] hover:border-[#F0DF58]/30 rounded-2xl p-3.5 flex flex-col justify-between gap-3 shadow-lg transition-all hover:bg-[#1f0d20]",
-                    item.active === false && "opacity-60 grayscale bg-black/40 border-white/5"
+                    "group relative bg-[#130716]/95 border border-white/[0.08] hover:border-[#F0DF58]/35 rounded-3xl p-4 transition-all hover:bg-[#1a0c1e] shadow-xl flex items-center justify-between gap-3",
+                    item.active === false && "opacity-55 grayscale bg-black/40 border-white/5"
                   )}
                 >
-                  {/* Top: Tag da Categoria (Esquerda) e Status Interativo (Direita) */}
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-[9px] font-black text-purple-300 uppercase bg-purple-950/70 border border-purple-800/40 px-2 py-0.5 rounded-md tracking-wider">
-                      {item.category || item.original_category}
-                    </span>
-
-                    <button 
-                      onClick={() => updateItemQuick(item._id, { active: item.active === false ? true : false })}
-                      title={item.active === false ? "Clique para ativar" : "Clique para desativar"}
-                      className={cn(
-                        "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border flex items-center gap-1 transition-all active:scale-95",
-                        item.active !== false 
-                          ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20" 
-                          : "bg-rose-500/10 border-rose-500/20 text-rose-400 hover:bg-rose-500/20"
-                      )}
-                    >
-                      <span className={cn(
-                        "w-1.5 h-1.5 rounded-full",
-                        item.active !== false ? "bg-emerald-400 animate-pulse" : "bg-rose-400"
-                      )} />
-                      <span>{item.active !== false ? "Ativo" : "Desativado"}</span>
-                    </button>
+                  {/* Lado Esquerdo: Categoria, Nome e Preço */}
+                  <div className="flex flex-col justify-between h-28 min-w-0 flex-1 pr-1">
+                    <div>
+                      <span className="inline-block text-[10px] font-black text-[#c084fc] uppercase bg-[#3b174a]/80 border border-[#7e22ce]/30 px-2.5 py-0.5 rounded-md tracking-wider">
+                        {item.category || item.original_category}
+                      </span>
+                      <h4 className="font-heading text-lg sm:text-xl uppercase text-white font-bold tracking-wide mt-2 line-clamp-2 leading-tight group-hover:text-[#F0DF58] transition-colors">
+                        {item.name}
+                      </h4>
+                    </div>
+                    <div className="font-heading text-xl sm:text-2xl text-[#F0DF58] font-bold tracking-wide select-none">
+                      R$ {item.price.toFixed(2).replace('.', ',')}
+                    </div>
                   </div>
 
-                  {/* Centro: Thumbnail da Imagem com Moldura Arredondada */}
-                  <div className="w-full h-28 sm:h-32 rounded-xl bg-black/40 border border-white/[0.06] overflow-hidden flex items-center justify-center p-2 relative group-hover:border-[#F0DF58]/20 transition-colors shadow-inner">
+                  {/* Centro: Foto do Produto */}
+                  <div className="w-28 h-28 sm:w-28 sm:h-28 rounded-2xl bg-black/40 border border-white/10 overflow-hidden flex items-center justify-center p-1 flex-shrink-0 shadow-inner group-hover:border-[#F0DF58]/20 transition-all">
                     {itemImg ? (
                       <img 
                         src={itemImg} 
                         alt={item.name} 
                         className={cn(
-                          "w-full h-full transition-transform duration-300 group-hover:scale-110",
+                          "w-full h-full rounded-xl transition-transform duration-300 group-hover:scale-110",
                           (item.original_category === 'sizes' || item.original_category === 'ready_made')
-                            ? "object-contain p-1"
-                            : "object-cover"
+                            ? "object-contain p-0.5"
+                            : "object-cover scale-105"
                         )}
                         onError={(e) => {
                           (e.target as HTMLElement).style.display = 'none';
                         }}
                       />
                     ) : (
-                      <ImageIcon className="text-white/20" size={28} />
+                      <ImageIcon className="text-white/20" size={24} />
                     )}
                   </div>
 
-                  {/* Nome do Produto */}
-                  <div>
-                    <h4 className="font-heading text-lg sm:text-xl uppercase text-white font-bold tracking-wide truncate group-hover:text-[#F0DF58] transition-colors">
-                      {item.name}
-                    </h4>
-                    {item.description && (
-                      <p className="text-white/50 text-xs truncate mt-0.5">
-                        {item.description}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Rodapé do Card: Preço à Esquerda e Botões ✏️ / 🗑️ à Direita */}
-                  <div className="flex items-center justify-between pt-2 border-t border-white/[0.06]">
-                    <span className="font-heading text-xl text-[#F0DF58] font-bold tracking-wide select-none">
-                      R$ {item.price.toFixed(2).replace('.', ',')}
-                    </span>
+                  {/* Lado Direito: Status no Topo e Botões ✏️ / 🗑️ na Base */}
+                  <div className="flex flex-col justify-between items-end h-28 flex-shrink-0 pl-1">
+                    <button 
+                      onClick={() => updateItemQuick(item._id, { active: item.active === false ? true : false })}
+                      title={item.active === false ? "Clique para ativar" : "Clique para desativar"}
+                      className={cn(
+                        "px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border flex items-center gap-1.5 transition-all active:scale-95",
+                        item.active !== false 
+                          ? "bg-[#0c2417] border-[#166534]/60 text-[#4ade80] hover:bg-[#113522]" 
+                          : "bg-[#281119] border-rose-900/50 text-rose-400 hover:bg-[#381522]"
+                      )}
+                    >
+                      <span>{item.active !== false ? "ATIVO" : "DESATIVADO"}</span>
+                      <span className={cn(
+                        "w-1.5 h-1.5 rounded-full",
+                        item.active !== false ? "bg-[#4ade80] animate-pulse" : "bg-rose-400"
+                      )} />
+                    </button>
 
                     <div className="flex items-center gap-1.5">
                       <button 
                         onClick={() => { setEditingItem(item); setModalOpen(true); }}
                         title="Editar"
-                        className="p-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.1] text-white/60 hover:text-white border border-white/5 transition-all active:scale-95"
+                        className="w-10 h-10 rounded-2xl bg-[#1d1222] hover:bg-white/10 text-white/70 hover:text-white border border-white/10 flex items-center justify-center transition-all active:scale-95 shadow-sm"
                       >
-                        <Edit3 size={14} />
+                        <Edit3 size={15} />
                       </button>
                       <button 
                         onClick={() => setItemToDelete(item)}
                         title="Excluir"
-                        className="p-2 rounded-xl bg-rose-500/[0.08] hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/10 transition-all active:scale-95"
+                        className="w-10 h-10 rounded-2xl bg-[#281119] hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/20 flex items-center justify-center transition-all active:scale-95 shadow-sm"
                       >
-                        <Trash2 size={14} />
+                        <Trash2 size={15} />
                       </button>
                     </div>
                   </div>
