@@ -483,7 +483,7 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0e0711] text-white flex flex-col md:flex-row relative selection:bg-[#F0DF58] selection:text-[#0e0711] font-sans pb-20 md:pb-0">
+    <div className="min-h-screen bg-[#0e0711] text-white flex flex-col md:flex-row relative selection:bg-[#F0DF58] selection:text-[#0e0711] font-sans pb-24 md:pb-0 overflow-x-hidden w-full max-w-full">
       {/* Toast Notification */}
       {toast && (
         <div className={cn(
@@ -640,7 +640,7 @@ export default function AdminPage() {
       </aside>
 
       {/* ================= CONTEÚDO PRINCIPAL ================= */}
-      <main className="flex-1 p-4 sm:p-7 lg:p-8 overflow-y-auto space-y-5 sm:space-y-6">
+      <main className="flex-1 p-3.5 sm:p-7 lg:p-8 overflow-y-auto overflow-x-hidden space-y-4 sm:space-y-6 w-full max-w-full">
         {/* ================= CABEÇALHO MOBILE / DESKTOP ================= */}
         {/* Top Header Mobile com Hamburger, Logo e Botão + */}
         <div className="flex md:hidden items-center justify-between gap-3 pb-2">
@@ -745,8 +745,8 @@ export default function AdminPage() {
           </div>
         </div>
 
-        {/* ================= CATEGORIAS (HORIZONTAL SCROLL / CENTRO) ================= */}
-        <div className="flex flex-col gap-2 bg-[#170a18]/60 border border-white/[0.06] rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 shadow-lg">
+        {/* ================= CATEGORIAS (ENCAIXADAS SEM SCROLL) ================= */}
+        <div className="flex flex-col gap-2 bg-[#170a18]/60 border border-white/[0.06] rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-lg w-full max-w-full">
           <div className="flex items-center justify-between px-1">
             <p className="text-[11px] sm:text-xs font-bold text-white/70 uppercase tracking-widest flex items-center gap-1.5">
               <Layers size={14} className="text-[#F0DF58]" />
@@ -760,7 +760,7 @@ export default function AdminPage() {
             </button>
           </div>
 
-          <div className="flex items-center md:justify-center gap-2 sm:gap-3 overflow-x-auto pb-1 no-scrollbar pt-1">
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:flex md:flex-wrap md:justify-center gap-1.5 sm:gap-2.5 w-full pt-1">
             {CATEGORIES_CONFIG.map(cat => {
               const IconComponent = cat.Icon;
               const isSelected = selectedCategory === cat.key;
@@ -771,22 +771,22 @@ export default function AdminPage() {
                   key={cat.key}
                   onClick={() => setSelectedCategory(cat.key)}
                   className={cn(
-                    "flex flex-col items-center justify-center py-2.5 sm:py-3.5 px-3.5 sm:px-5 rounded-2xl border transition-all flex-shrink-0 min-w-[72px] sm:min-w-[95px] gap-1 group shadow-md",
+                    "flex flex-col items-center justify-center py-2 sm:py-3.5 px-1 sm:px-4 rounded-xl sm:rounded-2xl border transition-all w-full md:w-auto md:min-w-[95px] gap-1 group shadow-sm",
                     isSelected 
-                      ? "border-[#F0DF58] bg-[#F0DF58]/15 text-[#F0DF58] shadow-[0_0_16px_rgba(240,223,88,0.2)] scale-[1.02]" 
+                      ? "border-[#F0DF58] bg-[#F0DF58]/15 text-[#F0DF58] shadow-[0_0_14px_rgba(240,223,88,0.2)] scale-[1.02]" 
                       : "border-white/[0.08] bg-[#130716]/90 text-white/70 hover:border-white/25 hover:text-white"
                   )}
                 >
                   <IconComponent 
-                    size={18} 
-                    className={cn("sm:w-[22px] sm:h-[22px]", isSelected ? "text-[#F0DF58]" : cat.iconColor)} 
+                    size={16} 
+                    className={cn("sm:w-5 sm:h-5", isSelected ? "text-[#F0DF58]" : cat.iconColor)} 
                   />
-                  <span className="text-[10px] sm:text-xs font-bold tracking-tight whitespace-nowrap">
+                  <span className="text-[10px] sm:text-xs font-bold tracking-tight truncate max-w-full px-0.5">
                     {cat.shortLabel}
                     <span className="sr-only"> {cat.label}</span>
                   </span>
                   <span className={cn(
-                    "text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded-full transition-colors",
+                    "text-[8px] sm:text-[10px] font-bold px-1.5 py-0.2 rounded-full transition-colors",
                     isSelected 
                       ? "bg-[#F0DF58] text-[#120714]" 
                       : "bg-white/10 text-white/70"
@@ -800,7 +800,7 @@ export default function AdminPage() {
         </div>
 
         {/* ================= SEARCH INPUT EM MOBILE COM ÍCONE DE FILTRO ================= */}
-        <div className="flex md:hidden items-center gap-2">
+        <div className="flex md:hidden items-center gap-2 w-full max-w-full">
           <div className="relative flex-1">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/30" size={16} />
             <input 
@@ -826,19 +826,19 @@ export default function AdminPage() {
               else setStatusFilter("all");
             }}
             title="Filtrar Status"
-            className="w-10 h-10 rounded-xl bg-[#170a18] border border-white/10 flex items-center justify-center text-white/70 active:scale-95"
+            className="w-10 h-10 rounded-xl bg-[#170a18] border border-white/10 flex items-center justify-center text-white/70 active:scale-95 flex-shrink-0"
           >
             <SlidersHorizontal size={17} />
           </button>
         </div>
 
         {/* ================= SUB-FILTROS DE STATUS & MODO DE EXIBIÇÃO ================= */}
-        <div className="flex items-center justify-between pt-1">
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-1 w-full max-w-full">
+          <div className="grid grid-cols-3 gap-1.5 sm:gap-2 w-full sm:w-auto">
             <button
               onClick={() => setStatusFilter("all")}
               className={cn(
-                "px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs font-bold transition-all shadow-sm whitespace-nowrap",
+                "py-2 px-1 text-center rounded-xl sm:rounded-full text-[11px] sm:text-xs font-bold transition-all shadow-sm truncate",
                 statusFilter === "all"
                   ? "bg-[#F0DF58] text-[#120714] shadow-md shadow-[#F0DF58]/10"
                   : "bg-[#170a18] text-white/70 hover:text-white border border-white/[0.08]"
@@ -849,7 +849,7 @@ export default function AdminPage() {
             <button
               onClick={() => setStatusFilter("active")}
               className={cn(
-                "px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs font-bold transition-all shadow-sm whitespace-nowrap",
+                "py-2 px-1 text-center rounded-xl sm:rounded-full text-[11px] sm:text-xs font-bold transition-all shadow-sm truncate",
                 statusFilter === "active"
                   ? "bg-emerald-500/25 text-emerald-400 border border-emerald-500/40 font-black"
                   : "bg-[#170a18] text-white/70 hover:text-white border border-white/[0.08]"
@@ -860,7 +860,7 @@ export default function AdminPage() {
             <button
               onClick={() => setStatusFilter("inactive")}
               className={cn(
-                "px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs font-bold transition-all shadow-sm whitespace-nowrap",
+                "py-2 px-1 text-center rounded-xl sm:rounded-full text-[11px] sm:text-xs font-bold transition-all shadow-sm truncate",
                 statusFilter === "inactive"
                   ? "bg-rose-500/25 text-rose-300 border border-rose-500/40 font-black"
                   : "bg-[#170a18] text-white/70 hover:text-white border border-white/[0.08]"
@@ -906,7 +906,7 @@ export default function AdminPage() {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-2.5 sm:gap-4 w-full max-w-full">
             {filteredItems.map(item => {
               const itemImg = item.image || resolveItemImage(item);
 
@@ -914,12 +914,12 @@ export default function AdminPage() {
                 <div 
                   key={item._id}
                   className={cn(
-                    "group relative bg-[#130716]/95 border border-white/[0.08] hover:border-[#F0DF58]/35 rounded-2xl sm:rounded-3xl p-3 sm:p-4 transition-all hover:bg-[#1a0c1e] shadow-xl flex items-center justify-between gap-3",
+                    "group relative bg-[#130716]/95 border border-white/[0.08] hover:border-[#F0DF58]/35 rounded-2xl sm:rounded-3xl p-2.5 sm:p-4 transition-all hover:bg-[#1a0c1e] shadow-xl flex items-center justify-between gap-2.5 sm:gap-3 w-full max-w-full overflow-hidden",
                     item.active === false && "opacity-55 grayscale bg-black/40 border-white/5"
                   )}
                 >
                   {/* Foto do Produto (Esquerda) */}
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-black/40 border border-white/10 overflow-hidden flex items-center justify-center p-1 flex-shrink-0 shadow-inner group-hover:border-[#F0DF58]/20 transition-all">
+                  <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-2xl bg-black/40 border border-white/10 overflow-hidden flex items-center justify-center p-1 flex-shrink-0 shadow-inner group-hover:border-[#F0DF58]/20 transition-all">
                     {itemImg ? (
                       <img 
                         src={itemImg} 
@@ -935,32 +935,32 @@ export default function AdminPage() {
                         }}
                       />
                     ) : (
-                      <ImageIcon className="text-white/20" size={24} />
+                      <ImageIcon className="text-white/20" size={20} />
                     )}
                   </div>
 
                   {/* Informações: Categoria, Nome e Preço (Centro) */}
-                  <div className="flex flex-col justify-between h-20 sm:h-24 min-w-0 flex-1 pr-1">
+                  <div className="flex flex-col justify-between h-16 sm:h-24 min-w-0 flex-1 pr-1">
                     <div>
-                      <span className="inline-block text-[9px] font-black text-[#c084fc] uppercase bg-[#3b174a]/80 border border-[#7e22ce]/30 px-2 py-0.5 rounded-md tracking-wider">
+                      <span className="inline-block text-[8px] sm:text-[9px] font-black text-[#c084fc] uppercase bg-[#3b174a]/80 border border-[#7e22ce]/30 px-1.5 sm:px-2 py-0.5 rounded tracking-wider truncate max-w-full">
                         {item.category || item.original_category}
                       </span>
-                      <h4 className="font-heading text-base sm:text-lg uppercase text-white font-bold tracking-wide mt-1 line-clamp-1 group-hover:text-[#F0DF58] transition-colors">
+                      <h4 className="font-heading text-sm sm:text-lg uppercase text-white font-bold tracking-wide mt-0.5 sm:mt-1 line-clamp-1 group-hover:text-[#F0DF58] transition-colors">
                         {item.name}
                       </h4>
                     </div>
-                    <div className="font-heading text-lg sm:text-xl text-[#F0DF58] font-bold tracking-wide select-none">
+                    <div className="font-heading text-base sm:text-xl text-[#F0DF58] font-bold tracking-wide select-none">
                       R$ {item.price.toFixed(2).replace('.', ',')}
                     </div>
                   </div>
 
                   {/* Status no Topo e Botões ✏️ / 🗑️ na Base (Direita) */}
-                  <div className="flex flex-col justify-between items-end h-20 sm:h-24 flex-shrink-0">
+                  <div className="flex flex-col justify-between items-end h-16 sm:h-24 flex-shrink-0">
                     <button 
                       onClick={() => updateItemQuick(item._id, { active: item.active === false ? true : false })}
                       title={item.active === false ? "Clique para ativar" : "Clique para desativar"}
                       className={cn(
-                        "px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border flex items-center gap-1 transition-all active:scale-95",
+                        "px-1.5 sm:px-2 py-0.5 rounded-full text-[8px] sm:text-[9px] font-bold uppercase tracking-wider border flex items-center gap-1 transition-all active:scale-95",
                         item.active !== false 
                           ? "bg-[#0c2417] border-[#166534]/60 text-[#4ade80] hover:bg-[#113522]" 
                           : "bg-[#281119] border-rose-900/50 text-rose-400 hover:bg-[#381522]"
@@ -973,20 +973,20 @@ export default function AdminPage() {
                       )} />
                     </button>
 
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1 sm:gap-1.5">
                       <button 
                         onClick={() => { setEditingItem(item); setModalOpen(true); }}
                         title="Editar"
-                        className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#1d1222] hover:bg-white/10 text-white/70 hover:text-white border border-white/10 flex items-center justify-center transition-all active:scale-95 shadow-sm"
+                        className="w-7 h-7 sm:w-9 sm:h-9 rounded-xl bg-[#1d1222] hover:bg-white/10 text-white/70 hover:text-white border border-white/10 flex items-center justify-center transition-all active:scale-95 shadow-sm"
                       >
-                        <Edit3 size={14} />
+                        <Edit3 size={13} />
                       </button>
                       <button 
                         onClick={() => setItemToDelete(item)}
                         title="Excluir"
-                        className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#281119] hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/20 flex items-center justify-center transition-all active:scale-95 shadow-sm"
+                        className="w-7 h-7 sm:w-9 sm:h-9 rounded-xl bg-[#281119] hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/20 flex items-center justify-center transition-all active:scale-95 shadow-sm"
                       >
-                        <Trash2 size={14} />
+                        <Trash2 size={13} />
                       </button>
                     </div>
                   </div>
