@@ -480,8 +480,12 @@ export default function AdminPage() {
       <aside className="w-full md:w-72 bg-[#120610]/95 border-b md:border-b-0 md:border-r border-white/10 p-6 flex flex-col gap-6 backdrop-blur-xl">
         <div className="flex items-center justify-between md:justify-start gap-3 pb-4 border-b border-white/10">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 bg-[#F0DF58]/15 border border-[#F0DF58]/35 rounded-2xl flex items-center justify-center shadow-lg shadow-[#F0DF58]/5">
-              <LayoutDashboard className="text-[#F0DF58]" size={22} />
+            <div className="w-12 h-12 bg-white/[0.04] border border-white/10 rounded-2xl flex items-center justify-center p-1.5 shadow-lg overflow-hidden flex-shrink-0">
+              <img 
+                src="/assets/Logo açai.webp" 
+                alt="Logo Açaí no Kilo" 
+                className="w-full h-full object-contain"
+              />
             </div>
             <div>
               <h1 className="font-heading text-2xl uppercase text-[#F0DF58] leading-none tracking-wide">Admin Painel</h1>
