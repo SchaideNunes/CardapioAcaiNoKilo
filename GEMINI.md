@@ -57,16 +57,46 @@ O projeto suporta dois modos de funcionamento para facilitar demonstrações sem
 ## 🚀 4. Comandos de Inicialização & Execução
 - `npm run dev`: Inicia o servidor de desenvolvimento do frontend (Vite).
 - `npm run server`: Inicia o backend Node.js (Porta 3001).
-- `npm run build`: Compila TypeScript e gera o bundle de produção via Vite.
-- `npm test` ou `npm run test`: Executa a suíte de testes automatizados.
+- `npm run build`: Compila TypeScript e gera o bundle de produção via Vite (`tsc -b && vite build`).
+- `npm test` ou `npm run test`: Executa a suíte de testes automatizados com Vitest (38 testes cobrindo todas as páginas e fluxos, 100% passando).
 - `node server/create-admin.js`: (Servidor) Cria/Reseta o usuário admin padrão.
 
 ---
 
-## ⚙️ 5. Funcionalidades do Painel Admin
-1. **Dashboard de Pedidos:** Visualização dos pedidos do dia com total, lista de itens, método de pagamento e status.
-2. **Gestor de Preços:** Edição direta dos valores de cada item (salvamento automático no blur/change).
-3. **Controle de Estoque:** Botão Power para ativar/desativar itens. Itens desativados somem do cardápio automaticamente.
+## ⚙️ 5. Funcionalidades e Arquitetura do Painel Admin
+
+O painel administrativo (`/admin`) foi reformulado com design executivo, ergonomia mobile nativa e separação por abas/views especializadas controladas pelo estado `activeTab`:
+
+### 📊 1. Telas e Views Especializadas (`activeTab`)
+- **Gestão do Cardápio (`menu`):**
+  - **Métricas em Tempo Real:** 3 cards de topo com contagem dinâmica de *Total de Itens*, *Itens Ativos* e *Itens Desativados*.
+  - **Carrossel Deslizante de Categorias:** Navegação horizontal em estilo *slide touch* (`overflow-x-auto scroll-smooth no-scrollbar`) com botão "Ver todas" e badges com contadores individuais de itens ativos por categoria.
+  - **Barra de Busca e Filtros:** Input de busca unificado no DOM (evitando colisões em testes e leitores de tela) integrado ao botão `SlidersHorizontal` para filtragem ágil por status (*Todos*, *Ativos*, *Desativados*).
+  - **Cards de Produtos em 3 Seções:**
+    - *Esquerda:* Foto `.webp` em card quadrado (`w-20 h-20` no desktop, `w-16 h-16` no mobile) com zoom sutil interno e bordas arredondadas.
+    - *Centro:* Tag da categoria em amarelo ouro translúcido, nome destacado do produto e preço formatado em tipografia `font-heading` (`Bebas Neue`).
+    - *Direita:* Pílula de status interativa (`ATIVO` em verde esmeralda / `DESATIVADO` em cinza suave com toggle instantâneo), botão de edição rápida ✏️ e botão de exclusão 🗑️ com modal de confirmação.
+- **Pedidos do Dia (`orders`):**
+  - Dashboard operacional em tempo real exibindo faturamento diário total, quantidade de pedidos e ticket médio.
+  - Filtros rápidos por modalidade (Todos, Entrega em Domicílio, Retirada no Balcão) e forma de pagamento.
+  - Cards detalhados com identificação do cliente, link direto para WhatsApp, endereço formatado de entrega, lista completa de complementos e horário do pedido.
+- **Relatórios Gerenciais (`reports`):**
+  - Painel de inteligência comercial com KPIs consolidados (Faturamento Bruto, Volume de Pedidos Concluídos, Ticket Médio e Taxa de Conversão).
+  - Ranking de preferência: Top ingredientes, tamanhos e complementos mais pedidos.
+  - Gráfico/Barras de distribuição percentual das formas de pagamento (PIX, Cartão de Crédito/Débito, Dinheiro).
+- **Visão Geral (`overview`):**
+  - Painel consolidado com status dos serviços, atalhos para ações diárias e alertas de estoque.
+
+### 📱 2. Experiência Mobile Completa (Estilo App Nativo)
+- **Zero Scroll Horizontal da Janela:** Estrutura blindada contra vazamentos de largura (`w-full max-w-full overflow-x-hidden`) garantindo encaixe ergonômico perfeito em aparelhos de 320px a 430px.
+- **Mobile Top Bar:** Cabeçalho compacto exclusivo para smartphone com acionador de Drawer lateral `[ ☰ ]`, logotipo oficial do açaí e botão de cadastro rápido `(+)`.
+- **Bottom Navigation Bar Fixa:** Barra inferior ancorada no rodapé (`Cardápio`, `Pedidos`, `Relatórios`, `Mais`) com Botão Flutuante Central de Destaque `(+)` em amarelo ouro para adicionar produtos instantaneamente.
+- **Drawer Lateral Retrátil:** Acesso rápido ao menu completo, perfil e ações com fechamento automático ao clicar no overlay ou selecionar uma aba.
+
+### ⚡ 3. Barra Lateral Executiva & Feedback Tátil
+- **Identidade Visual:** Avatar com logotipo oficial (`/assets/Logo açai.webp`) e indicador de status da loja.
+- **Menu Focado:** Navegação simplificada na seção `GESTÃO` e atalhos na seção `RÁPIDAS` ("Adicionar Item" e "Sincronizar Dados"), com remoção de itens obsoletos (`Configurações` e `Categorias`).
+- **Feedback Tátil na Sincronização:** O botão "Sincronizar Dados" exibe retorno visual imediato: ícone de rotação contínua (`animate-spin`), label transitória "Sincronizando..." e toast de notificação informando o sucesso ou a causa de falha.
 
 ---
 
@@ -95,6 +125,7 @@ O projeto suporta dois modos de funcionamento para facilitar demonstrações sem
 - **Testes Unitários:** Validação de regras de negócio puras, utilitários, cálculos de total, máscaras de formulário e formatadores de dados.
 - **Testes de Integração:** Validação de rotas de API, middlewares de autenticação, contratos de payload e persistência em banco.
 - **Testes de Concorrência e Resiliência:** Cenários de dados vazios, inputs maliciosos, serviços externos indisponíveis e limites de caracteres.
+- **Status da Suíte Automatizada:** 38/38 testes passando (AdminPage: 7 testes, HomePage: 8 testes, OrderPage: 7 testes, ReadyMadePage: 16 testes).
 
 ---
 
@@ -146,6 +177,22 @@ Todo commit deve seguir a convenção semântica com descrição clara e objetiv
 - **Rate Limiting:** Implementar limitador de requisições em rotas críticas (login, checkout e envio de pedidos) para bloquear ataques de força bruta.
 - **CORS Estrito:** Configurar políticas de CORS liberando apenas as origens confiáveis necessárias.
 
+### 🚀 5. Diretrizes de Infraestrutura para Entrada em Produção (Ambiente Corporativo)
+Para publicação oficial do sistema na empresa, os seguintes pilares arquiteturais são mandatórios:
+- **Domínio Próprio & Certificado SSL/HTTPS:** O tráfego deve ser 100% criptografado (TLS 1.3) via Cloudflare ou proxy reverso (Nginx/Caddy). Conexões HTTP inseguras devem ser permanentemente redirecionadas para HTTPS.
+- **Banco de Dados Gerenciado (MongoDB Atlas):**
+  - Utilizar cluster em nuvem com *IP Whitelist* restrito aos servidores da aplicação.
+  - Credenciais com senhas de alta entropia passadas exclusivamente via string de conexão segura `mongodb+srv://...` em variável de ambiente.
+  - Backups contínuos automáticos com retenção diária ativados.
+- **Hardening de Rede & Proteção contra Abusos:**
+  - `Helmet` ativado no Express aplicando `HSTS`, `Content-Security-Policy` e proteção MIME.
+  - Rate Limiting estrito em `/api/login` (máx. 5 tentativas/minuto por IP para barrar força bruta) e no envio de pedidos `/api/pedidos`.
+  - CORS restrito com *origin whitelist* exclusivo para o domínio de produção cadastrado da loja.
+- **Gestão de Segredos & Variáveis de Ambiente:**
+  - Arquivo `.env.production` mantido estritamente fora do repositório Git, configurado diretamente na esteira de deploy ou no servidor.
+  - Segredo de assinatura `JWT_SECRET` com no mínimo 64 caracteres pseudo-aleatórios e rotação periódica.
+- **Monitoramento e Logs Estruturados:** Registros de erros de banco e tentativas de login falhas mantidos sem expor dados confidenciais dos clientes.
+
 ---
 
 ## 🎨 10. Diretrizes de Design, UI/UX & Frontend de Alto Padrão
@@ -191,8 +238,10 @@ Todo commit deve seguir a convenção semântica com descrição clara e objetiv
 
 ### 📱 5. Responsividade & Mobile-First
 - **Adaptação Completa:** Layout totalmente fluido garantindo usabilidade impecável de 320px (smartphones compactos) até monitores ultrawide.
+- **Zero Scroll Horizontal:** Todas as páginas, modais e o painel administrativo utilizam contenção estrita (`w-full max-w-full overflow-x-hidden`) para evitar qualquer vazamento de largura ou "deslize lateral" indesejado na viewport mobile.
+- **Ergonomia Estilo App Nativo:** Barra de navegação inferior fixa (`Bottom Navigation Bar`), carrossel de categorias deslizante com touch scroll suave (`no-scrollbar`), área de respiro para a viewport e Botão de Ação Flutuante (`FAB`).
 - **Sem Scroll Indevido na Home:** A tela inicial deve acomodar perfeitamente logo, opções de pedido e rodapé no viewport mobile.
-- **Áreas de Toque Adequadas:** Botões e elementos clicáveis com dimensões mínimas confortáveis para toque no celular.
+- **Áreas de Toque Adequadas:** Botões e elementos clicáveis com dimensões mínimas confortáveis para toque no celular (mínimo 44x44px).
 - **Máscaras de Entrada:** Formatação automática em tempo real para campos como WhatsApp `(XX) XXXXX-XXXX` e CEP.
 
 ---
@@ -225,20 +274,25 @@ Antes de homologar qualquer versão ou nova funcionalidade, valide:
 ### 📱 A. Interface e Experiência do Usuário (UI/UX)
 - [ ] O layout foi testado e é perfeitamente legível em telas mobile (320px, 375px, 414px) e desktop?
 - [ ] Os cards de produto exibem imagens nítidas sem esticar ou cortar indevidamente?
+- [ ] O carrossel de categorias no admin desliza suavemente sem quebrar a largura da página?
+- [ ] Não há nenhum scroll horizontal indesejado da janela (viewport) em dispositivos móveis?
 - [ ] Máscaras de telefone/WhatsApp aceitam somente dígitos válidos?
 - [ ] Estados de loading, erro e confirmação (toasts/modais) são exibidos claramente?
+- [ ] O botão "Sincronizar Dados" exibe o ícone animado de rotação e feedback tátil ao usuário?
 
 ### 🔄 B. Fluxos de Negócio & Pedidos
 - [ ] A montagem de açaí calcula o total correto com todos os complementos selecionados?
 - [ ] A seleção de açaí pronto adiciona/remove itens do carrinho e atualiza o total corretamente?
 - [ ] A persistência do pedido no banco ocorre com sucesso antes de abrir o WhatsApp?
 - [ ] O fluxo de fallback funciona perfeitamente quando o servidor está offline?
+- [ ] As 4 telas do painel admin (Cardápio, Pedidos, Relatórios e Visão Geral) carregam e alternam dados fluidamente?
 
 ### 🔐 C. Painel Administrativo & Segurança
 - [ ] Acessar rotas administrativas sem token redireciona para a tela de login?
 - [ ] Senhas no banco de dados estão protegidas com hash (`bcrypt`)?
 - [ ] Variáveis sensíveis e credenciais estão protegidas pelo `.gitignore`?
+- [ ] A suíte com 38 testes automatizados passa com 100% de sucesso (`npm test`)?
 
 ---
 
-*Documento atualizado em: 25 de Agosto de 2026*
+*Documento atualizado em: 14 de Outubro de 2026*
