@@ -5,60 +5,32 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import SmoothScrollProvider from "@/components/SmoothScrollProvider";
 import { saveOrder, PAYMENT_LABELS } from "@/lib/orders";
+import { readCachedMenuItems } from "@/lib/menuCache";
+import { readyMadeProducts } from "@/data/menu";
+import type { MenuItemRecord, ReadyProduct } from "@/types/menu";
 import { apiUrl } from "@/lib/api";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-type ReadyProduct = {
-  id: string;
-  name: string;
-  price: number;
-  image: string;
-  imageScale?: string;
-};
-
-const READY_MADE_PRODUCTS: ReadyProduct[] = [
-  { id: "500ml_acai_natural", name: "Açaí Natural 500ml", price: 18.00, image: "/assets/500ml_acai_natural.webp", imageScale: "scale-[1.12]" },
-  { id: "500ml_acai_banana", name: "Açaí c/ Banana 500ml", price: 20.00, image: "/assets/500ml_acai_banana.webp", imageScale: "scale-100" },
-  { id: "500ml_acai_morango", name: "Açaí c/ Morango 500ml", price: 22.00, image: "/assets/500ml_acai_morango.webp", imageScale: "scale-100" },
-  { id: "500ml_acai_cupuacu", name: "Açaí c/ Cupuaçu 500ml", price: 22.00, image: "/assets/500ml_acai_cupuacu.webp", imageScale: "scale-[1.18]" },
-
-  { id: "1l_acai_zero", name: "Açaí Zero Açúcar 1L", price: 38.00, image: "/assets/1l_acai_zero.webp", imageScale: "scale-[1.08]" },
-  { id: "1l_acai_banana", name: "Açaí c/ Banana 1L", price: 35.00, image: "/assets/1l_acai_banana.webp", imageScale: "scale-100" },
-  { id: "1l_acai_morango", name: "Açaí c/ Morango 1L", price: 38.00, image: "/assets/1l_acai_morango.webp", imageScale: "scale-100" },
-
-  { id: "1l_creme_abacaxi_vinho", name: "Creme Abacaxi c/ Vinho 1L", price: 40.00, image: "/assets/1l_creme_abacaxi_vinho.webp", imageScale: "scale-[1.05]" },
-  { id: "1l_creme_doce_de_leite", name: "Creme Doce de Leite 1L", price: 40.00, image: "/assets/1l_creme_doce_de_leite.webp", imageScale: "scale-[1.05]" },
-  { id: "1l_creme_grego_amarena", name: "Creme Grego c/ Amarena 1L", price: 45.00, image: "/assets/1l_creme_grego_amarena.webp", imageScale: "scale-[1.05]" },
-  { id: "1l_creme_moranto_zero", name: "Creme Morango Zero 1L", price: 42.00, image: "/assets/1l_creme_moranto_zero.webp", imageScale: "scale-[1.05]" },
-
-  { id: "2l_acai_natural", name: "Açaí Natural 2L", price: 55.00, image: "/assets/2l_acai_natural.webp", imageScale: "scale-[1.08]" },
-  { id: "2l_acai_banana", name: "Açaí c/ Banana 2L", price: 60.00, image: "/assets/2l_acai_banana.webp", imageScale: "scale-[1.08]" },
-];
-
 type CartItem = ReadyProduct & { qty: number };
+
+function toReadyProduct(item: MenuItemRecord): ReadyProduct {
+  return {
+    id: item.id || item._id,
+    name: item.name,
+    price: item.price,
+    image: item.image || "/assets/500ml_acai_natural.webp",
+    imageScale: "scale-100"
+  };
+}
 
 export default function ReadyMadePage() {
   const [products, setProducts] = useState<ReadyProduct[]>(() => {
-    const saved = localStorage.getItem("cardapio_admin_menu_items_v2");
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        const readyItems = parsed.filter((i: any) => i.original_category === 'ready_made' && i.active !== false);
-        if (readyItems.length > 0) {
-          return readyItems.map((i: any) => ({
-            id: i.id || i._id,
-            name: i.name,
-            price: i.price,
-            image: i.image || "/assets/500ml_acai_natural.webp",
-            imageScale: "scale-100"
-          }));
-        }
-      } catch (e) {}
-    }
-    return READY_MADE_PRODUCTS;
+    const readyItems = readCachedMenuItems("cardapio_admin_menu_items_v2")
+      .filter(i => i.original_category === 'ready_made' && i.active !== false);
+    return readyItems.length > 0 ? readyItems.map(toReadyProduct) : readyMadeProducts;
   });
 
   useEffect(() => {
@@ -66,13 +38,7 @@ export default function ReadyMadePage() {
       .then(res => res.json())
       .then(data => {
         if (data && data.ready_made && data.ready_made.length > 0) {
-          setProducts(data.ready_made.map((i: any) => ({
-            id: i.id || i._id,
-            name: i.name,
-            price: i.price,
-            image: i.image || "/assets/500ml_acai_natural.webp",
-            imageScale: "scale-100"
-          })));
+          setProducts(data.ready_made.map(toReadyProduct));
         }
       })
       .catch(() => {});

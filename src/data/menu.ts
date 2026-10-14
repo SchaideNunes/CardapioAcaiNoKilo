@@ -1,12 +1,8 @@
-export interface MenuItem {
-  id: string;
-  name: string;
-  price: number;
-  description?: string;
-  category: string;
-}
+import type { MenuData, ReadyProduct } from "@/types/menu";
 
-export const menuData = {
+export type { MenuItem } from "@/types/menu";
+
+export const menuData: MenuData = {
   sizes: [
     { id: "pot_360", name: "Pote de 360", price: 14.00, category: "Tamanho", type: "Pote" },
     { id: "pot_500", name: "Pote de 500", price: 17.00, category: "Tamanho", type: "Pote" },
@@ -97,3 +93,23 @@ export const menuData = {
     { id: "fi_leitinho", name: "Recheio leitinho 50ml", price: 3.50, category: "Recheio" },
   ],
 };
+
+// Açaís prontos usados quando o servidor não devolve nenhum item "ready_made"
+export const readyMadeProducts: ReadyProduct[] = [
+  { id: "500ml_acai_natural", name: "Açaí Natural 500ml", price: 18.00, image: "/assets/500ml_acai_natural.webp", imageScale: "scale-[1.12]" },
+  { id: "500ml_acai_banana", name: "Açaí c/ Banana 500ml", price: 20.00, image: "/assets/500ml_acai_banana.webp", imageScale: "scale-100" },
+  { id: "500ml_acai_morango", name: "Açaí c/ Morango 500ml", price: 22.00, image: "/assets/500ml_acai_morango.webp", imageScale: "scale-100" },
+  { id: "500ml_acai_cupuacu", name: "Açaí c/ Cupuaçu 500ml", price: 22.00, image: "/assets/500ml_acai_cupuacu.webp", imageScale: "scale-[1.18]" },
+
+  { id: "1l_acai_zero", name: "Açaí Zero Açúcar 1L", price: 38.00, image: "/assets/1l_acai_zero.webp", imageScale: "scale-[1.08]" },
+  { id: "1l_acai_banana", name: "Açaí c/ Banana 1L", price: 35.00, image: "/assets/1l_acai_banana.webp", imageScale: "scale-100" },
+  { id: "1l_acai_morango", name: "Açaí c/ Morango 1L", price: 38.00, image: "/assets/1l_acai_morango.webp", imageScale: "scale-100" },
+
+  { id: "1l_creme_abacaxi_vinho", name: "Creme Abacaxi c/ Vinho 1L", price: 40.00, image: "/assets/1l_creme_abacaxi_vinho.webp", imageScale: "scale-[1.05]" },
+  { id: "1l_creme_doce_de_leite", name: "Creme Doce de Leite 1L", price: 40.00, image: "/assets/1l_creme_doce_de_leite.webp", imageScale: "scale-[1.05]" },
+  { id: "1l_creme_grego_amarena", name: "Creme Grego c/ Amarena 1L", price: 45.00, image: "/assets/1l_creme_grego_amarena.webp", imageScale: "scale-[1.05]" },
+  { id: "1l_creme_moranto_zero", name: "Creme Morango Zero 1L", price: 42.00, image: "/assets/1l_creme_moranto_zero.webp", imageScale: "scale-[1.05]" },
+
+  { id: "2l_acai_natural", name: "Açaí Natural 2L", price: 55.00, image: "/assets/2l_acai_natural.webp", imageScale: "scale-[1.08]" },
+  { id: "2l_acai_banana", name: "Açaí c/ Banana 2L", price: 60.00, image: "/assets/2l_acai_banana.webp", imageScale: "scale-[1.08]" },
+];

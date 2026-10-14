@@ -1,16 +1,14 @@
 import { apiUrl } from "./api";
+import type { DeliveryMethod, OrderPayload, PaymentMethod } from "@/types/order";
 
 export const ORDERS_ENDPOINT = apiUrl("/api/orders");
-
-export type DeliveryMethod = "pickup" | "delivery";
-export type PaymentMethod = "pix" | "card" | "cash";
 
 export const DELIVERY_LABELS: Record<DeliveryMethod, string> = { delivery: "Entrega", pickup: "Retirada" };
 export const PAYMENT_LABELS: Record<PaymentMethod, string> = { pix: "Pix", card: "Cartão", cash: "Dinheiro" };
 
 function normalizeText(value: unknown): string {
   if (typeof value !== "string") return "";
-  return value.trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+  return value.trim().toLowerCase().normalize("NFD").replace(/\p{M}/gu, "");
 }
 
 /**
@@ -32,17 +30,6 @@ export function normalizePaymentMethod(value: unknown): PaymentMethod | null {
   if (text === "cash" || text === "dinheiro") return "cash";
   return null;
 }
-
-export type OrderPayload = {
-  origin: "custom" | "ready_made";
-  items: string[];
-  total: number;
-  deliveryMethod: DeliveryMethod | null;
-  paymentMethod: PaymentMethod | null;
-  address?: { street: string; number: string; neighborhood: string };
-  changeFor?: string;
-  [extra: string]: unknown;
-};
 
 /**
  * Persiste o pedido para o painel admin. Nunca lança: uma falha ao salvar

@@ -23,7 +23,9 @@ Ambiente: Windows, caminho do projeto contém `ç` (`Cardapio Açai`) e assets c
 - [src/main.tsx](src/main.tsx) — rotas: `/`, `/montar`, `/prontos`, `/login`, `/admin`.
 - [src/pages/](src/pages/) — cada página é um componente grande e autocontido (`AdminPage.tsx` ~1.900 linhas, `OrderPage.tsx` ~800). Não há camada de services/hooks no frontend ainda.
 - [src/lib/orders.ts](src/lib/orders.ts) — `saveOrder()`: persistência do pedido usada por `OrderPage` e `ReadyMadePage` (nunca lança; campo `origin`: `"custom"` | `"ready_made"`). Lógica compartilhada nova vai em `src/lib/`.
-- [src/data/menu.ts](src/data/menu.ts) — cardápio estático usado como fallback offline. [migration.js](migration.js) tem os mesmos dados para popular o Mongo; **mantenha os dois em sincronia** ao mudar itens/preços.
+- [src/types/](src/types/) — tipos de domínio compartilhados: `menu.ts` (`MenuItem`, `MenuItemRecord` = item do banco/admin, `MenuData`, `ReadyProduct`, `MENU_CATEGORIES`) e `order.ts` (`OrderPayload`, `OrderRecord`, `DeliveryMethod`, `PaymentMethod`). Não declare tipos de domínio dentro das páginas.
+- [src/lib/menuCache.ts](src/lib/menuCache.ts) — leitura tipada do cardápio salvo pelo admin no `localStorage` e agrupamento por etapa.
+- [src/data/menu.ts](src/data/menu.ts) — cardápio estático (`menuData`) e açaís prontos (`readyMadeProducts`) usados como fallback offline. [migration.js](migration.js) tem os mesmos dados para popular o Mongo; **mantenha os dois em sincronia** ao mudar itens/preços.
 - [server/app.js](server/app.js) — `createApp({ db, jwtSecret, menuCollection })`: todas as rotas, sem abrir porta nem conexão. [server/index.js](server/index.js) só lê o `.env`, cria o cliente Mongo e chama `listen`. Express 5 + driver `mongodb` nativo (sem Mongoose), CommonJS. Rotas:
   - Públicas: `GET /api/menu`, `POST /api/login`, `POST /api/orders`
   - Protegidas (`verifyToken`): `GET|POST /api/admin/menu`, `PUT|DELETE /api/admin/menu/:id`, `GET /api/admin/orders`
@@ -84,8 +86,7 @@ Prioridade alta — corretude/segurança:
 
 Prioridade média — estrutura:
 1. Lint: 71 erros (maioria `no-undef` em arquivos Node do `server/`, `migration.js` e `scripts/` por falta de `globals.node` na config; `any` em `OrderPage`/`ReadyMadePage`).
-2. Tipos de domínio (`MenuItem`, `Order`) duplicados entre páginas — centralizar em `src/types/`.
-3. Lógica de total/mensagem de WhatsApp duplicada entre `OrderPage` e `ReadyMadePage` — extrair para `src/lib/` com testes unitários.
-4. `window.open` do WhatsApp roda depois de um `await` (salvar pedido) — validar em iPhone/Safari real se o pop-up não é bloqueado; se for, abrir a aba de forma síncrona e só depois definir a URL.
+2. Lógica de total/mensagem de WhatsApp duplicada entre `OrderPage` e `ReadyMadePage` — extrair para `src/lib/` com testes unitários.
+3. `window.open` do WhatsApp roda depois de um `await` (salvar pedido) — validar em iPhone/Safari real se o pop-up não é bloqueado; se for, abrir a aba de forma síncrona e só depois definir a URL.
 
 Ao concluir um item, remova-o daqui no mesmo commit.

@@ -44,7 +44,9 @@ import {
 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { menuData as localFallbackData } from "@/data/menu";
+import { menuData as localFallbackData, readyMadeProducts } from "@/data/menu";
+import type { MenuItemRecord } from "@/types/menu";
+import type { OrderRecord } from "@/types/order";
 import { normalizeDeliveryMethod, normalizePaymentMethod, DELIVERY_LABELS, PAYMENT_LABELS } from "@/lib/orders";
 import { DEMO_TOKEN } from "@/lib/demo";
 import { apiUrl } from "@/lib/api";
@@ -53,32 +55,6 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export interface ItemAdmin {
-  _id: string;
-  id: string;
-  name: string;
-  price: number;
-  category: string;
-  original_category: string;
-  image?: string;
-  description?: string;
-  type?: string;
-  active: boolean;
-}
-
-export interface OrderAdmin {
-  _id: string;
-  total: number;
-  paymentMethod: string;
-  deliveryMethod: string;
-  items: string[];
-  createdAt: string;
-  address?: {
-    street: string;
-    neighborhood: string;
-    number?: string;
-  };
-}
 
 export const CATEGORIES_CONFIG = [
   { key: "all", label: "Todos os Itens", shortLabel: "Todos", Icon: LayoutGrid, iconColor: "text-[#F0DF58]" },
@@ -92,7 +68,7 @@ export const CATEGORIES_CONFIG = [
   { key: "ready_made", label: "Prontos para Levar", shortLabel: "Prontos", Icon: ShoppingBag, iconColor: "text-cyan-300" },
 ];
 
-export function resolveItemImage(item: Partial<ItemAdmin>): string {
+export function resolveItemImage(item: Partial<MenuItemRecord>): string {
   if (item.image && item.image.trim() !== '') {
     return item.image;
   }
@@ -117,9 +93,11 @@ export function resolveItemImage(item: Partial<ItemAdmin>): string {
   return '';
 }
 
+type OrderFilter = "all" | "delivery" | "pickup" | "pix" | "card" | "cash";
+
 const LOCAL_STORAGE_KEY = "cardapio_admin_menu_items_v3";
 
-const demoOrders: OrderAdmin[] = [
+const demoOrders: OrderRecord[] = [
   {
     _id: "demo_1",
     total: 35.50,
@@ -166,19 +144,19 @@ export default function AdminPage() {
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   
   // Filtros da aba de pedidos
-  const [orderFilter, setOrderFilter] = useState<"all" | "delivery" | "pickup" | "pix" | "card" | "cash">("all");
+  const [orderFilter, setOrderFilter] = useState<OrderFilter>("all");
   // Filtro de período da aba de relatórios
   const [reportPeriod, setReportPeriod] = useState<"today" | "week" | "month">("today");
 
-  const [menuItems, setMenuItems] = useState<ItemAdmin[]>([]);
-  const [orders, setOrders] = useState<OrderAdmin[]>([]);
+  const [menuItems, setMenuItems] = useState<MenuItemRecord[]>([]);
+  const [orders, setOrders] = useState<OrderRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
   
   // Modals & Form State
   const [modalOpen, setModalOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<ItemAdmin | null>(null);
-  const [itemToDelete, setItemToDelete] = useState<ItemAdmin | null>(null);
+  const [editingItem, setEditingItem] = useState<MenuItemRecord | null>(null);
+  const [itemToDelete, setItemToDelete] = useState<MenuItemRecord | null>(null);
   const [savingItem, setSavingItem] = useState(false);
 
   // Toast Notification
@@ -212,11 +190,11 @@ export default function AdminPage() {
     };
   }, [modalOpen, itemToDelete, mobileDrawerOpen]);
 
-  const getInitialFallbackItems = (): ItemAdmin[] => {
+  const getInitialFallbackItems = (): MenuItemRecord[] => {
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY) || localStorage.getItem("cardapio_admin_menu_items_v2");
     if (saved) {
       try {
-        const parsed: ItemAdmin[] = JSON.parse(saved);
+        const parsed: MenuItemRecord[] = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
           return parsed.map(item => ({
             ...item,
@@ -228,9 +206,9 @@ export default function AdminPage() {
       }
     }
 
-    const formatted: ItemAdmin[] = [];
+    const formatted: MenuItemRecord[] = [];
     Object.entries(localFallbackData).forEach(([cat, items]) => {
-      items.forEach((i: any) => {
+      items.forEach((i) => {
         formatted.push({
           _id: i.id,
           id: i.id,
@@ -247,30 +225,14 @@ export default function AdminPage() {
     });
 
     // Adiciona itens prontos como categoria ready_made
-    const readyMadeDefaults = [
-      { id: "500ml_acai_natural", name: "Açaí Natural 500ml", price: 18.00, image: "/assets/500ml_acai_natural.webp", category: "Pronto", original_category: "ready_made" },
-      { id: "500ml_acai_banana", name: "Açaí c/ Banana 500ml", price: 20.00, image: "/assets/500ml_acai_banana.webp", category: "Pronto", original_category: "ready_made" },
-      { id: "500ml_acai_morango", name: "Açaí c/ Morango 500ml", price: 22.00, image: "/assets/500ml_acai_morango.webp", category: "Pronto", original_category: "ready_made" },
-      { id: "500ml_acai_cupuacu", name: "Açaí c/ Cupuaçu 500ml", price: 22.00, image: "/assets/500ml_acai_cupuacu.webp", category: "Pronto", original_category: "ready_made" },
-      { id: "1l_acai_zero", name: "Açaí Zero Açúcar 1L", price: 38.00, image: "/assets/1l_acai_zero.webp", category: "Pronto", original_category: "ready_made" },
-      { id: "1l_acai_banana", name: "Açaí c/ Banana 1L", price: 35.00, image: "/assets/1l_acai_banana.webp", category: "Pronto", original_category: "ready_made" },
-      { id: "1l_acai_morango", name: "Açaí c/ Morango 1L", price: 38.00, image: "/assets/1l_acai_morango.webp", category: "Pronto", original_category: "ready_made" },
-      { id: "1l_creme_abacaxi_vinho", name: "Creme Abacaxi c/ Vinho 1L", price: 40.00, image: "/assets/1l_creme_abacaxi_vinho.webp", category: "Pronto", original_category: "ready_made" },
-      { id: "1l_creme_doce_de_leite", name: "Creme Doce de Leite 1L", price: 40.00, image: "/assets/1l_creme_doce_de_leite.webp", category: "Pronto", original_category: "ready_made" },
-      { id: "1l_creme_grego_amarena", name: "Creme Grego c/ Amarena 1L", price: 45.00, image: "/assets/1l_creme_grego_amarena.webp", category: "Pronto", original_category: "ready_made" },
-      { id: "1l_creme_moranto_zero", name: "Creme Morango Zero 1L", price: 42.00, image: "/assets/1l_creme_moranto_zero.webp", category: "Pronto", original_category: "ready_made" },
-      { id: "2l_acai_natural", name: "Açaí Natural 2L", price: 55.00, image: "/assets/2l_acai_natural.webp", category: "Pronto", original_category: "ready_made" },
-      { id: "2l_acai_banana", name: "Açaí c/ Banana 2L", price: 60.00, image: "/assets/2l_acai_banana.webp", category: "Pronto", original_category: "ready_made" },
-    ];
-
-    readyMadeDefaults.forEach(r => {
+    readyMadeProducts.forEach(r => {
       formatted.push({
         _id: r.id,
         id: r.id,
         name: r.name,
         price: r.price,
-        category: r.category,
-        original_category: r.original_category,
+        category: "Pronto",
+        original_category: "ready_made",
         image: r.image,
         active: true
       });
@@ -294,7 +256,7 @@ export default function AdminPage() {
 
     const backendItems = await menuRes.json();
     if (Array.isArray(backendItems) && backendItems.length > 0) {
-      setMenuItems(backendItems.map((item: ItemAdmin) => ({
+      setMenuItems(backendItems.map((item: MenuItemRecord) => ({
         ...item,
         image: item.image || resolveItemImage(item)
       })));
@@ -387,13 +349,13 @@ export default function AdminPage() {
   };
 
   // Salvar no estado e sincronizar local/backend
-  const saveItemsState = (newItems: ItemAdmin[]) => {
+  const saveItemsState = (newItems: MenuItemRecord[]) => {
     setMenuItems(newItems);
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newItems));
   };
 
   // Quick Inline Update (Preço / Estoque)
-  const updateItemQuick = async (id: string, updates: Partial<ItemAdmin>) => {
+  const updateItemQuick = async (id: string, updates: Partial<MenuItemRecord>) => {
     const updatedList = menuItems.map(item => item._id === id ? { ...item, ...updates } : item);
     saveItemsState(updatedList);
 
@@ -402,12 +364,12 @@ export default function AdminPage() {
   };
 
   // Salvar Item do Modal (Criar ou Atualizar Completo)
-  const handleSaveItemModal = async (formData: Partial<ItemAdmin>) => {
+  const handleSaveItemModal = async (formData: Partial<MenuItemRecord>) => {
     setSavingItem(true);
     try {
       if (editingItem) {
         // Modo Edição
-        const updatedItem: ItemAdmin = {
+        const updatedItem: MenuItemRecord = {
           ...editingItem,
           ...formData,
           name: formData.name || editingItem.name,
@@ -426,7 +388,7 @@ export default function AdminPage() {
       } else {
         // Modo Criação
         const newId = "item_" + Date.now().toString(36) + Math.random().toString(36).substring(2, 6);
-        const newItem: ItemAdmin = {
+        const newItem: MenuItemRecord = {
           _id: newId,
           id: newId,
           name: formData.name || "Novo Produto",
@@ -1172,17 +1134,17 @@ export default function AdminPage() {
 
             {/* Filtros de Pedidos */}
             <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
-              {[
+              {([
                 { key: "all", label: `Todos (${orders.length})` },
                 { key: "delivery", label: `🛵 Entrega (${reportMetrics.deliveryCount})` },
                 { key: "pickup", label: `🛍️ Retirada (${reportMetrics.pickupCount})` },
                 { key: "pix", label: "Pix" },
                 { key: "card", label: "Cartão" },
                 { key: "cash", label: "Dinheiro" },
-              ].map(f => (
+              ] satisfies { key: OrderFilter; label: string }[]).map(f => (
                 <button
                   key={f.key}
-                  onClick={() => setOrderFilter(f.key as any)}
+                  onClick={() => setOrderFilter(f.key)}
                   className={cn(
                     "px-3.5 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap",
                     orderFilter === f.key 
@@ -1651,9 +1613,9 @@ export default function AdminPage() {
 
 /* ================= COMPONENTE MODAL DE ITEM ================= */
 interface ItemModalProps {
-  item: ItemAdmin | null;
+  item: MenuItemRecord | null;
   onClose: () => void;
-  onSave: (data: Partial<ItemAdmin>) => void;
+  onSave: (data: Partial<MenuItemRecord>) => void;
   loading: boolean;
 }
 
