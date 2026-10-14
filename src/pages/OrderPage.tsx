@@ -13,6 +13,7 @@ import {
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import SmoothScrollProvider from "@/components/SmoothScrollProvider";
+import { saveOrder } from "@/lib/orders";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -209,19 +210,12 @@ export default function OrderPage() {
 
   const sendWhatsApp = async () => {
     // Primeiro salva no banco de dados para o Admin Panel
-    try {
-      await fetch("http://localhost:3001/api/orders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...order,
-          total: totalPrice,
-          items: allSelectedItems.map(i => i.name)
-        })
-      });
-    } catch (e) {
-      console.error("Erro ao salvar pedido no banco, mas enviando WhatsApp...", e);
-    }
+    await saveOrder({
+      ...order,
+      origin: "custom",
+      total: totalPrice,
+      items: allSelectedItems.map(i => i.name)
+    });
 
     // Depois abre o WhatsApp
     window.open(`https://wa.me/557591585290?text=${formatWhatsAppMessage()}`, "_blank");

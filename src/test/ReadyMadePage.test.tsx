@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import ReadyMadePage from '@/pages/ReadyMadePage';
@@ -219,6 +219,95 @@ describe('ReadyMadePage', () => {
       btn.className.includes('text-red-400')
     );
     expect(remainingTrash.length).toBeLessThan(trashButtons.length);
+  });
+
+  describe('envio do pedido', () => {
+    const ORDERS_URL = 'http://localhost:3001/api/orders';
+
+    function mockFetch(orderResponse: () => Promise<Response>) {
+      return vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
+        if (String(input) === ORDERS_URL) return orderResponse();
+        return Promise.resolve(new Response(JSON.stringify({}), { status: 200 }));
+      });
+    }
+
+    function okResponse() {
+      return new Response(JSON.stringify({ success: true }), { status: 200 });
+    }
+
+    async function completeCheckoutWithPickupPix(user: ReturnType<typeof userEvent.setup>) {
+      const productButton = screen.getAllByRole('button').find(btn => btn.textContent?.includes('Açaí Natural'))!;
+      await user.click(productButton);
+      await user.click(screen.getByText('Finalizar'));
+      await user.click(screen.getByText('Retirar'));
+      await user.click(screen.getByText('Pix'));
+    }
+
+    beforeEach(() => {
+      vi.mocked(window.open).mockClear();
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('salva o pedido na API antes de abrir o WhatsApp', async () => {
+      const fetchSpy = mockFetch(() => Promise.resolve(okResponse()));
+      const user = userEvent.setup();
+      renderPage();
+
+      await completeCheckoutWithPickupPix(user);
+      await user.click(screen.getByText('Enviar Pedido'));
+
+      await waitFor(() => expect(window.open).toHaveBeenCalledTimes(1));
+
+      const orderCallIndex = fetchSpy.mock.calls.findIndex(([url]) => String(url) === ORDERS_URL);
+      expect(orderCallIndex).toBeGreaterThanOrEqual(0);
+      const [, init] = fetchSpy.mock.calls[orderCallIndex];
+      expect(init?.method).toBe('POST');
+      expect(JSON.parse(String(init?.body))).toMatchObject({
+        origin: 'ready_made',
+        items: ['1x Açaí Natural 500ml'],
+        total: 18,
+        deliveryMethod: 'pickup',
+        paymentMethod: 'pix',
+      });
+
+      const savedAt = fetchSpy.mock.invocationCallOrder[orderCallIndex];
+      const openedAt = vi.mocked(window.open).mock.invocationCallOrder[0];
+      expect(savedAt).toBeLessThan(openedAt);
+    });
+
+    it('abre o WhatsApp mesmo se salvar o pedido falhar', async () => {
+      mockFetch(() => Promise.reject(new TypeError('Failed to fetch')));
+      vi.spyOn(console, 'error').mockImplementation(() => {});
+      const user = userEvent.setup();
+      renderPage();
+
+      await completeCheckoutWithPickupPix(user);
+      await user.click(screen.getByText('Enviar Pedido'));
+
+      await waitFor(() => expect(window.open).toHaveBeenCalledTimes(1));
+    });
+
+    it('desabilita o botão enquanto salva, evitando pedido duplicado', async () => {
+      let resolveOrder: (res: Response) => void = () => {};
+      const fetchSpy = mockFetch(() => new Promise<Response>(resolve => { resolveOrder = resolve; }));
+      const user = userEvent.setup();
+      renderPage();
+
+      await completeCheckoutWithPickupPix(user);
+      const sendButton = screen.getByText('Enviar Pedido').closest('button')!;
+      await user.click(sendButton);
+      expect(sendButton).toBeDisabled();
+      await user.click(sendButton);
+
+      resolveOrder(okResponse());
+      await waitFor(() => expect(window.open).toHaveBeenCalledTimes(1));
+
+      const orderCalls = fetchSpy.mock.calls.filter(([url]) => String(url) === ORDERS_URL);
+      expect(orderCalls).toHaveLength(1);
+    });
   });
 
   it('calculates total correctly with multiple products', async () => {

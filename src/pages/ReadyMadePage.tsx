@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight, ShoppingCart, Send, Check, Trash2, Plus, Minus }
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import SmoothScrollProvider from "@/components/SmoothScrollProvider";
+import { saveOrder } from "@/lib/orders";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -87,6 +88,7 @@ export default function ReadyMadePage() {
   const [address, setAddress] = useState({ street: "", number: "", neighborhood: "" });
   const [paymentMethod, setPaymentMethod] = useState<"pix" | "card" | "cash" | null>(null);
   const [changeFor, setChangeFor] = useState("");
+  const [isSending, setIsSending] = useState(false);
 
   const cartTotal = useMemo(() => cart.reduce((sum, item) => sum + item.price * item.qty, 0), [cart]);
   const totalPrice = cartTotal + (deliveryMethod === "delivery" ? 7.00 : 0);
@@ -151,8 +153,22 @@ export default function ReadyMadePage() {
     return encodeURIComponent(message);
   };
 
-  const handleFinish = () => {
+  const handleFinish = async () => {
+    if (isSending) return;
+    setIsSending(true);
+    // Primeiro salva no banco de dados para o Admin Panel
+    await saveOrder({
+      origin: "ready_made",
+      items: cart.map(item => `${item.qty}x ${item.name}`),
+      total: totalPrice,
+      deliveryMethod,
+      paymentMethod,
+      address: deliveryMethod === "delivery" ? address : undefined,
+      changeFor: paymentMethod === "cash" ? changeFor : undefined,
+    });
+    // Depois abre o WhatsApp
     window.open(`https://wa.me/557591585290?text=${formatWhatsAppMessage()}`, "_blank");
+    setIsSending(false);
   };
 
   return (
@@ -491,8 +507,8 @@ export default function ReadyMadePage() {
 
               <div className="flex gap-3 mt-8">
                 <button onClick={() => setShowCheckout(false)} className="flex-1 py-4 rounded-xl bg-white/10 text-white font-heading text-lg hover:bg-white/20 transition-all uppercase">Voltar</button>
-                <button onClick={handleFinish} disabled={!isCheckoutValid()} className={cn("flex-[2] py-4 rounded-xl font-heading text-lg flex items-center justify-center gap-2 transition-all uppercase", isCheckoutValid() ? "bg-[#25D366] text-[#241220] hover:bg-[#22c35e] shadow-lg active:scale-95" : "bg-white/5 text-white/20 cursor-not-allowed")}>
-                  <Send size={20} /> Enviar Pedido
+                <button onClick={handleFinish} disabled={!isCheckoutValid() || isSending} aria-busy={isSending} className={cn("flex-[2] py-4 rounded-xl font-heading text-lg flex items-center justify-center gap-2 transition-all uppercase", isCheckoutValid() && !isSending ? "bg-[#25D366] text-[#241220] hover:bg-[#22c35e] shadow-lg active:scale-95" : "bg-white/5 text-white/20 cursor-not-allowed")}>
+                  <Send size={20} /> {isSending ? "Enviando..." : "Enviar Pedido"}
                 </button>
               </div>
             </div>

@@ -19,6 +19,7 @@ Ambiente: Windows, caminho do projeto contém `ç` (`Cardapio Açai`) e assets c
 
 - [src/main.tsx](src/main.tsx) — rotas: `/`, `/montar`, `/prontos`, `/login`, `/admin`.
 - [src/pages/](src/pages/) — cada página é um componente grande e autocontido (`AdminPage.tsx` ~1.900 linhas, `OrderPage.tsx` ~800). Não há camada de services/hooks no frontend ainda.
+- [src/lib/orders.ts](src/lib/orders.ts) — `saveOrder()`: persistência do pedido usada por `OrderPage` e `ReadyMadePage` (nunca lança; campo `origin`: `"custom"` | `"ready_made"`). Lógica compartilhada nova vai em `src/lib/`.
 - [src/data/menu.ts](src/data/menu.ts) — cardápio estático usado como fallback offline. [migration.js](migration.js) tem os mesmos dados para popular o Mongo; **mantenha os dois em sincronia** ao mudar itens/preços.
 - [server/index.js](server/index.js) — Express 5 + driver `mongodb` nativo (sem Mongoose), CommonJS, arquivo único. Rotas:
   - Públicas: `GET /api/menu`, `POST /api/login`, `POST /api/orders`
@@ -69,7 +70,7 @@ Ambiente: Windows, caminho do projeto contém `ç` (`Cardapio Açai`) e assets c
 ## Backlog conhecido (dívidas encontradas na análise de 14/10/2026)
 
 Prioridade alta — corretude/segurança:
-1. `ReadyMadePage.handleFinish` **não salva o pedido** no banco antes do WhatsApp (viola a regra de negócio; pedidos prontos não aparecem no admin).
+1. **Contrato de pedido divergente:** `OrderPage`/`ReadyMadePage` gravam `deliveryMethod: "delivery"|"pickup"` e `paymentMethod: "pix"|"card"|"cash"`, mas o `AdminPage` filtra/exibe procurando "entrega", "retirada", "cartão", "dinheiro" (formato dos `demoOrders`). Pedidos reais de entrega não mostram endereço e os filtros de cartão/dinheiro não funcionam.
 2. `POST /api/login` monta `RegExp` com o username sem escapar (ReDoS / bypass com `.*`) e retorna 404 vs 401 diferentes (enumeração de usuários).
 3. `POST /api/orders` grava `req.body` cru, sem validação — aceita qualquer payload, inclusive `total` arbitrário calculado no cliente.
 4. `JWT_SECRET` cai em `'fallback_secret'` se ausente; `cors()` aberto para qualquer origem; sem Helmet nem rate limiting (o GEMINI.md descreve isso como existente, mas não está implementado).
@@ -83,5 +84,6 @@ Prioridade média — estrutura:
 10. Tipos de domínio (`MenuItem`, `Order`) duplicados entre páginas — centralizar em `src/types/`.
 11. Lógica de total/mensagem de WhatsApp duplicada entre `OrderPage` e `ReadyMadePage` — extrair para `src/lib/` com testes unitários.
 12. Servidor sem testes (sugestão: `supertest` + `mongodb-memory-server`).
+13. `window.open` do WhatsApp roda depois de um `await` (salvar pedido) — validar em iPhone/Safari real se o pop-up não é bloqueado; se for, abrir a aba de forma síncrona e só depois definir a URL.
 
 Ao concluir um item, remova-o daqui no mesmo commit.
