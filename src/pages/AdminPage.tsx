@@ -45,6 +45,7 @@ import {
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { menuData as localFallbackData } from "@/data/menu";
+import { normalizeDeliveryMethod, normalizePaymentMethod, DELIVERY_LABELS, PAYMENT_LABELS } from "@/lib/orders";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -523,12 +524,11 @@ export default function AdminPage() {
   // Filtragem dos Pedidos
   const filteredOrders = useMemo(() => {
     return orders.filter(order => {
-      if (orderFilter === "delivery") return order.deliveryMethod?.toLowerCase().includes("entrega");
-      if (orderFilter === "pickup") return order.deliveryMethod?.toLowerCase().includes("retirada");
-      if (orderFilter === "pix") return order.paymentMethod?.toLowerCase().includes("pix");
-      if (orderFilter === "card") return order.paymentMethod?.toLowerCase().includes("cartão") || order.paymentMethod?.toLowerCase().includes("cartao");
-      if (orderFilter === "cash") return order.paymentMethod?.toLowerCase().includes("dinheiro");
-      return true;
+      if (orderFilter === "all") return true;
+      if (orderFilter === "delivery" || orderFilter === "pickup") {
+        return normalizeDeliveryMethod(order.deliveryMethod) === orderFilter;
+      }
+      return normalizePaymentMethod(order.paymentMethod) === orderFilter;
     });
   }, [orders, orderFilter]);
 
@@ -557,13 +557,13 @@ export default function AdminPage() {
     const totalRevenue = orders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
     const avgTicket = totalOrdersCount > 0 ? totalRevenue / totalOrdersCount : 0;
 
-    const deliveryCount = orders.filter(o => o.deliveryMethod?.toLowerCase().includes("entrega")).length;
+    const deliveryCount = orders.filter(o => normalizeDeliveryMethod(o.deliveryMethod) === "delivery").length;
     const pickupCount = totalOrdersCount - deliveryCount;
 
     // Formas de pagamento
-    const pixOrders = orders.filter(o => o.paymentMethod?.toLowerCase().includes("pix"));
-    const cardOrders = orders.filter(o => o.paymentMethod?.toLowerCase().includes("cart"));
-    const cashOrders = orders.filter(o => o.paymentMethod?.toLowerCase().includes("dinheiro"));
+    const pixOrders = orders.filter(o => normalizePaymentMethod(o.paymentMethod) === "pix");
+    const cardOrders = orders.filter(o => normalizePaymentMethod(o.paymentMethod) === "card");
+    const cashOrders = orders.filter(o => normalizePaymentMethod(o.paymentMethod) === "cash");
 
     const pixRevenue = pixOrders.reduce((sum, o) => sum + o.total, 0);
     const cardRevenue = cardOrders.reduce((sum, o) => sum + o.total, 0);
@@ -1232,7 +1232,9 @@ export default function AdminPage() {
             ) : (
               <div className="space-y-3">
                 {filteredOrders.map(order => {
-                  const isDelivery = order.deliveryMethod?.toLowerCase().includes("entrega");
+                  const delivery = normalizeDeliveryMethod(order.deliveryMethod);
+                  const payment = normalizePaymentMethod(order.paymentMethod);
+                  const isDelivery = delivery === "delivery";
                   const dateFormatted = new Date(order.createdAt).toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' });
 
                   return (
@@ -1252,10 +1254,10 @@ export default function AdminPage() {
                             "text-[10px] font-bold px-2 py-0.5 rounded-full uppercase",
                             isDelivery ? "bg-cyan-500/15 text-cyan-300 border border-cyan-500/30" : "bg-amber-500/15 text-amber-300 border border-amber-500/30"
                           )}>
-                            {order.deliveryMethod || "Retirada"}
+                            {delivery ? DELIVERY_LABELS[delivery] : (order.deliveryMethod || "Retirada")}
                           </span>
                           <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/15 text-purple-300 border border-purple-500/30">
-                            💳 {order.paymentMethod || "Pix"}
+                            💳 {payment ? PAYMENT_LABELS[payment] : (order.paymentMethod || "Pix")}
                           </span>
                         </div>
 

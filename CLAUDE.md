@@ -64,26 +64,26 @@ Ambiente: Windows, caminho do projeto contém `ç` (`Cardapio Açai`) e assets c
 ### Regras de negócio
 - O pedido deve ser salvo via `POST /api/orders` **antes** de abrir o WhatsApp; falha ao salvar não pode impedir o envio pelo WhatsApp.
 - Número da loja no WhatsApp: `557591585290` (hoje duplicado em `OrderPage` e `ReadyMadePage`).
+- Pedidos são gravados com códigos (`deliveryMethod: "delivery"|"pickup"`, `paymentMethod: "pix"|"card"|"cash"`). Ao ler pedidos, sempre passe por `normalizeDeliveryMethod` / `normalizePaymentMethod` (aceitam também rótulos legados em português) e exiba com `DELIVERY_LABELS` / `PAYMENT_LABELS`.
 - Pagamento em dinheiro exige "troco para" ≥ total ou "Não preciso".
 - Entrega exige rua, número e bairro.
 
 ## Backlog conhecido (dívidas encontradas na análise de 14/10/2026)
 
 Prioridade alta — corretude/segurança:
-1. **Contrato de pedido divergente:** `OrderPage`/`ReadyMadePage` gravam `deliveryMethod: "delivery"|"pickup"` e `paymentMethod: "pix"|"card"|"cash"`, mas o `AdminPage` filtra/exibe procurando "entrega", "retirada", "cartão", "dinheiro" (formato dos `demoOrders`). Pedidos reais de entrega não mostram endereço e os filtros de cartão/dinheiro não funcionam.
-2. `POST /api/login` monta `RegExp` com o username sem escapar (ReDoS / bypass com `.*`) e retorna 404 vs 401 diferentes (enumeração de usuários).
-3. `POST /api/orders` grava `req.body` cru, sem validação — aceita qualquer payload, inclusive `total` arbitrário calculado no cliente.
-4. `JWT_SECRET` cai em `'fallback_secret'` se ausente; `cors()` aberto para qualquer origem; sem Helmet nem rate limiting (o GEMINI.md descreve isso como existente, mas não está implementado).
-5. Credenciais de demo hardcoded em `LoginPage.tsx` e `server/create-admin.js`.
+1. `POST /api/login` monta `RegExp` com o username sem escapar (ReDoS / bypass com `.*`) e retorna 404 vs 401 diferentes (enumeração de usuários).
+2. `POST /api/orders` grava `req.body` cru, sem validação — aceita qualquer payload, inclusive `total` arbitrário calculado no cliente.
+3. `JWT_SECRET` cai em `'fallback_secret'` se ausente; `cors()` aberto para qualquer origem; sem Helmet nem rate limiting (o GEMINI.md descreve isso como existente, mas não está implementado).
+4. Credenciais de demo hardcoded em `LoginPage.tsx` e `server/create-admin.js`.
 
 Prioridade média — estrutura:
-6. Extrair `API_URL` para `import.meta.env.VITE_API_URL` (hoje `localhost` fixo quebra o deploy no Vercel).
-7. Criar `.env.example` (raiz e `server/`).
-8. `dist/` está versionado no git — adicionar ao `.gitignore` e remover do índice.
-9. Lint: 71 erros (maioria `no-undef` em arquivos Node do `server/`, `migration.js` e `scripts/` por falta de `globals.node` na config; `any` em `OrderPage`/`ReadyMadePage`).
-10. Tipos de domínio (`MenuItem`, `Order`) duplicados entre páginas — centralizar em `src/types/`.
-11. Lógica de total/mensagem de WhatsApp duplicada entre `OrderPage` e `ReadyMadePage` — extrair para `src/lib/` com testes unitários.
-12. Servidor sem testes (sugestão: `supertest` + `mongodb-memory-server`).
-13. `window.open` do WhatsApp roda depois de um `await` (salvar pedido) — validar em iPhone/Safari real se o pop-up não é bloqueado; se for, abrir a aba de forma síncrona e só depois definir a URL.
+5. Extrair `API_URL` para `import.meta.env.VITE_API_URL` (hoje `localhost` fixo quebra o deploy no Vercel).
+6. Criar `.env.example` (raiz e `server/`).
+7. `dist/` está versionado no git — adicionar ao `.gitignore` e remover do índice.
+8. Lint: 71 erros (maioria `no-undef` em arquivos Node do `server/`, `migration.js` e `scripts/` por falta de `globals.node` na config; `any` em `OrderPage`/`ReadyMadePage`).
+9. Tipos de domínio (`MenuItem`, `Order`) duplicados entre páginas — centralizar em `src/types/`.
+10. Lógica de total/mensagem de WhatsApp duplicada entre `OrderPage` e `ReadyMadePage` — extrair para `src/lib/` com testes unitários.
+11. Servidor sem testes (sugestão: `supertest` + `mongodb-memory-server`).
+12. `window.open` do WhatsApp roda depois de um `await` (salvar pedido) — validar em iPhone/Safari real se o pop-up não é bloqueado; se for, abrir a aba de forma síncrona e só depois definir a URL.
 
 Ao concluir um item, remova-o daqui no mesmo commit.

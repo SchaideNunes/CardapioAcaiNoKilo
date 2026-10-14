@@ -13,13 +13,11 @@ import {
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import SmoothScrollProvider from "@/components/SmoothScrollProvider";
-import { saveOrder } from "@/lib/orders";
+import { saveOrder, PAYMENT_LABELS } from "@/lib/orders";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
-
-const PAYMENT_LABELS = { pix: "Pix", card: "Cartão", cash: "Dinheiro" };
 
 type OrderState = {
   size: MenuItem | null;
