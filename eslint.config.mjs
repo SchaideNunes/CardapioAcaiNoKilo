@@ -1,4 +1,5 @@
 import js from "@eslint/js";
+import globals from "globals";
 import typescriptEslint from "typescript-eslint";
 import reactPlugin from "eslint-plugin-react";
 import reactHooksPlugin from "eslint-plugin-react-hooks";
@@ -6,9 +7,17 @@ import reactHooksPlugin from "eslint-plugin-react-hooks";
 export default [
   // Base ESLint recommended rules
   js.configs.recommended,
-  
+
   // TypeScript recommended rules
   ...typescriptEslint.configs.recommended,
+
+  // Frontend (navegador)
+  {
+    files: ["src/**/*.{ts,tsx}"],
+    languageOptions: {
+      globals: globals.browser,
+    },
+  },
 
   // React & Hooks
   {
@@ -31,8 +40,37 @@ export default [
     },
   },
 
+  // Backend Express (CommonJS)
+  {
+    files: ["server/**/*.js"],
+    languageOptions: {
+      sourceType: "commonjs",
+      globals: globals.node,
+    },
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
+    },
+  },
+
+  // Testes da API e scripts utilitários (ESM no Node)
+  {
+    files: ["server/**/*.mjs", "scripts/**/*.mjs"],
+    languageOptions: {
+      globals: globals.node,
+    },
+  },
+
+  // Script de migração executado no mongosh
+  {
+    files: ["migration.js"],
+    languageOptions: {
+      sourceType: "script",
+      globals: globals.mongo,
+    },
+  },
+
   // Custom Ignores
   {
-    ignores: ["dist/*", "build/*", "vite.config.ts"],
+    ignores: ["dist/*", "build/*", "server/node_modules/*"],
   },
 ];

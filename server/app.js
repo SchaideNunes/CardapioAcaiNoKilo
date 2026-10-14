@@ -84,7 +84,7 @@ function createApp({ db, jwtSecret, menuCollection, corsOrigins = [], trustProxy
         ready_made: items.filter(i => i.original_category === 'ready_made'),
       };
       res.json(menuData);
-    } catch (error) {
+    } catch {
       res.status(500).json({ error: 'Erro ao buscar menu' });
     }
   });
@@ -113,8 +113,8 @@ function createApp({ db, jwtSecret, menuCollection, corsOrigins = [], trustProxy
       const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: 86400 }); // 24h
       console.log('Login bem-sucedido, gerando token.');
       res.json({ auth: true, token, role: user.role });
-    } catch (error) {
-      console.error('Erro no servidor durante login:', error);
+    } catch (err) {
+      console.error('Erro no servidor durante login:', err);
       res.status(500).json({ error: 'Erro no servidor' });
     }
   });
@@ -128,7 +128,7 @@ function createApp({ db, jwtSecret, menuCollection, corsOrigins = [], trustProxy
       const order = { ...value, createdAt: new Date() };
       const result = await db.collection('pedidos').insertOne(order);
       res.status(201).json({ success: true, id: result.insertedId });
-    } catch (error) {
+    } catch {
       res.status(500).json({ error: 'Erro ao salvar pedido' });
     }
   });
@@ -140,7 +140,7 @@ function createApp({ db, jwtSecret, menuCollection, corsOrigins = [], trustProxy
     try {
       const items = await db.collection(menuCollection).find({}).toArray();
       res.json(items);
-    } catch (error) {
+    } catch {
       res.status(500).json({ error: 'Erro ao buscar itens' });
     }
   });
@@ -166,8 +166,8 @@ function createApp({ db, jwtSecret, menuCollection, corsOrigins = [], trustProxy
 
       const result = await db.collection(menuCollection).insertOne(newItem);
       res.status(201).json({ success: true, item: { ...newItem, _id: result.insertedId } });
-    } catch (error) {
-      console.error('Erro ao criar item:', error);
+    } catch (err) {
+      console.error('Erro ao criar item:', err);
       res.status(500).json({ error: 'Erro ao criar item' });
     }
   });
@@ -189,8 +189,8 @@ function createApp({ db, jwtSecret, menuCollection, corsOrigins = [], trustProxy
       }
 
       res.json({ success: true, updated: updateData });
-    } catch (error) {
-      console.error('Erro ao atualizar item:', error);
+    } catch (err) {
+      console.error('Erro ao atualizar item:', err);
       res.status(500).json({ error: 'Erro ao atualizar item' });
     }
   });
@@ -207,8 +207,8 @@ function createApp({ db, jwtSecret, menuCollection, corsOrigins = [], trustProxy
       }
 
       res.json({ success: true, message: 'Item removido com sucesso' });
-    } catch (error) {
-      console.error('Erro ao excluir item:', error);
+    } catch (err) {
+      console.error('Erro ao excluir item:', err);
       res.status(500).json({ error: 'Erro ao excluir item' });
     }
   });
@@ -218,7 +218,7 @@ function createApp({ db, jwtSecret, menuCollection, corsOrigins = [], trustProxy
     try {
       const orders = await db.collection('pedidos').find().sort({ createdAt: -1 }).limit(50).toArray();
       res.json(orders);
-    } catch (error) {
+    } catch {
       res.status(500).json({ error: 'Erro ao buscar pedidos' });
     }
   });
