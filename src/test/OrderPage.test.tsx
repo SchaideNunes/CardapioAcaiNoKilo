@@ -135,6 +135,18 @@ describe('OrderPage ("Monte seu Açaí")', () => {
     fetchSpy.mockRestore();
   });
 
+  it('usa o cardápio salvo pelo painel admin (itens desativados somem)', () => {
+    localStorage.setItem('cardapio_admin_menu_items_v3', JSON.stringify([
+      { _id: 's1', id: 's1', name: 'Pote Promocional', price: 9, category: 'Tamanho', original_category: 'sizes', active: true },
+      { _id: 's2', id: 's2', name: 'Pote Esgotado', price: 9, category: 'Tamanho', original_category: 'sizes', active: false },
+    ]));
+    renderOrderPage();
+
+    expect(screen.getAllByText(/Pote Promocional/).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/Pote Esgotado/)).not.toBeInTheDocument();
+    localStorage.clear();
+  });
+
   it('renders the desktop sidebar with live order summary', async () => {
     const user = userEvent.setup();
     renderOrderPage();

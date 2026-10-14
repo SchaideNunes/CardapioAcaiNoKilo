@@ -49,6 +49,7 @@ import type { MenuItemRecord } from "@/types/menu";
 import type { OrderRecord } from "@/types/order";
 import { normalizeDeliveryMethod, normalizePaymentMethod, DELIVERY_LABELS, PAYMENT_LABELS } from "@/lib/orders";
 import { DEMO_TOKEN } from "@/lib/demo";
+import { MENU_CACHE_KEY, readCachedMenuItems } from "@/lib/menuCache";
 import { apiUrl } from "@/lib/api";
 
 function cn(...inputs: ClassValue[]) {
@@ -95,7 +96,7 @@ export function resolveItemImage(item: Partial<MenuItemRecord>): string {
 
 type OrderFilter = "all" | "delivery" | "pickup" | "pix" | "card" | "cash";
 
-const LOCAL_STORAGE_KEY = "cardapio_admin_menu_items_v3";
+const LOCAL_STORAGE_KEY = MENU_CACHE_KEY;
 
 const demoOrders: OrderRecord[] = [
   {
@@ -191,19 +192,12 @@ export default function AdminPage() {
   }, [modalOpen, itemToDelete, mobileDrawerOpen]);
 
   const getInitialFallbackItems = (): MenuItemRecord[] => {
-    const saved = localStorage.getItem(LOCAL_STORAGE_KEY) || localStorage.getItem("cardapio_admin_menu_items_v2");
-    if (saved) {
-      try {
-        const parsed: MenuItemRecord[] = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed.map(item => ({
-            ...item,
-            image: item.image || resolveItemImage(item)
-          }));
-        }
-      } catch (e) {
-        console.error("Erro ao ler dados locais:", e);
-      }
+    const cached = readCachedMenuItems();
+    if (cached.length > 0) {
+      return cached.map(item => ({
+        ...item,
+        image: item.image || resolveItemImage(item)
+      }));
     }
 
     const formatted: MenuItemRecord[] = [];

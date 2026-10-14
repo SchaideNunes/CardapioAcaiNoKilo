@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { menuData as localFallbackData } from "@/data/menu";
 import type { MenuData, MenuItem } from "@/types/menu";
-import { groupBuilderMenu, readCachedMenuItems } from "@/lib/menuCache";
+import { groupBuilderMenu, normalizeMenuData, readCachedMenuItems } from "@/lib/menuCache";
 import {
   ArrowLeft,
   ArrowRight,
@@ -42,7 +42,7 @@ type OrderState = {
 
 export default function OrderPage() {
   const [apiData, setApiData] = useState<MenuData | null>(() => {
-    const cached = readCachedMenuItems("cardapio_admin_menu_items_v2");
+    const cached = readCachedMenuItems();
     return cached.length > 0 ? groupBuilderMenu(cached) : localFallbackData;
   });
   const loading = false; // Em modo demo, inicia carregado
@@ -71,9 +71,8 @@ export default function OrderPage() {
     fetch(apiUrl("/api/menu"))
       .then(res => res.json())
       .then(data => {
-        if (data && data.sizes) {
-          setApiData(data);
-        }
+        const menu = normalizeMenuData(data);
+        if (menu) setApiData(menu);
       })
       .catch(() => {
         console.log("Modo Demo: Usando dados locais do arquivo menu.ts");

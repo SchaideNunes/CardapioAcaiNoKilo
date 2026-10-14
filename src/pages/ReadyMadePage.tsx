@@ -28,7 +28,7 @@ function toReadyProduct(item: MenuItemRecord): ReadyProduct {
 
 export default function ReadyMadePage() {
   const [products, setProducts] = useState<ReadyProduct[]>(() => {
-    const readyItems = readCachedMenuItems("cardapio_admin_menu_items_v2")
+    const readyItems = readCachedMenuItems()
       .filter(i => i.original_category === 'ready_made' && i.active !== false);
     return readyItems.length > 0 ? readyItems.map(toReadyProduct) : readyMadeProducts;
   });
