@@ -105,6 +105,36 @@ describe('OrderPage ("Monte seu Açaí")', () => {
     expect(screen.getAllByText(/R\$ 17\.00/i).length).toBeGreaterThan(0);
   });
 
+  it('salva o pedido com tamanho, sabor e complementos na lista de itens', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(() =>
+      Promise.resolve(new Response(JSON.stringify({}), { status: 200 }))
+    );
+    const user = userEvent.setup();
+    renderOrderPage();
+    const next = () => user.click(screen.getAllByRole('button').filter(btn => btn.textContent?.toUpperCase().includes('PRÓXIMO'))[0]);
+
+    await user.click(screen.getAllByRole('button').find(btn => btn.textContent?.includes('Pote de 500'))!);
+    await next();
+    await user.click(screen.getAllByRole('button').find(btn => btn.textContent?.includes('Açaí Natural'))!);
+    await next();
+    await user.click(screen.getAllByRole('button').find(btn => btn.textContent?.includes('Calda 50ml'))!);
+    for (let i = 0; i < 5; i++) await next(); // coberturas → adicionais → cremes → frutas → recheios → entrega
+    await user.click(screen.getByText('Retirar na Loja'));
+    await next(); // retirada pula a etapa de pagamento (paga no balcão)
+    await user.click(screen.getAllByRole('button').find(btn => btn.textContent?.toUpperCase().includes('FINALIZAR'))!);
+
+    const orderCall = fetchSpy.mock.calls.find(([url]) => String(url).endsWith('/api/orders'));
+    expect(orderCall).toBeDefined();
+    expect(JSON.parse(String(orderCall![1]?.body))).toMatchObject({
+      origin: 'custom',
+      items: ['Pote de 500', 'Açaí Natural', 'Calda 50ml'],
+      total: 18.5,
+      deliveryMethod: 'pickup',
+      paymentMethod: null,
+    });
+    fetchSpy.mockRestore();
+  });
+
   it('renders the desktop sidebar with live order summary', async () => {
     const user = userEvent.setup();
     renderOrderPage();

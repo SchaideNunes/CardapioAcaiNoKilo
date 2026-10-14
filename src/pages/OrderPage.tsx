@@ -212,7 +212,8 @@ export default function OrderPage() {
       ...order,
       origin: "custom",
       total: totalPrice,
-      items: allSelectedItems.map(i => i.name)
+      // Tamanho e sabor entram na lista para aparecerem no admin e no ranking dos relatórios
+      items: [order.size, order.flavor, ...allSelectedItems].filter((i): i is MenuItem => !!i).map(i => i.name)
     });
 
     // Depois abre o WhatsApp
