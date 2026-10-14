@@ -73,18 +73,17 @@ Ambiente: Windows, caminho do projeto contém `ç` (`Cardapio Açai`) e assets c
 ## Backlog conhecido (dívidas encontradas na análise de 14/10/2026)
 
 Prioridade alta — corretude/segurança:
-1. `POST /api/login` monta `RegExp` com o username sem escapar (ReDoS / bypass com `.*`) e retorna 404 vs 401 diferentes (enumeração de usuários).
-2. `POST /api/orders` grava `req.body` cru, sem validação — aceita qualquer payload, inclusive `total` arbitrário calculado no cliente.
-3. `JWT_SECRET` cai em `'fallback_secret'` se ausente; `cors()` aberto para qualquer origem; sem Helmet nem rate limiting (o GEMINI.md descreve isso como existente, mas não está implementado).
-4. Credenciais de demo hardcoded em `LoginPage.tsx` e `server/create-admin.js`.
+1. `POST /api/orders` grava `req.body` cru, sem validação — aceita qualquer payload, inclusive `total` arbitrário calculado no cliente.
+2. `JWT_SECRET` cai em `'fallback_secret'` se ausente; `cors()` aberto para qualquer origem; sem Helmet nem rate limiting (o GEMINI.md descreve isso como existente, mas não está implementado).
+3. Credenciais de demo hardcoded em `LoginPage.tsx` e `server/create-admin.js`.
 
 Prioridade média — estrutura:
-5. Extrair `API_URL` para `import.meta.env.VITE_API_URL` (hoje `localhost` fixo quebra o deploy no Vercel).
-6. Criar `.env.example` (raiz e `server/`).
-7. `dist/` está versionado no git — adicionar ao `.gitignore` e remover do índice.
-8. Lint: 71 erros (maioria `no-undef` em arquivos Node do `server/`, `migration.js` e `scripts/` por falta de `globals.node` na config; `any` em `OrderPage`/`ReadyMadePage`).
-9. Tipos de domínio (`MenuItem`, `Order`) duplicados entre páginas — centralizar em `src/types/`.
-10. Lógica de total/mensagem de WhatsApp duplicada entre `OrderPage` e `ReadyMadePage` — extrair para `src/lib/` com testes unitários.
-11. `window.open` do WhatsApp roda depois de um `await` (salvar pedido) — validar em iPhone/Safari real se o pop-up não é bloqueado; se for, abrir a aba de forma síncrona e só depois definir a URL.
+4. Extrair `API_URL` para `import.meta.env.VITE_API_URL` (hoje `localhost` fixo quebra o deploy no Vercel).
+5. Criar `.env.example` (raiz e `server/`).
+6. `dist/` está versionado no git — adicionar ao `.gitignore` e remover do índice.
+7. Lint: 71 erros (maioria `no-undef` em arquivos Node do `server/`, `migration.js` e `scripts/` por falta de `globals.node` na config; `any` em `OrderPage`/`ReadyMadePage`).
+8. Tipos de domínio (`MenuItem`, `Order`) duplicados entre páginas — centralizar em `src/types/`.
+9. Lógica de total/mensagem de WhatsApp duplicada entre `OrderPage` e `ReadyMadePage` — extrair para `src/lib/` com testes unitários.
+10. `window.open` do WhatsApp roda depois de um `await` (salvar pedido) — validar em iPhone/Safari real se o pop-up não é bloqueado; se for, abrir a aba de forma síncrona e só depois definir a URL.
 
 Ao concluir um item, remova-o daqui no mesmo commit.

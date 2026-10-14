@@ -4,6 +4,19 @@ const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+const INVALID_CREDENTIALS = 'Usuário ou senha inválidos';
+const MAX_USERNAME_LENGTH = 254;
+const MAX_PASSWORD_LENGTH = 128;
+const DUMMY_PASSWORD_HASH = bcrypt.hashSync('senha-inexistente', 10);
+
+function escapeRegex(text) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function isNonEmptyString(value, maxLength) {
+  return typeof value === 'string' && value.trim().length > 0 && value.length <= maxLength;
+}
+
 /**
  * Monta a aplicação Express sem abrir porta nem conexão, para que possa ser
  * testada com um banco em memória.
@@ -56,22 +69,24 @@ function createApp({ db, jwtSecret, menuCollection }) {
 
   // Login Admin
   app.post('/api/login', async (req, res) => {
-    const { username, password } = req.body;
-    console.log(`Tentativa de login para usuário: ${username}`);
+    const { username, password } = req.body ?? {};
+    if (!isNonEmptyString(username, MAX_USERNAME_LENGTH) || !isNonEmptyString(password, MAX_PASSWORD_LENGTH)) {
+      return res.status(400).json({ error: 'Informe usuário e senha' });
+    }
+
     try {
-      const searchRegex = new RegExp(`^${(username || '').trim()}$`, 'i');
+      // Comparação exata sem diferenciar maiúsculas; o texto digitado nunca é interpretado como regex
+      const searchRegex = new RegExp(`^${escapeRegex(username.trim())}$`, 'i');
       const user = await db.collection('usuarios').findOne({
         $or: [{ username: searchRegex }, { email: searchRegex }]
       });
-      if (!user) {
-        console.log('Usuário não encontrado no banco.');
-        return res.status(404).json({ error: 'Usuário não encontrado' });
+
+      // Compara contra um hash fictício quando o usuário não existe para não revelar, pelo tempo de resposta, quais usuários existem
+      const passwordIsValid = await bcrypt.compare(password, user?.password ?? DUMMY_PASSWORD_HASH);
+      if (!user || !passwordIsValid) {
+        console.log('Tentativa de login recusada.');
+        return res.status(401).json({ error: INVALID_CREDENTIALS });
       }
-
-      const passwordIsValid = await bcrypt.compare(password, user.password);
-      console.log(`Senha válida? ${passwordIsValid}`);
-
-      if (!passwordIsValid) return res.status(401).json({ error: 'Senha incorreta' });
 
       const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: 86400 }); // 24h
       console.log('Login bem-sucedido, gerando token.');

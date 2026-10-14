@@ -57,6 +57,32 @@ describe('POST /api/login', () => {
     expect(res.status).toBe(401);
     expect(res.body.token).toBeUndefined();
   });
+
+  it('responde igual para usuário inexistente e senha errada (sem enumeração de usuários)', async () => {
+    const wrongPassword = await request(app).post('/api/login').send({ username: ADMIN.username, password: 'errada' });
+    const unknownUser = await request(app).post('/api/login').send({ username: 'ninguem@loja.test', password: 'errada' });
+
+    expect(unknownUser.status).toBe(401);
+    expect(unknownUser.body).toEqual(wrongPassword.body);
+  });
+
+  it.each(['.*', 'admin.*', '^.+$', '[a-z@.]+'])('trata o usuário como texto literal, não regex (%s)', async (username) => {
+    const res = await request(app).post('/api/login').send({ username, password: ADMIN.password });
+    expect(res.status).toBe(401);
+    expect(res.body.token).toBeUndefined();
+  });
+
+  it.each([
+    ['operador NoSQL no usuário', { username: { $gt: '' }, password: ADMIN.password }],
+    ['operador NoSQL na senha', { username: ADMIN.username, password: { $ne: null } }],
+    ['campos ausentes', {}],
+    ['usuário vazio', { username: '   ', password: ADMIN.password }],
+    ['usuário longo demais', { username: 'a'.repeat(300), password: ADMIN.password }],
+  ])('recusa payload inválido com 400 (%s)', async (_label, body) => {
+    const res = await request(app).post('/api/login').send(body);
+    expect(res.status).toBe(400);
+    expect(res.body.token).toBeUndefined();
+  });
 });
 
 describe('POST /api/orders', () => {
