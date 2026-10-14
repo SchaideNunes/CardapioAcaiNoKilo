@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useEffectEvent, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
   Home,
@@ -94,6 +94,11 @@ export function resolveItemImage(item: Partial<MenuItemRecord>): string {
   return '';
 }
 
+// Id provisório de itens criados no painel; ao salvar no servidor ele é trocado pelo _id do banco
+function createLocalItemId(): string {
+  return "item_" + Date.now().toString(36) + Math.random().toString(36).substring(2, 6);
+}
+
 type OrderFilter = "all" | "delivery" | "pickup" | "pix" | "card" | "cash";
 
 const LOCAL_STORAGE_KEY = MENU_CACHE_KEY;
@@ -136,6 +141,71 @@ const demoOrders: OrderRecord[] = [
   }
 ];
 
+// Cardápio do modo demo/offline: cache do admin no navegador ou, na falta dele, os dados estáticos
+function getInitialFallbackItems(): MenuItemRecord[] {
+  const cached = readCachedMenuItems();
+  if (cached.length > 0) {
+    return cached.map(item => ({
+      ...item,
+      image: item.image || resolveItemImage(item)
+    }));
+  }
+
+  const formatted: MenuItemRecord[] = [];
+  Object.entries(localFallbackData).forEach(([cat, items]) => {
+    items.forEach((i) => {
+      formatted.push({
+        _id: i.id,
+        id: i.id,
+        name: i.name,
+        price: i.price,
+        category: i.category,
+        original_category: cat,
+        image: i.image || resolveItemImage({ id: i.id, original_category: cat }),
+        description: i.description || '',
+        type: i.type || '',
+        active: true
+      });
+    });
+  });
+
+  // Adiciona itens prontos como categoria ready_made
+  readyMadeProducts.forEach(r => {
+    formatted.push({
+      _id: r.id,
+      id: r.id,
+      name: r.name,
+      price: r.price,
+      category: "Pronto",
+      original_category: "ready_made",
+      image: r.image,
+      active: true
+    });
+  });
+
+  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formatted));
+  return formatted;
+}
+
+type AdminData = { menuItems: MenuItemRecord[]; orders: OrderRecord[] };
+
+// Busca cardápio (inclusive desativados) e pedidos no servidor. Lança se o servidor estiver inacessível.
+async function fetchAdminData(token: string): Promise<AdminData | "unauthorized"> {
+  const headers = { Authorization: `Bearer ${token}` };
+  const [menuRes, ordersRes] = await Promise.all([
+    fetch(apiUrl("/api/admin/menu"), { headers }),
+    fetch(apiUrl("/api/admin/orders"), { headers })
+  ]);
+
+  if (menuRes.status === 401 || ordersRes.status === 401) return "unauthorized";
+
+  const backendItems: unknown = await menuRes.json();
+  const menuItems = Array.isArray(backendItems) && backendItems.length > 0
+    ? backendItems.map((item: MenuItemRecord) => ({ ...item, image: item.image || resolveItemImage(item) }))
+    : getInitialFallbackItems();
+  return { menuItems, orders: await ordersRes.json() };
+}
+
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<"overview" | "menu" | "orders" | "reports">("menu");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -149,9 +219,12 @@ export default function AdminPage() {
   // Filtro de período da aba de relatórios
   const [reportPeriod, setReportPeriod] = useState<"today" | "week" | "month">("today");
 
-  const [menuItems, setMenuItems] = useState<MenuItemRecord[]>([]);
-  const [orders, setOrders] = useState<OrderRecord[]>([]);
-  const [loading, setLoading] = useState(true);
+  const token = localStorage.getItem("adminToken");
+  const isDemo = token === DEMO_TOKEN;
+
+  const [menuItems, setMenuItems] = useState<MenuItemRecord[]>(() => (isDemo ? getInitialFallbackItems() : []));
+  const [orders, setOrders] = useState<OrderRecord[]>(() => (isDemo ? demoOrders : []));
+  const [loading, setLoading] = useState(!isDemo);
   const [syncing, setSyncing] = useState(false);
   
   // Modals & Form State
@@ -164,20 +237,16 @@ export default function AdminPage() {
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" | "info" } | null>(null);
 
   const navigate = useNavigate();
-  const token = localStorage.getItem("adminToken");
 
   const showToast = (message: string, type: "success" | "error" | "info" = "success") => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3500);
   };
 
-  useEffect(() => {
-    if (!token) {
-      navigate("/login");
-      return;
-    }
-    fetchData();
-  }, [token]);
+  const handleLogout = () => {
+    localStorage.removeItem("adminToken");
+    navigate("/login");
+  };
 
   // Bloquear scroll de fundo quando modal estiver aberto
   useEffect(() => {
@@ -191,75 +260,20 @@ export default function AdminPage() {
     };
   }, [modalOpen, itemToDelete, mobileDrawerOpen]);
 
-  const getInitialFallbackItems = (): MenuItemRecord[] => {
-    const cached = readCachedMenuItems();
-    if (cached.length > 0) {
-      return cached.map(item => ({
-        ...item,
-        image: item.image || resolveItemImage(item)
-      }));
-    }
-
-    const formatted: MenuItemRecord[] = [];
-    Object.entries(localFallbackData).forEach(([cat, items]) => {
-      items.forEach((i) => {
-        formatted.push({
-          _id: i.id,
-          id: i.id,
-          name: i.name,
-          price: i.price,
-          category: i.category,
-          original_category: cat,
-          image: i.image || resolveItemImage({ id: i.id, original_category: cat }),
-          description: i.description || '',
-          type: i.type || '',
-          active: true
-        });
-      });
-    });
-
-    // Adiciona itens prontos como categoria ready_made
-    readyMadeProducts.forEach(r => {
-      formatted.push({
-        _id: r.id,
-        id: r.id,
-        name: r.name,
-        price: r.price,
-        category: "Pronto",
-        original_category: "ready_made",
-        image: r.image,
-        active: true
-      });
-    });
-
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formatted));
-    return formatted;
-  };
-
   // Busca cardápio e pedidos no servidor e aplica no estado. Lança se o servidor estiver inacessível.
-  const loadFromServer = async (): Promise<"ok" | "unauthorized"> => {
-    const [menuRes, ordersRes] = await Promise.all([
-      fetch(apiUrl("/api/admin/menu"), { headers: { Authorization: `Bearer ${token}` } }),
-      fetch(apiUrl("/api/admin/orders"), { headers: { Authorization: `Bearer ${token}` } })
-    ]);
-
-    if (menuRes.status === 401 || ordersRes.status === 401) {
+  // Aplica no estado o resultado de fetchAdminData; token expirado volta para o login
+  const applyServerData = (result: AdminData | "unauthorized"): "ok" | "unauthorized" => {
+    if (result === "unauthorized") {
       handleLogout();
       return "unauthorized";
     }
-
-    const backendItems = await menuRes.json();
-    if (Array.isArray(backendItems) && backendItems.length > 0) {
-      setMenuItems(backendItems.map((item: MenuItemRecord) => ({
-        ...item,
-        image: item.image || resolveItemImage(item)
-      })));
-    } else {
-      setMenuItems(getInitialFallbackItems());
-    }
-    setOrders(await ordersRes.json());
+    setMenuItems(result.menuItems);
+    setOrders(result.orders);
     return "ok";
   };
+
+  // Busca cardápio e pedidos no servidor e aplica no estado. Lança se o servidor estiver inacessível.
+  const loadFromServer = async () => applyServerData(await fetchAdminData(token ?? ""));
 
   /**
    * Envia uma alteração do cardápio ao servidor. Offline (ou no modo demo) a alteração
@@ -295,25 +309,24 @@ export default function AdminPage() {
     return { status: "saved", data: await res.json().catch(() => null) };
   };
 
-  const fetchData = async () => {
-    if (token === DEMO_TOKEN) {
-      setMenuItems(getInitialFallbackItems());
-      setOrders(demoOrders);
-      setLoading(false);
+  const onServerData = useEffectEvent(applyServerData);
+
+  // Carrega os dados ao abrir o painel (offline cai para os dados locais do modo demo), ou manda para o login sem token
+  useEffect(() => {
+    if (!token) {
+      navigate("/login");
       return;
     }
-
-    setLoading(true);
-    try {
-      await loadFromServer();
-    } catch (err) {
-      console.log("Modo Demo Admin: Carregando banco de dados local sincronizado.");
-      setMenuItems(getInitialFallbackItems());
-      setOrders(demoOrders);
-    } finally {
-      setLoading(false);
-    }
-  };
+    if (isDemo) return;
+    fetchAdminData(token)
+      .then(result => onServerData(result))
+      .catch(() => {
+        console.log("Modo Demo Admin: Carregando banco de dados local sincronizado.");
+        setMenuItems(getInitialFallbackItems());
+        setOrders(demoOrders);
+      })
+      .finally(() => setLoading(false));
+  }, [token, isDemo, navigate]);
 
   // Ação manual com feedback visual interativo
   const handleSyncData = async () => {
@@ -327,7 +340,7 @@ export default function AdminPage() {
       } else if (await loadFromServer() === "ok") {
         showToast("Dados sincronizados com sucesso!", "success");
       }
-    } catch (err) {
+    } catch {
       console.log("Modo Demo Admin: Sincronização local.");
       setMenuItems(getInitialFallbackItems());
       setOrders(demoOrders);
@@ -335,11 +348,6 @@ export default function AdminPage() {
     } finally {
       setSyncing(false);
     }
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("adminToken");
-    navigate("/login");
   };
 
   // Salvar no estado e sincronizar local/backend
@@ -381,7 +389,7 @@ export default function AdminPage() {
         if (result.status !== "rejected") showToast(`Item "${updatedItem.name}" atualizado!`);
       } else {
         // Modo Criação
-        const newId = "item_" + Date.now().toString(36) + Math.random().toString(36).substring(2, 6);
+        const newId = createLocalItemId();
         const newItem: MenuItemRecord = {
           _id: newId,
           id: newId,

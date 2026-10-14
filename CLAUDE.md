@@ -11,7 +11,7 @@ Cardápio mobile-first para montar açaí personalizado (`/montar`) e comprar a�
 | `npm test` | Vitest com dois projetos: `web` (jsdom, `src/test/`) e `server` (Node + MongoDB em memória, `server/test/`). Requer `npm install --prefix server` |
 | `npx vitest run --project server` | Só os testes da API |
 | `npx tsc -b` | Typecheck (é o primeiro passo do `npm run build`) |
-| `npm run lint` | ESLint — **tem dívida existente** (ver Backlog); não piore a contagem |
+| `npm run lint` | ESLint — **deve ficar com 0 erros e 0 avisos** |
 | `ADMIN_EMAIL=... ADMIN_PASSWORD=... node server/create-admin.js` | Cria/reseta o admin (senha ≥ 12 caracteres; também lê de `server/.env`) |
 
 Setup: `npm install && npm install --prefix server`, copie [server/.env.example](server/.env.example) para `server/.env` (e, se precisar, [.env.example](.env.example) para `.env.local`). Variável de ambiente nova = documentar no `.env.example` correspondente no mesmo commit.
@@ -41,7 +41,8 @@ Ambiente: Windows, caminho do projeto contém `ç` (`Cardapio Açai`) e assets c
 
 ### Fluxo (TDD incremental)
 1. Uma funcionalidade por vez. Escreva/ajuste o teste primeiro em `src/test/<Página>.test.tsx`, veja falhar, implemente, refatore.
-2. Antes de declarar pronto: `npm test` 100% verde **e** `npx tsc -b` sem erros. Rode `npx eslint <arquivos alterados>` e não introduza novos erros.
+2. Antes de declarar pronto: `npm test` 100% verde, `npx tsc -b` sem erros e `npm run lint` sem erros nem avisos.
+   - React Compiler lint (`react-hooks/*`): nada de `Date.now()`/`Math.random()` no render, e nada de `setState` síncrono em efeito — busque dados em função fora do componente e aplique o resultado no `.then` (veja `fetchAdminData` no `AdminPage`); use `useEffectEvent` para lógica de efeito que lê estado/props.
 3. Testes de API ficam em `server/test/*.test.mjs` (ESM; carregam o servidor CJS via `createRequire`) e usam [server/test/helpers.mjs](server/test/helpers.mjs): `startTestServer()` sobe um MongoDB em memória, `reset()` limpa o banco e cria o admin de teste, `adminToken()` gera um JWT válido. Use `supertest` contra `server.createApp()`.
 4. Testes de frontend usam React Testing Library + `BrowserRouter`; `window.open`, `scrollTo`, `ResizeObserver` e `Image` já são mockados em [src/test/setup.ts](src/test/setup.ts). Para chamadas de API, mocke `fetch` com `vi.fn()` / `vi.spyOn(global, "fetch")` — nunca dependa do backend rodando.
 5. Prefira queries acessíveis (`getByRole`, `getByLabelText`) a seletores por classe.
@@ -85,8 +86,7 @@ Ambiente: Windows, caminho do projeto contém `ç` (`Cardapio Açai`) e assets c
 Prioridade alta — corretude/segurança:
 
 Prioridade média — estrutura:
-1. Lint: 71 erros (maioria `no-undef` em arquivos Node do `server/`, `migration.js` e `scripts/` por falta de `globals.node` na config; `any` em `OrderPage`/`ReadyMadePage`).
-2. Lógica de total/mensagem de WhatsApp duplicada entre `OrderPage` e `ReadyMadePage` — extrair para `src/lib/` com testes unitários.
-3. `window.open` do WhatsApp roda depois de um `await` (salvar pedido) — validar em iPhone/Safari real se o pop-up não é bloqueado; se for, abrir a aba de forma síncrona e só depois definir a URL.
+1. Lógica de total/mensagem de WhatsApp duplicada entre `OrderPage` e `ReadyMadePage` — extrair para `src/lib/` com testes unitários.
+2. `window.open` do WhatsApp roda depois de um `await` (salvar pedido) — validar em iPhone/Safari real se o pop-up não é bloqueado; se for, abrir a aba de forma síncrona e só depois definir a URL.
 
 Ao concluir um item, remova-o daqui no mesmo commit.

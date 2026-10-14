@@ -31,10 +31,12 @@ const TOTAL_DURATION = 3200; // 3.2s smooth assembly
 export default function Preloader({ onFinished }: { onFinished: () => void }) {
   const [progress, setProgress] = useState(0);
   const [fadeOut, setFadeOut] = useState(false);
-  const startTime = useRef(Date.now());
+  const startTime = useRef(0);
   const imagesLoaded = useRef(0);
 
   useEffect(() => {
+    startTime.current = Date.now();
+
     // Start preloading critical images
     PRELOAD_IMAGES.forEach((src) => {
       const img = new Image();
