@@ -10,9 +10,27 @@ export default defineConfig({
     },
   },
   test: {
-    globals: true,
-    environment: "jsdom",
-    setupFiles: ["./src/test/setup.ts"],
-    css: true,
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: "web",
+          include: ["src/**/*.test.{ts,tsx}"],
+          globals: true,
+          environment: "jsdom",
+          setupFiles: ["./src/test/setup.ts"],
+          css: true,
+        },
+      },
+      {
+        test: {
+          name: "server",
+          include: ["server/test/**/*.test.mjs"],
+          environment: "node",
+          // O primeiro boot do MongoDB em memória pode ser lento no Windows
+          hookTimeout: 60_000,
+        },
+      },
+    ],
   },
 });

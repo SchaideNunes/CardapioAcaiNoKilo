@@ -8,7 +8,8 @@ Cardápio mobile-first para montar açaí personalizado (`/montar`) e comprar a�
 | :--- | :--- |
 | `npm run dev` | Frontend Vite |
 | `npm run server` | Backend Express em `:3001` (precisa de `server/.env` e MongoDB) |
-| `npm test` | Vitest (jsdom) — suíte em `src/test/` |
+| `npm test` | Vitest com dois projetos: `web` (jsdom, `src/test/`) e `server` (Node + MongoDB em memória, `server/test/`). Requer `npm install --prefix server` |
+| `npx vitest run --project server` | Só os testes da API |
 | `npx tsc -b` | Typecheck (é o primeiro passo do `npm run build`) |
 | `npm run lint` | ESLint — **tem dívida existente** (ver Backlog); não piore a contagem |
 | `node server/create-admin.js` | Cria/reseta o usuário admin |
@@ -21,7 +22,7 @@ Ambiente: Windows, caminho do projeto contém `ç` (`Cardapio Açai`) e assets c
 - [src/pages/](src/pages/) — cada página é um componente grande e autocontido (`AdminPage.tsx` ~1.900 linhas, `OrderPage.tsx` ~800). Não há camada de services/hooks no frontend ainda.
 - [src/lib/orders.ts](src/lib/orders.ts) — `saveOrder()`: persistência do pedido usada por `OrderPage` e `ReadyMadePage` (nunca lança; campo `origin`: `"custom"` | `"ready_made"`). Lógica compartilhada nova vai em `src/lib/`.
 - [src/data/menu.ts](src/data/menu.ts) — cardápio estático usado como fallback offline. [migration.js](migration.js) tem os mesmos dados para popular o Mongo; **mantenha os dois em sincronia** ao mudar itens/preços.
-- [server/index.js](server/index.js) — Express 5 + driver `mongodb` nativo (sem Mongoose), CommonJS, arquivo único. Rotas:
+- [server/app.js](server/app.js) — `createApp({ db, jwtSecret, menuCollection })`: todas as rotas, sem abrir porta nem conexão. [server/index.js](server/index.js) só lê o `.env`, cria o cliente Mongo e chama `listen`. Express 5 + driver `mongodb` nativo (sem Mongoose), CommonJS. Rotas:
   - Públicas: `GET /api/menu`, `POST /api/login`, `POST /api/orders`
   - Protegidas (`verifyToken`): `GET|POST /api/admin/menu`, `PUT|DELETE /api/admin/menu/:id`, `GET /api/admin/orders`
   - Coleção do cardápio vem de `process.env.COLLECTION_NAME`; pedidos em `pedidos`; usuários em `usuarios`.
@@ -37,8 +38,9 @@ Ambiente: Windows, caminho do projeto contém `ç` (`Cardapio Açai`) e assets c
 ### Fluxo (TDD incremental)
 1. Uma funcionalidade por vez. Escreva/ajuste o teste primeiro em `src/test/<Página>.test.tsx`, veja falhar, implemente, refatore.
 2. Antes de declarar pronto: `npm test` 100% verde **e** `npx tsc -b` sem erros. Rode `npx eslint <arquivos alterados>` e não introduza novos erros.
-3. Testes usam React Testing Library + `BrowserRouter`; `window.open`, `scrollTo`, `ResizeObserver` e `Image` já são mockados em [src/test/setup.ts](src/test/setup.ts). Para chamadas de API, mocke `fetch` com `vi.fn()` / `vi.spyOn(global, "fetch")` — nunca dependa do backend rodando.
-4. Prefira queries acessíveis (`getByRole`, `getByLabelText`) a seletores por classe.
+3. Testes de API ficam em `server/test/*.test.mjs` (ESM; carregam o servidor CJS via `createRequire`) e usam [server/test/helpers.mjs](server/test/helpers.mjs): `startTestServer()` sobe um MongoDB em memória, `reset()` limpa o banco e cria o admin de teste, `adminToken()` gera um JWT válido. Use `supertest` contra `server.createApp()`.
+4. Testes de frontend usam React Testing Library + `BrowserRouter`; `window.open`, `scrollTo`, `ResizeObserver` e `Image` já são mockados em [src/test/setup.ts](src/test/setup.ts). Para chamadas de API, mocke `fetch` com `vi.fn()` / `vi.spyOn(global, "fetch")` — nunca dependa do backend rodando.
+5. Prefira queries acessíveis (`getByRole`, `getByLabelText`) a seletores por classe.
 
 ### Commits
 - Conventional Commits com escopo, descrição em inglês, minúscula: `feat(admin): ...`, `fix(order): ...`, `style(home): ...`, `test(ready): ...`, `docs: ...`. Escopos usados: `admin`, `order`, `home`, `ready`, `auth`, `preloader`, `assets`, `server`.
@@ -83,7 +85,6 @@ Prioridade média — estrutura:
 8. Lint: 71 erros (maioria `no-undef` em arquivos Node do `server/`, `migration.js` e `scripts/` por falta de `globals.node` na config; `any` em `OrderPage`/`ReadyMadePage`).
 9. Tipos de domínio (`MenuItem`, `Order`) duplicados entre páginas — centralizar em `src/types/`.
 10. Lógica de total/mensagem de WhatsApp duplicada entre `OrderPage` e `ReadyMadePage` — extrair para `src/lib/` com testes unitários.
-11. Servidor sem testes (sugestão: `supertest` + `mongodb-memory-server`).
-12. `window.open` do WhatsApp roda depois de um `await` (salvar pedido) — validar em iPhone/Safari real se o pop-up não é bloqueado; se for, abrir a aba de forma síncrona e só depois definir a URL.
+11. `window.open` do WhatsApp roda depois de um `await` (salvar pedido) — validar em iPhone/Safari real se o pop-up não é bloqueado; se for, abrir a aba de forma síncrona e só depois definir a URL.
 
 Ao concluir um item, remova-o daqui no mesmo commit.
