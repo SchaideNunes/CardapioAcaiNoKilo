@@ -86,20 +86,94 @@ describe('POST /api/login', () => {
 });
 
 describe('POST /api/orders', () => {
-  it('grava o pedido com data de criação', async () => {
-    const res = await request(app).post('/api/orders').send({
-      origin: 'ready_made',
-      items: ['1x Açaí Natural 500ml'],
-      total: 18,
-      deliveryMethod: 'pickup',
-      paymentMethod: 'pix',
-    });
+  const validOrder = () => ({
+    origin: 'ready_made',
+    items: ['1x Açaí Natural 500ml'],
+    total: 18,
+    deliveryMethod: 'pickup',
+    paymentMethod: 'pix',
+  });
 
-    expect(res.status).toBe(200);
+  const deliveryOrder = () => ({
+    ...validOrder(),
+    total: 25,
+    deliveryMethod: 'delivery',
+    paymentMethod: 'cash',
+    changeFor: '50',
+    address: { street: 'Rua das Flores', number: '42', neighborhood: 'Centro' },
+  });
+
+  it('grava o pedido com data de criação', async () => {
+    const res = await request(app).post('/api/orders').send(validOrder());
+
+    expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
     const saved = await server.db.collection('pedidos').findOne({});
     expect(saved).toMatchObject({ origin: 'ready_made', total: 18, items: ['1x Açaí Natural 500ml'] });
     expect(saved.createdAt).toBeInstanceOf(Date);
+  });
+
+  it('grava endereço e troco de pedidos de entrega em dinheiro', async () => {
+    const res = await request(app).post('/api/orders').send(deliveryOrder());
+
+    expect(res.status).toBe(201);
+    const saved = await server.db.collection('pedidos').findOne({});
+    expect(saved).toMatchObject({
+      deliveryMethod: 'delivery',
+      paymentMethod: 'cash',
+      changeFor: '50',
+      address: { street: 'Rua das Flores', number: '42', neighborhood: 'Centro' },
+    });
+  });
+
+  it('aceita retirada sem forma de pagamento (pagamento no balcão)', async () => {
+    const res = await request(app).post('/api/orders').send({ ...validOrder(), origin: 'custom', paymentMethod: null });
+    expect(res.status).toBe(201);
+  });
+
+  it('grava apenas os campos conhecidos e ignora o que o cliente controlar a mais', async () => {
+    await request(app).post('/api/orders').send({
+      ...validOrder(),
+      size: { id: 'pot_500', name: 'Pote de 500', price: 17 },
+      createdAt: '1999-01-01',
+      _id: 'forjado',
+      status: 'pago',
+      address: { street: 'Rua X', number: '1', neighborhood: 'Y' }, // ignorado: pedido é retirada
+    });
+
+    const saved = await server.db.collection('pedidos').findOne({});
+    expect(Object.keys(saved).sort()).toEqual(
+      ['_id', 'createdAt', 'deliveryMethod', 'items', 'origin', 'paymentMethod', 'total'].sort()
+    );
+    expect(saved._id).not.toBe('forjado');
+    expect(saved.createdAt.getFullYear()).toBeGreaterThan(2000);
+  });
+
+  it.each([
+    ['sem itens', { items: [] }],
+    ['itens que não são texto', { items: [{ $gt: '' }] }],
+    ['item longo demais', { items: ['x'.repeat(500)] }],
+    ['itens demais', { items: Array.from({ length: 101 }, (_, i) => `item ${i}`) }],
+    ['total negativo', { total: -5 }],
+    ['total que não é número', { total: '18' }],
+    ['total absurdo', { total: 1e9 }],
+    ['origem desconhecida', { origin: 'hacker' }],
+    ['entrega desconhecida', { deliveryMethod: 'drone' }],
+    ['pagamento desconhecido', { paymentMethod: 'boleto' }],
+    ['entrega sem endereço', { deliveryMethod: 'delivery', address: undefined }],
+    ['endereço incompleto', { deliveryMethod: 'delivery', address: { street: 'Rua', number: '', neighborhood: 'Centro' } }],
+    ['endereço com operador', { deliveryMethod: 'delivery', address: { street: { $ne: '' }, number: '1', neighborhood: 'C' } }],
+  ])('recusa pedido inválido com 422 (%s)', async (_label, patch) => {
+    const res = await request(app).post('/api/orders').send({ ...validOrder(), ...patch });
+
+    expect(res.status).toBe(422);
+    expect(res.body.error).toBeTruthy();
+    expect(await server.db.collection('pedidos').countDocuments()).toBe(0);
+  });
+
+  it('recusa corpo que não é um objeto JSON', async () => {
+    const res = await request(app).post('/api/orders').set('Content-Type', 'application/json').send('[1,2,3]');
+    expect(res.status).toBe(422);
   });
 });
 

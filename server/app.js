@@ -3,6 +3,7 @@ const { ObjectId } = require('mongodb');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { validateOrder, isNonEmptyString } = require('./validation');
 
 const INVALID_CREDENTIALS = 'Usuário ou senha inválidos';
 const MAX_USERNAME_LENGTH = 254;
@@ -11,10 +12,6 @@ const DUMMY_PASSWORD_HASH = bcrypt.hashSync('senha-inexistente', 10);
 
 function escapeRegex(text) {
   return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-function isNonEmptyString(value, maxLength) {
-  return typeof value === 'string' && value.trim().length > 0 && value.length <= maxLength;
 }
 
 /**
@@ -99,10 +96,13 @@ function createApp({ db, jwtSecret, menuCollection }) {
 
   // Salvar Pedido (Vindo do site)
   app.post('/api/orders', async (req, res) => {
+    const { value, error } = validateOrder(req.body);
+    if (error) return res.status(422).json({ error });
+
     try {
-      const order = { ...req.body, createdAt: new Date() };
+      const order = { ...value, createdAt: new Date() };
       const result = await db.collection('pedidos').insertOne(order);
-      res.json({ success: true, id: result.insertedId });
+      res.status(201).json({ success: true, id: result.insertedId });
     } catch (error) {
       res.status(500).json({ error: 'Erro ao salvar pedido' });
     }
