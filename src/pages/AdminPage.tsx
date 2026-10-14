@@ -1185,7 +1185,7 @@ export default function AdminPage() {
                             {delivery ? DELIVERY_LABELS[delivery] : (order.deliveryMethod || "Retirada")}
                           </span>
                           <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/15 text-purple-300 border border-purple-500/30">
-                            💳 {payment ? PAYMENT_LABELS[payment] : (order.paymentMethod || "Pix")}
+                            💳 {payment ? PAYMENT_LABELS[payment] : (order.paymentMethod || "No balcão")}
                           </span>
                         </div>
 

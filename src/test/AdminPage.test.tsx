@@ -170,6 +170,19 @@ describe("AdminPage - Painel Administrativo", () => {
       expect(screen.queryByText(/💳 card/)).not.toBeInTheDocument();
     });
 
+    it("mostra pagamento no balcão para retirada sem forma de pagamento", async () => {
+      vi.mocked(globalThis.fetch).mockImplementation((input) => {
+        const body = String(input).endsWith("/api/admin/orders")
+          ? [{ ...apiOrders[1], paymentMethod: null }]
+          : [];
+        return Promise.resolve(new Response(JSON.stringify(body), { status: 200 }));
+      });
+      await openOrdersTab();
+
+      expect(screen.getByText(/💳 No balcão/)).toBeInTheDocument();
+      expect(screen.queryByText(/💳 Pix/)).not.toBeInTheDocument();
+    });
+
     it("filtra por entrega e por forma de pagamento", async () => {
       await openOrdersTab();
 
