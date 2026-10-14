@@ -16,6 +16,7 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import SmoothScrollProvider from "@/components/SmoothScrollProvider";
 import { saveOrder, PAYMENT_LABELS } from "@/lib/orders";
+import { buildCheckoutSection, buildWhatsAppUrl, deliveryFee } from "@/lib/whatsapp";
 import { apiUrl } from "@/lib/api";
 
 function cn(...inputs: ClassValue[]) {
@@ -102,7 +103,7 @@ export default function OrderPage() {
   const totalPrice = useMemo(() => {
     let total = order.size?.price || 0;
     total += allSelectedItems.reduce((sum, item) => sum + item.price, 0);
-    if (order.deliveryMethod === "delivery") total += 7.00;
+    total += deliveryFee(order.deliveryMethod);
     return total;
   }, [order.size, order.deliveryMethod, allSelectedItems]);
 
@@ -171,14 +172,7 @@ export default function OrderPage() {
     let message = `*NOVO PEDIDO*\n\n*Tamanho:* ${order.size.name} (${order.flavor.name})\n`;
     const items = allSelectedItems.map(i => i.name).join(", ");
     if (items) message += `*Recheios:* ${items}\n`;
-    message += `\n*Entrega:* ${order.deliveryMethod === "delivery" ? "Receber em casa" : "Retirar na loja"}\n`;
-    if (order.deliveryMethod === "delivery") message += `*Endereço:* ${order.address.street}, ${order.address.number} - ${order.address.neighborhood}\n`;
-    message += `\n*Pagamento:* ${order.paymentMethod ? PAYMENT_LABELS[order.paymentMethod] : "Não definido"}\n`;
-    if (order.paymentMethod === "cash" && order.changeFor) {
-      message += order.changeFor === "Não preciso" ? `*Troco:* Não preciso\n` : `*Troco para:* R$ ${order.changeFor}\n`;
-    }
-    message += `\n*TOTAL: R$ ${totalPrice.toFixed(2).replace(".", ",")}*`;
-    return encodeURIComponent(message);
+    return message + buildCheckoutSection(order, totalPrice);
   };
 
   const sendWhatsApp = async () => {
@@ -192,7 +186,7 @@ export default function OrderPage() {
     });
 
     // Depois abre o WhatsApp
-    window.open(`https://wa.me/557591585290?text=${formatWhatsAppMessage()}`, "_blank");
+    window.open(buildWhatsAppUrl(formatWhatsAppMessage()), "_blank");
   };
 
   const isStepValid = () => {

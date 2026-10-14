@@ -278,6 +278,26 @@ describe('ReadyMadePage', () => {
       expect(savedAt).toBeLessThan(openedAt);
     });
 
+    it('envia a mensagem do pedido para o WhatsApp da loja', async () => {
+      mockFetch(() => Promise.resolve(okResponse()));
+      const user = userEvent.setup();
+      renderPage();
+
+      await completeCheckoutWithPickupPix(user);
+      await user.click(screen.getByText('Enviar Pedido'));
+      await waitFor(() => expect(window.open).toHaveBeenCalledTimes(1));
+
+      const url = new URL(String(vi.mocked(window.open).mock.calls[0][0]));
+      expect(url.origin + url.pathname).toBe('https://wa.me/557591585290');
+      expect(url.searchParams.get('text')).toBe(
+        '*NOVO PEDIDO (PRONTO)*\n\n' +
+        '*1x* Açaí Natural 500ml — R$ 18,00\n' +
+        '\n*Entrega:* Retirar na loja\n' +
+        '\n*Pagamento:* Pix\n' +
+        '\n*TOTAL: R$ 18,00*'
+      );
+    });
+
     it('abre o WhatsApp mesmo se salvar o pedido falhar', async () => {
       mockFetch(() => Promise.reject(new TypeError('Failed to fetch')));
       vi.spyOn(console, 'error').mockImplementation(() => {});

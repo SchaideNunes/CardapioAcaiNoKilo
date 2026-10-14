@@ -72,7 +72,7 @@ Ambiente: Windows, caminho do projeto contém `ç` (`Cardapio Açai`) e assets c
 
 ### Regras de negócio
 - O pedido deve ser salvo via `POST /api/orders` **antes** de abrir o WhatsApp; falha ao salvar não pode impedir o envio pelo WhatsApp.
-- Número da loja no WhatsApp: `557591585290` (hoje duplicado em `OrderPage` e `ReadyMadePage`).
+- WhatsApp da loja (`STORE_WHATSAPP_NUMBER`), taxa de entrega (`DELIVERY_FEE` = R$ 7) e o trecho de entrega/pagamento/troco/total da mensagem ficam em [src/lib/whatsapp.ts](src/lib/whatsapp.ts) — não repita essas regras nas páginas.
 - Pedidos são gravados com códigos (`deliveryMethod: "delivery"|"pickup"`, `paymentMethod: "pix"|"card"|"cash"`). Ao ler pedidos, sempre passe por `normalizeDeliveryMethod` / `normalizePaymentMethod` (aceitam também rótulos legados em português) e exiba com `DELIVERY_LABELS` / `PAYMENT_LABELS`.
 - `POST /api/orders` valida o payload em [server/validation.js](server/validation.js) e grava **só** os campos conhecidos (`origin`, `items`, `total`, `deliveryMethod`, `paymentMethod`, `address` se entrega, `changeFor` se dinheiro). Campo novo no pedido = atualizar o validador e os testes. Inválido → 422.
 - `POST|PUT /api/admin/menu` validam com `validateMenuItem` (categorias fixas: `sizes`, `flavors`, `toppings`, `addons`, `creams`, `fruits`, `fillings`, `ready_made`; `image` aceita `/assets/...`, `https://` ou data URL base64 de até ~200KB). Campos desconhecidos são ignorados.
@@ -86,7 +86,6 @@ Ambiente: Windows, caminho do projeto contém `ç` (`Cardapio Açai`) e assets c
 Prioridade alta — corretude/segurança:
 
 Prioridade média — estrutura:
-1. Lógica de total/mensagem de WhatsApp duplicada entre `OrderPage` e `ReadyMadePage` — extrair para `src/lib/` com testes unitários.
-2. `window.open` do WhatsApp roda depois de um `await` (salvar pedido) — validar em iPhone/Safari real se o pop-up não é bloqueado; se for, abrir a aba de forma síncrona e só depois definir a URL.
+1. `window.open` do WhatsApp roda depois de um `await` (salvar pedido) — validar em iPhone/Safari real se o pop-up não é bloqueado; se for, abrir a aba de forma síncrona e só depois definir a URL.
 
 Ao concluir um item, remova-o daqui no mesmo commit.

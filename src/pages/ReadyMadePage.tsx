@@ -4,7 +4,8 @@ import { ArrowLeft, ArrowRight, ShoppingCart, Send, Check, Trash2, Plus, Minus }
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import SmoothScrollProvider from "@/components/SmoothScrollProvider";
-import { saveOrder, PAYMENT_LABELS } from "@/lib/orders";
+import { saveOrder } from "@/lib/orders";
+import { buildCheckoutSection, buildWhatsAppUrl, deliveryFee, formatBRL } from "@/lib/whatsapp";
 import { readCachedMenuItems } from "@/lib/menuCache";
 import { readyMadeProducts } from "@/data/menu";
 import type { MenuItemRecord, ReadyProduct } from "@/types/menu";
@@ -56,7 +57,7 @@ export default function ReadyMadePage() {
   const [isSending, setIsSending] = useState(false);
 
   const cartTotal = useMemo(() => cart.reduce((sum, item) => sum + item.price * item.qty, 0), [cart]);
-  const totalPrice = cartTotal + (deliveryMethod === "delivery" ? 7.00 : 0);
+  const totalPrice = cartTotal + deliveryFee(deliveryMethod);
   const cartCount = useMemo(() => cart.reduce((sum, item) => sum + item.qty, 0), [cart]);
 
   const addToCart = (product: ReadyProduct) => {
@@ -106,16 +107,9 @@ export default function ReadyMadePage() {
     if (cart.length === 0) return "";
     let message = `*NOVO PEDIDO (PRONTO)*\n\n`;
     cart.forEach(item => {
-      message += `*${item.qty}x* ${item.name} — R$ ${(item.price * item.qty).toFixed(2).replace(".", ",")}\n`;
+      message += `*${item.qty}x* ${item.name} — ${formatBRL(item.price * item.qty)}\n`;
     });
-    message += `\n*Entrega:* ${deliveryMethod === "delivery" ? "Receber em casa" : "Retirar na loja"}\n`;
-    if (deliveryMethod === "delivery") message += `*Endereço:* ${address.street}, ${address.number} - ${address.neighborhood}\n`;
-    message += `\n*Pagamento:* ${paymentMethod ? PAYMENT_LABELS[paymentMethod] : "Não definido"}\n`;
-    if (paymentMethod === "cash" && changeFor) {
-      message += changeFor === "Não preciso" ? `*Troco:* Não preciso\n` : `*Troco para:* R$ ${changeFor}\n`;
-    }
-    message += `\n*TOTAL: R$ ${totalPrice.toFixed(2).replace(".", ",")}*`;
-    return encodeURIComponent(message);
+    return message + buildCheckoutSection({ deliveryMethod, address, paymentMethod, changeFor }, totalPrice);
   };
 
   const handleFinish = async () => {
@@ -132,7 +126,7 @@ export default function ReadyMadePage() {
       changeFor: paymentMethod === "cash" ? changeFor : undefined,
     });
     // Depois abre o WhatsApp
-    window.open(`https://wa.me/557591585290?text=${formatWhatsAppMessage()}`, "_blank");
+    window.open(buildWhatsAppUrl(formatWhatsAppMessage()), "_blank");
     setIsSending(false);
   };
 
