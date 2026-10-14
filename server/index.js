@@ -1,4 +1,6 @@
-require('dotenv').config();
+const path = require('path');
+// Carrega server/.env mesmo quando iniciado da raiz (npm run server)
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 const { MongoClient } = require('mongodb');
 const { createApp } = require('./app');
 
