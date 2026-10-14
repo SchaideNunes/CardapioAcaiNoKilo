@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi, type MockInstance } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import AdminPage from "@/pages/AdminPage";
@@ -180,6 +180,47 @@ describe("AdminPage - Painel Administrativo", () => {
       fireEvent.click(screen.getByRole("button", { name: "Dinheiro" }));
       expect(screen.getByText("Pote de 750")).toBeInTheDocument();
       expect(screen.queryByText("2x Açaí Natural 500ml")).not.toBeInTheDocument();
+    });
+  });
+
+  describe("quando o servidor recusa uma alteração", () => {
+    const serverItem = {
+      _id: "6710bb000000000000000001", id: "fr_kiwi", name: "Kiwi", price: 1.5,
+      category: "Fruta", original_category: "fruits", active: true,
+    };
+    let fetchSpy: MockInstance<typeof fetch>;
+
+    beforeEach(() => {
+      localStorage.setItem("adminToken", "real-jwt-token");
+      fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation((input, init) => {
+        const url = String(input);
+        if (init?.method === "PUT") {
+          return Promise.resolve(new Response(JSON.stringify({ error: "Campo active deve ser verdadeiro ou falso" }), { status: 422 }));
+        }
+        const body = url.endsWith("/api/admin/menu") ? [serverItem] : [];
+        return Promise.resolve(new Response(JSON.stringify(body), { status: 200 }));
+      });
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it("mostra o erro do servidor e recarrega o estado real em vez de confirmar", async () => {
+      render(
+        <BrowserRouter>
+          <AdminPage />
+        </BrowserRouter>
+      );
+
+      fireEvent.click(await screen.findByRole("button", { name: /^ativo$/i }));
+
+      expect(await screen.findByText("Campo active deve ser verdadeiro ou falso")).toBeInTheDocument();
+      expect(screen.queryByText(/item atualizado com sucesso/i)).not.toBeInTheDocument();
+      await waitFor(() => expect(screen.getByRole("button", { name: /^ativo$/i })).toBeInTheDocument());
+
+      const menuLoads = fetchSpy.mock.calls.filter(([url, init]) => String(url).endsWith("/api/admin/menu") && !init?.method);
+      expect(menuLoads.length).toBeGreaterThanOrEqual(2);
     });
   });
 

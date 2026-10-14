@@ -278,6 +278,65 @@ export default function AdminPage() {
     return formatted;
   };
 
+  // Busca cardápio e pedidos no servidor e aplica no estado. Lança se o servidor estiver inacessível.
+  const loadFromServer = async (): Promise<"ok" | "unauthorized"> => {
+    const [menuRes, ordersRes] = await Promise.all([
+      fetch("http://localhost:3001/api/admin/menu", { headers: { Authorization: `Bearer ${token}` } }),
+      fetch("http://localhost:3001/api/admin/orders", { headers: { Authorization: `Bearer ${token}` } })
+    ]);
+
+    if (menuRes.status === 401 || ordersRes.status === 401) {
+      handleLogout();
+      return "unauthorized";
+    }
+
+    const backendItems = await menuRes.json();
+    if (Array.isArray(backendItems) && backendItems.length > 0) {
+      setMenuItems(backendItems.map((item: ItemAdmin) => ({
+        ...item,
+        image: item.image || resolveItemImage(item)
+      })));
+    } else {
+      setMenuItems(getInitialFallbackItems());
+    }
+    setOrders(await ordersRes.json());
+    return "ok";
+  };
+
+  /**
+   * Envia uma alteração do cardápio ao servidor. Offline (ou no modo demo) a alteração
+   * fica só no estado local; se o servidor recusar, avisa e recarrega o estado real do banco.
+   */
+  const sendAdminChange = async (
+    path: string,
+    init: RequestInit
+  ): Promise<{ status: "saved"; data: unknown } | { status: "local" | "rejected" }> => {
+    if (!token || token === "demo-token-123") return { status: "local" };
+
+    let res: Response;
+    try {
+      res = await fetch(`http://localhost:3001${path}`, {
+        ...init,
+        headers: { "Content-Type": "application/json", ...init.headers, Authorization: `Bearer ${token}` }
+      });
+    } catch {
+      console.warn("Backend offline, alteração salva localmente no Modo Demo.");
+      return { status: "local" };
+    }
+
+    if (res.status === 401) {
+      handleLogout();
+      return { status: "rejected" };
+    }
+    if (!res.ok) {
+      const data = await res.json().catch(() => null);
+      showToast(data?.error || "O servidor recusou a alteração.", "error");
+      await loadFromServer().catch(() => undefined);
+      return { status: "rejected" };
+    }
+    return { status: "saved", data: await res.json().catch(() => null) };
+  };
+
   const fetchData = async () => {
     if (token === "demo-token-123") {
       setMenuItems(getInitialFallbackItems());
@@ -288,26 +347,7 @@ export default function AdminPage() {
 
     setLoading(true);
     try {
-      const [menuRes, ordersRes] = await Promise.all([
-        fetch("http://localhost:3001/api/admin/menu", { headers: { Authorization: `Bearer ${token}` } }),
-        fetch("http://localhost:3001/api/admin/orders", { headers: { Authorization: `Bearer ${token}` } })
-      ]);
-      
-      if (menuRes.status === 401 || ordersRes.status === 401) {
-        handleLogout();
-        return;
-      }
-
-      const backendItems = await menuRes.json();
-      if (Array.isArray(backendItems) && backendItems.length > 0) {
-        setMenuItems(backendItems.map((item: ItemAdmin) => ({
-          ...item,
-          image: item.image || resolveItemImage(item)
-        })));
-      } else {
-        setMenuItems(getInitialFallbackItems());
-      }
-      setOrders(await ordersRes.json());
+      await loadFromServer();
     } catch (err) {
       console.log("Modo Demo Admin: Carregando banco de dados local sincronizado.");
       setMenuItems(getInitialFallbackItems());
@@ -326,27 +366,7 @@ export default function AdminPage() {
         setMenuItems(getInitialFallbackItems());
         setOrders(demoOrders);
         showToast("Dados sincronizados com sucesso!", "success");
-      } else {
-        const [menuRes, ordersRes] = await Promise.all([
-          fetch("http://localhost:3001/api/admin/menu", { headers: { Authorization: `Bearer ${token}` } }),
-          fetch("http://localhost:3001/api/admin/orders", { headers: { Authorization: `Bearer ${token}` } })
-        ]);
-        
-        if (menuRes.status === 401 || ordersRes.status === 401) {
-          handleLogout();
-          return;
-        }
-
-        const backendItems = await menuRes.json();
-        if (Array.isArray(backendItems) && backendItems.length > 0) {
-          setMenuItems(backendItems.map((item: ItemAdmin) => ({
-            ...item,
-            image: item.image || resolveItemImage(item)
-          })));
-        } else {
-          setMenuItems(getInitialFallbackItems());
-        }
-        setOrders(await ordersRes.json());
+      } else if (await loadFromServer() === "ok") {
         showToast("Dados sincronizados com sucesso!", "success");
       }
     } catch (err) {
@@ -375,21 +395,8 @@ export default function AdminPage() {
     const updatedList = menuItems.map(item => item._id === id ? { ...item, ...updates } : item);
     saveItemsState(updatedList);
 
-    if (token && token !== "demo-token-123") {
-      try {
-        await fetch(`http://localhost:3001/api/admin/menu/${id}`, {
-          method: "PUT",
-          headers: { 
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`
-          },
-          body: JSON.stringify(updates)
-        });
-      } catch (err) {
-        console.warn("Backend offline, alteração salva localmente no Modo Demo.");
-      }
-    }
-    showToast("Item atualizado com sucesso!");
+    const result = await sendAdminChange(`/api/admin/menu/${id}`, { method: "PUT", body: JSON.stringify(updates) });
+    if (result.status !== "rejected") showToast("Item atualizado com sucesso!");
   };
 
   // Salvar Item do Modal (Criar ou Atualizar Completo)
@@ -412,21 +419,8 @@ export default function AdminPage() {
         const updatedList = menuItems.map(i => i._id === editingItem._id ? updatedItem : i);
         saveItemsState(updatedList);
 
-        if (token && token !== "demo-token-123") {
-          try {
-            await fetch(`http://localhost:3001/api/admin/menu/${editingItem._id}`, {
-              method: "PUT",
-              headers: { 
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`
-              },
-              body: JSON.stringify(formData)
-            });
-          } catch (e) {
-            console.warn("Backend offline, alteração salva no storage local.");
-          }
-        }
-        showToast(`Item "${updatedItem.name}" atualizado!`);
+        const result = await sendAdminChange(`/api/admin/menu/${editingItem._id}`, { method: "PUT", body: JSON.stringify(formData) });
+        if (result.status !== "rejected") showToast(`Item "${updatedItem.name}" atualizado!`);
       } else {
         // Modo Criação
         const newId = "item_" + Date.now().toString(36) + Math.random().toString(36).substring(2, 6);
@@ -446,27 +440,13 @@ export default function AdminPage() {
         const updatedList = [newItem, ...menuItems];
         saveItemsState(updatedList);
 
-        if (token && token !== "demo-token-123") {
-          try {
-            const res = await fetch(`http://localhost:3001/api/admin/menu`, {
-              method: "POST",
-              headers: { 
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`
-              },
-              body: JSON.stringify(newItem)
-            });
-            if (res.ok) {
-              const resData = await res.json();
-              if (resData?.item?._id) {
-                newItem._id = resData.item._id;
-              }
-            }
-          } catch (e) {
-            console.warn("Backend offline, item criado no storage local.");
-          }
+        const result = await sendAdminChange("/api/admin/menu", { method: "POST", body: JSON.stringify(newItem) });
+        if (result.status === "saved") {
+          // Troca o id provisório pelo _id gerado no banco para que edições futuras acertem o item
+          const savedId = (result.data as { item?: { _id?: string } } | null)?.item?._id;
+          if (savedId) saveItemsState(updatedList.map(i => i._id === newId ? { ...i, _id: savedId } : i));
         }
-        showToast(`Novo item "${newItem.name}" adicionado com sucesso!`);
+        if (result.status !== "rejected") showToast(`Novo item "${newItem.name}" adicionado com sucesso!`);
       }
 
       setModalOpen(false);
@@ -488,18 +468,8 @@ export default function AdminPage() {
     const updatedList = menuItems.filter(i => i._id !== targetId);
     saveItemsState(updatedList);
 
-    if (token && token !== "demo-token-123") {
-      try {
-        await fetch(`http://localhost:3001/api/admin/menu/${targetId}`, {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` }
-        });
-      } catch (err) {
-        console.warn("Backend offline, item excluído localmente.");
-      }
-    }
-
-    showToast(`Item "${targetName}" removido do cardápio!`);
+    const result = await sendAdminChange(`/api/admin/menu/${targetId}`, { method: "DELETE" });
+    if (result.status !== "rejected") showToast(`Item "${targetName}" removido do cardápio!`);
     setItemToDelete(null);
   };
 
