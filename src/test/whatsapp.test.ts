@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import {
   DELIVERY_FEE,
   STORE_WHATSAPP_NUMBER,
@@ -6,6 +6,7 @@ import {
   buildWhatsAppUrl,
   deliveryFee,
   formatBRL,
+  openWhatsApp,
 } from '@/lib/whatsapp';
 
 const address = { street: 'Rua das Flores', number: '42', neighborhood: 'Centro' };
@@ -54,6 +55,21 @@ describe('buildCheckoutSection', () => {
       .toContain('*Troco:* Não preciso\n');
     expect(buildCheckoutSection({ deliveryMethod: 'pickup', address, paymentMethod: null, changeFor: '' }, 10))
       .toContain('*Pagamento:* Não definido\n');
+  });
+});
+
+describe('openWhatsApp', () => {
+  it('abre em nova aba', () => {
+    const fakeWindow = { open: vi.fn(() => ({}) as Window), location: { href: '' } };
+    openWhatsApp('https://wa.me/1', fakeWindow);
+    expect(fakeWindow.open).toHaveBeenCalledWith('https://wa.me/1', '_blank');
+    expect(fakeWindow.location.href).toBe('');
+  });
+
+  it('navega na própria aba quando o pop-up é bloqueado', () => {
+    const fakeWindow = { open: vi.fn(() => null), location: { href: '' } };
+    openWhatsApp('https://wa.me/1', fakeWindow);
+    expect(fakeWindow.location.href).toBe('https://wa.me/1');
   });
 });
 

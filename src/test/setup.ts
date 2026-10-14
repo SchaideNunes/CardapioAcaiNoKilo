@@ -26,8 +26,8 @@ Object.defineProperty(window, 'sessionStorage', { value: sessionStorageMock });
 // Mock window.scrollTo
 window.scrollTo = vi.fn() as unknown as typeof window.scrollTo;
 
-// Mock window.open
-window.open = vi.fn();
+// Mock window.open (devolve uma "janela", como um navegador que não bloqueou o pop-up)
+window.open = vi.fn(() => ({}) as Window);
 
 // Mock Image for preloader
 class MockImage {

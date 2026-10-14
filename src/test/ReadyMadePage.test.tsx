@@ -298,6 +298,20 @@ describe('ReadyMadePage', () => {
       );
     });
 
+    it('abre o WhatsApp no mesmo clique, sem esperar o servidor (Safari bloqueia pop-up após await)', async () => {
+      const fetchSpy = mockFetch(() => new Promise<Response>(() => {})); // servidor nunca responde
+      const user = userEvent.setup();
+      renderPage();
+
+      await completeCheckoutWithPickupPix(user);
+      await user.click(screen.getByText('Enviar Pedido'));
+
+      expect(window.open).toHaveBeenCalledTimes(1);
+      const orderCallIndex = fetchSpy.mock.calls.findIndex(([url]) => String(url) === ORDERS_URL);
+      expect(fetchSpy.mock.calls[orderCallIndex][1]?.keepalive).toBe(true);
+      expect(fetchSpy.mock.invocationCallOrder[orderCallIndex]).toBeLessThan(vi.mocked(window.open).mock.invocationCallOrder[0]);
+    });
+
     it('abre o WhatsApp mesmo se salvar o pedido falhar', async () => {
       mockFetch(() => Promise.reject(new TypeError('Failed to fetch')));
       vi.spyOn(console, 'error').mockImplementation(() => {});

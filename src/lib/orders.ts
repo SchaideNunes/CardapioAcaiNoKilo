@@ -33,7 +33,8 @@ export function normalizePaymentMethod(value: unknown): PaymentMethod | null {
 
 /**
  * Persiste o pedido para o painel admin. Nunca lança: uma falha ao salvar
- * não pode impedir o cliente de enviar o pedido pelo WhatsApp.
+ * não pode impedir o cliente de enviar o pedido pelo WhatsApp. Usa keepalive para
+ * a requisição sobreviver se a aba for trocada/fechada logo depois (abertura do WhatsApp).
  */
 export async function saveOrder(order: OrderPayload): Promise<boolean> {
   try {
@@ -41,6 +42,7 @@ export async function saveOrder(order: OrderPayload): Promise<boolean> {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(order),
+      keepalive: true,
     });
     return res.ok;
   } catch (e) {

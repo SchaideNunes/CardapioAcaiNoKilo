@@ -5,7 +5,7 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import SmoothScrollProvider from "@/components/SmoothScrollProvider";
 import { saveOrder } from "@/lib/orders";
-import { buildCheckoutSection, buildWhatsAppUrl, deliveryFee, formatBRL } from "@/lib/whatsapp";
+import { buildCheckoutSection, buildWhatsAppUrl, deliveryFee, formatBRL, openWhatsApp } from "@/lib/whatsapp";
 import { readCachedMenuItems } from "@/lib/menuCache";
 import { readyMadeProducts } from "@/data/menu";
 import type { MenuItemRecord, ReadyProduct } from "@/types/menu";
@@ -112,11 +112,12 @@ export default function ReadyMadePage() {
     return message + buildCheckoutSection({ deliveryMethod, address, paymentMethod, changeFor }, totalPrice);
   };
 
-  const handleFinish = async () => {
+  const handleFinish = () => {
     if (isSending) return;
     setIsSending(true);
-    // Primeiro salva no banco de dados para o Admin Panel
-    await saveOrder({
+    // Dispara o salvamento para o Admin Panel antes de abrir o WhatsApp. A abertura não espera a
+    // resposta para continuar dentro do clique: Safari/iOS bloqueia pop-ups abertos depois de um await.
+    saveOrder({
       origin: "ready_made",
       items: cart.map(item => `${item.qty}x ${item.name}`),
       total: totalPrice,
@@ -124,10 +125,8 @@ export default function ReadyMadePage() {
       paymentMethod,
       address: deliveryMethod === "delivery" ? address : undefined,
       changeFor: paymentMethod === "cash" ? changeFor : undefined,
-    });
-    // Depois abre o WhatsApp
-    window.open(buildWhatsAppUrl(formatWhatsAppMessage()), "_blank");
-    setIsSending(false);
+    }).finally(() => setIsSending(false));
+    openWhatsApp(buildWhatsAppUrl(formatWhatsAppMessage()));
   };
 
   return (

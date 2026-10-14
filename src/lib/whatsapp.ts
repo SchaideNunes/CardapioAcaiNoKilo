@@ -36,3 +36,11 @@ export function buildCheckoutSection(details: CheckoutDetails, total: number): s
 export function buildWhatsAppUrl(message: string): string {
   return `https://wa.me/${STORE_WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
+
+type WindowLike = { open: (url: string, target: string) => unknown; location: { href: string } };
+
+/** Abre o WhatsApp em nova aba; se o navegador bloquear o pop-up, navega na própria aba. */
+export function openWhatsApp(url: string, win: WindowLike = window): void {
+  const opened = win.open(url, "_blank");
+  if (!opened) win.location.href = url;
+}

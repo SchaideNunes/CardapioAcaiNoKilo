@@ -16,7 +16,7 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import SmoothScrollProvider from "@/components/SmoothScrollProvider";
 import { saveOrder, PAYMENT_LABELS } from "@/lib/orders";
-import { buildCheckoutSection, buildWhatsAppUrl, deliveryFee } from "@/lib/whatsapp";
+import { buildCheckoutSection, buildWhatsAppUrl, deliveryFee, openWhatsApp } from "@/lib/whatsapp";
 import { apiUrl } from "@/lib/api";
 
 function cn(...inputs: ClassValue[]) {
@@ -95,6 +95,7 @@ export default function OrderPage() {
 
   const [holdTimer, setHoldTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [isSending, setIsSending] = useState(false);
 
   const allSelectedItems = useMemo(() => [
     ...order.toppings, ...order.addons, ...order.creams, ...order.fruits, ...order.fillings
@@ -175,18 +176,19 @@ export default function OrderPage() {
     return message + buildCheckoutSection(order, totalPrice);
   };
 
-  const sendWhatsApp = async () => {
-    // Primeiro salva no banco de dados para o Admin Panel
-    await saveOrder({
+  const sendWhatsApp = () => {
+    if (isSending) return;
+    setIsSending(true);
+    // Dispara o salvamento para o Admin Panel antes de abrir o WhatsApp. A abertura não espera a
+    // resposta para continuar dentro do clique: Safari/iOS bloqueia pop-ups abertos depois de um await.
+    saveOrder({
       ...order,
       origin: "custom",
       total: totalPrice,
       // Tamanho e sabor entram na lista para aparecerem no admin e no ranking dos relatórios
       items: [order.size, order.flavor, ...allSelectedItems].filter((i): i is MenuItem => !!i).map(i => i.name)
-    });
-
-    // Depois abre o WhatsApp
-    window.open(buildWhatsAppUrl(formatWhatsAppMessage()), "_blank");
+    }).finally(() => setIsSending(false));
+    openWhatsApp(buildWhatsAppUrl(formatWhatsAppMessage()));
   };
 
   const isStepValid = () => {
@@ -723,7 +725,8 @@ export default function OrderPage() {
                   ) : (
                     <button
                       onClick={sendWhatsApp}
-                      className="w-full py-4 bg-[#25D366] text-[#241220] font-heading text-xl rounded-2xl flex items-center justify-center gap-2 hover:bg-[#22c35e] transition-all shadow-lg active:scale-98 uppercase"
+                      disabled={isSending}
+                      className="w-full py-4 bg-[#25D366] disabled:opacity-50 text-[#241220] font-heading text-xl rounded-2xl flex items-center justify-center gap-2 hover:bg-[#22c35e] transition-all shadow-lg active:scale-98 uppercase"
                     >
                       <Send size={18} /> FINALIZAR NO WHATSAPP
                     </button>
@@ -755,7 +758,8 @@ export default function OrderPage() {
             ) : (
               <button
                 onClick={sendWhatsApp}
-                className="px-6 sm:px-8 py-3.5 sm:py-4 bg-[#25D366] text-[#241220] font-heading text-lg sm:text-xl rounded-2xl flex items-center gap-2 hover:bg-[#22c35e] transition-all shadow-lg active:scale-95 uppercase"
+                disabled={isSending}
+                className="disabled:opacity-50 px-6 sm:px-8 py-3.5 sm:py-4 bg-[#25D366] text-[#241220] font-heading text-lg sm:text-xl rounded-2xl flex items-center gap-2 hover:bg-[#22c35e] transition-all shadow-lg active:scale-95 uppercase"
               >
                 <Send size={18} /> Finalizar
               </button>

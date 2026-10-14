@@ -135,6 +135,31 @@ describe('OrderPage ("Monte seu Açaí")', () => {
     fetchSpy.mockRestore();
   });
 
+  it('abre o WhatsApp no mesmo clique e não duplica o pedido com clique duplo', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation((input) =>
+      String(input).endsWith('/api/orders')
+        ? new Promise<Response>(() => {}) // servidor nunca responde
+        : Promise.resolve(new Response(JSON.stringify({}), { status: 200 }))
+    );
+    const user = userEvent.setup();
+    renderOrderPage();
+    const next = () => user.click(screen.getAllByRole('button').filter(btn => btn.textContent?.toUpperCase().includes('PRÓXIMO'))[0]);
+
+    await user.click(screen.getAllByRole('button').find(btn => btn.textContent?.includes('Pote de 500'))!);
+    await next();
+    await user.click(screen.getAllByRole('button').find(btn => btn.textContent?.includes('Açaí Natural'))!);
+    for (let i = 0; i < 6; i++) await next(); // coberturas → ... → recheios → entrega
+    await user.click(screen.getByText('Retirar na Loja'));
+    await next();
+    const finish = screen.getAllByRole('button').find(btn => btn.textContent?.toUpperCase().includes('FINALIZAR'))!;
+    await user.click(finish);
+    await user.click(finish);
+
+    expect(window.open).toHaveBeenCalledTimes(1);
+    expect(fetchSpy.mock.calls.filter(([url]) => String(url).endsWith('/api/orders'))).toHaveLength(1);
+    fetchSpy.mockRestore();
+  });
+
   it('usa o cardápio salvo pelo painel admin (itens desativados somem)', () => {
     localStorage.setItem('cardapio_admin_menu_items_v3', JSON.stringify([
       { _id: 's1', id: 's1', name: 'Pote Promocional', price: 9, category: 'Tamanho', original_category: 'sizes', active: true },

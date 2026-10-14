@@ -71,7 +71,7 @@ Ambiente: Windows, caminho do projeto contém `ç` (`Cardapio Açai`) e assets c
 - Textos de interface em português do Brasil.
 
 ### Regras de negócio
-- O pedido deve ser salvo via `POST /api/orders` **antes** de abrir o WhatsApp; falha ao salvar não pode impedir o envio pelo WhatsApp.
+- O `POST /api/orders` (com `keepalive`) é **disparado antes** de abrir o WhatsApp, mas a abertura **não espera** a resposta: precisa acontecer no mesmo clique, senão o Safari/iOS bloqueia o pop-up. Use `saveOrder(...)` + `openWhatsApp(buildWhatsAppUrl(...))` (que cai para navegação na mesma aba se o pop-up for bloqueado). Falha ao salvar nunca impede o envio, e o botão fica desabilitado enquanto o salvamento está pendente.
 - WhatsApp da loja (`STORE_WHATSAPP_NUMBER`), taxa de entrega (`DELIVERY_FEE` = R$ 7) e o trecho de entrega/pagamento/troco/total da mensagem ficam em [src/lib/whatsapp.ts](src/lib/whatsapp.ts) — não repita essas regras nas páginas.
 - Pedidos são gravados com códigos (`deliveryMethod: "delivery"|"pickup"`, `paymentMethod: "pix"|"card"|"cash"`). Ao ler pedidos, sempre passe por `normalizeDeliveryMethod` / `normalizePaymentMethod` (aceitam também rótulos legados em português) e exiba com `DELIVERY_LABELS` / `PAYMENT_LABELS`.
 - `POST /api/orders` valida o payload em [server/validation.js](server/validation.js) e grava **só** os campos conhecidos (`origin`, `items`, `total`, `deliveryMethod`, `paymentMethod`, `address` se entrega, `changeFor` se dinheiro). Campo novo no pedido = atualizar o validador e os testes. Inválido → 422.
@@ -81,11 +81,14 @@ Ambiente: Windows, caminho do projeto contém `ç` (`Cardapio Açai`) e assets c
 - Pagamento em dinheiro exige "troco para" ≥ total ou "Não preciso".
 - Entrega exige rua, número e bairro.
 
-## Backlog conhecido (dívidas encontradas na análise de 14/10/2026)
+## Backlog conhecido
 
-Prioridade alta — corretude/segurança:
+Itens da análise de 14/10/2026 concluídos. Pendências e sugestões abertas:
 
-Prioridade média — estrutura:
-1. `window.open` do WhatsApp roda depois de um `await` (salvar pedido) — validar em iPhone/Safari real se o pop-up não é bloqueado; se for, abrir a aba de forma síncrona e só depois definir a URL.
+1. **Rotacionar a senha do admin**: a senha antiga ficou no histórico público do git (commits anteriores a `6bcbe49`). Ação do dono; o código não a contém mais.
+2. Validar em iPhone/Safari real o fluxo de envio (WhatsApp abre na hora; pedido aparece no admin).
+3. A interface mostra preços com ponto (`R$ 18.00`) enquanto a mensagem usa vírgula (`R$ 18,00`) — padronizar no formato brasileiro com `formatBRL` (os testes de página que procuram `18.00` precisam ser ajustados junto).
+4. O total do pedido vem do cliente; se um dia o pagamento deixar de ser confirmado no WhatsApp, recalcular no servidor a partir dos preços do banco (exige enviar ids em vez de nomes).
+5. O token do admin fica em `localStorage` (exposto a XSS); avaliar cookie `httpOnly` + `SameSite` quando houver domínio próprio.
 
 Ao concluir um item, remova-o daqui no mesmo commit.
