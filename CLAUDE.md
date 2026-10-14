@@ -26,7 +26,7 @@ Ambiente: Windows, caminho do projeto contém `ç` (`Cardapio Açai`) e assets c
   - Públicas: `GET /api/menu`, `POST /api/login`, `POST /api/orders`
   - Protegidas (`verifyToken`): `GET|POST /api/admin/menu`, `PUT|DELETE /api/admin/menu/:id`, `GET /api/admin/orders`
   - Coleção do cardápio vem de `process.env.COLLECTION_NAME`; pedidos em `pedidos`; usuários em `usuarios`.
-- A URL da API está hardcoded como `http://localhost:3001` em todas as páginas.
+- [src/lib/api.ts](src/lib/api.ts) — `apiUrl("/api/...")` monta a URL do backend a partir de `VITE_API_URL` (padrão `http://localhost:3001`). Nunca escreva a URL do backend à mão.
 
 ### Modo Demo / fallback
 - Se o `fetch` falha, as páginas usam `src/data/menu.ts` e/ou o cache em `localStorage` (`cardapio_admin_menu_items_v3`, legado `_v2`).
@@ -81,12 +81,11 @@ Ambiente: Windows, caminho do projeto contém `ç` (`Cardapio Açai`) e assets c
 Prioridade alta — corretude/segurança:
 
 Prioridade média — estrutura:
-1. Extrair `API_URL` para `import.meta.env.VITE_API_URL` (hoje `localhost` fixo quebra o deploy no Vercel).
-2. Criar `.env.example` (raiz e `server/`).
-3. `dist/` está versionado no git — adicionar ao `.gitignore` e remover do índice.
-4. Lint: 71 erros (maioria `no-undef` em arquivos Node do `server/`, `migration.js` e `scripts/` por falta de `globals.node` na config; `any` em `OrderPage`/`ReadyMadePage`).
-5. Tipos de domínio (`MenuItem`, `Order`) duplicados entre páginas — centralizar em `src/types/`.
-6. Lógica de total/mensagem de WhatsApp duplicada entre `OrderPage` e `ReadyMadePage` — extrair para `src/lib/` com testes unitários.
-7. `window.open` do WhatsApp roda depois de um `await` (salvar pedido) — validar em iPhone/Safari real se o pop-up não é bloqueado; se for, abrir a aba de forma síncrona e só depois definir a URL.
+1. Criar `.env.example` (raiz e `server/`).
+2. `dist/` está versionado no git — adicionar ao `.gitignore` e remover do índice.
+3. Lint: 71 erros (maioria `no-undef` em arquivos Node do `server/`, `migration.js` e `scripts/` por falta de `globals.node` na config; `any` em `OrderPage`/`ReadyMadePage`).
+4. Tipos de domínio (`MenuItem`, `Order`) duplicados entre páginas — centralizar em `src/types/`.
+5. Lógica de total/mensagem de WhatsApp duplicada entre `OrderPage` e `ReadyMadePage` — extrair para `src/lib/` com testes unitários.
+6. `window.open` do WhatsApp roda depois de um `await` (salvar pedido) — validar em iPhone/Safari real se o pop-up não é bloqueado; se for, abrir a aba de forma síncrona e só depois definir a URL.
 
 Ao concluir um item, remova-o daqui no mesmo commit.

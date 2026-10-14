@@ -47,6 +47,7 @@ import { twMerge } from "tailwind-merge";
 import { menuData as localFallbackData } from "@/data/menu";
 import { normalizeDeliveryMethod, normalizePaymentMethod, DELIVERY_LABELS, PAYMENT_LABELS } from "@/lib/orders";
 import { DEMO_TOKEN } from "@/lib/demo";
+import { apiUrl } from "@/lib/api";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -282,8 +283,8 @@ export default function AdminPage() {
   // Busca cardápio e pedidos no servidor e aplica no estado. Lança se o servidor estiver inacessível.
   const loadFromServer = async (): Promise<"ok" | "unauthorized"> => {
     const [menuRes, ordersRes] = await Promise.all([
-      fetch("http://localhost:3001/api/admin/menu", { headers: { Authorization: `Bearer ${token}` } }),
-      fetch("http://localhost:3001/api/admin/orders", { headers: { Authorization: `Bearer ${token}` } })
+      fetch(apiUrl("/api/admin/menu"), { headers: { Authorization: `Bearer ${token}` } }),
+      fetch(apiUrl("/api/admin/orders"), { headers: { Authorization: `Bearer ${token}` } })
     ]);
 
     if (menuRes.status === 401 || ordersRes.status === 401) {
@@ -309,14 +310,14 @@ export default function AdminPage() {
    * fica só no estado local; se o servidor recusar, avisa e recarrega o estado real do banco.
    */
   const sendAdminChange = async (
-    path: string,
+    path: `/${string}`,
     init: RequestInit
   ): Promise<{ status: "saved"; data: unknown } | { status: "local" | "rejected" }> => {
     if (!token || token === DEMO_TOKEN) return { status: "local" };
 
     let res: Response;
     try {
-      res = await fetch(`http://localhost:3001${path}`, {
+      res = await fetch(apiUrl(path), {
         ...init,
         headers: { "Content-Type": "application/json", ...init.headers, Authorization: `Bearer ${token}` }
       });

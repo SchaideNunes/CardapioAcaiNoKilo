@@ -1,4 +1,6 @@
-export const ORDERS_ENDPOINT = "http://localhost:3001/api/orders";
+import { apiUrl } from "./api";
+
+export const ORDERS_ENDPOINT = apiUrl("/api/orders");
 
 export type DeliveryMethod = "pickup" | "delivery";
 export type PaymentMethod = "pix" | "card" | "cash";

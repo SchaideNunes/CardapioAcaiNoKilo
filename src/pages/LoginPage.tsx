@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Lock, Mail, ArrowRight, ShieldCheck } from "lucide-react";
 import { DEMO_TOKEN, isDemoCredentials, isDemoModeEnabled } from "@/lib/demo";
+import { apiUrl } from "@/lib/api";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -16,7 +17,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:3001/api/login", {
+      const res = await fetch(apiUrl("/api/login"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username: username.trim(), password })

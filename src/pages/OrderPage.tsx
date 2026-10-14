@@ -14,6 +14,7 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import SmoothScrollProvider from "@/components/SmoothScrollProvider";
 import { saveOrder, PAYMENT_LABELS } from "@/lib/orders";
+import { apiUrl } from "@/lib/api";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -92,7 +93,7 @@ export default function OrderPage() {
   });
 
   useEffect(() => {
-    fetch("http://localhost:3001/api/menu")
+    fetch(apiUrl("/api/menu"))
       .then(res => res.json())
       .then(data => {
         if (data && data.sizes) {
