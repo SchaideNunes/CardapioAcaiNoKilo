@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Lock, Mail, ArrowRight, ShieldCheck } from "lucide-react";
+import { DEMO_TOKEN, isDemoCredentials, isDemoModeEnabled } from "@/lib/demo";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -13,8 +14,6 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
     setLoading(true);
-
-    const cleanUser = username.trim().toLowerCase();
 
     try {
       const res = await fetch("http://localhost:3001/api/login", {
@@ -30,13 +29,12 @@ export default function LoginPage() {
       } else {
         setError(data.error || "E-mail ou senha incorretos");
       }
-    } catch (err) {
-      // MODO DEMO / OFFLINE FALLBACK
-      if (
-        (cleanUser === "schaidenunes@gmail.com" || cleanUser === "schaidenunes" || cleanUser === "admin") && 
-        (password === "schaide123." || password === "admin")
-      ) {
-        localStorage.setItem("adminToken", "demo-token-123");
+    } catch {
+      // MODO DEMO / OFFLINE FALLBACK — só com as credenciais públicas de demonstração
+      if (!isDemoModeEnabled()) {
+        setError("Servidor indisponível. Tente novamente em instantes.");
+      } else if (isDemoCredentials(username, password)) {
+        localStorage.setItem("adminToken", DEMO_TOKEN);
         navigate("/admin");
       } else {
         setError("E-mail ou senha incorretos.");
@@ -67,15 +65,17 @@ export default function LoginPage() {
         <form onSubmit={handleLogin} className="space-y-5">
           {/* E-mail / Usuário */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-white/80 uppercase ml-1">E-mail / Usuário</label>
+            <label htmlFor="login-username" className="text-xs font-bold text-white/80 uppercase ml-1">E-mail / Usuário</label>
             <div className="relative">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={18} />
               <input 
+                id="login-username"
                 type="text" 
+                autoComplete="username"
                 value={username} 
                 onChange={(e) => setUsername(e.target.value)} 
                 className="w-full bg-white/[0.05] border border-white/15 rounded-2xl py-3.5 pl-12 pr-4 text-white text-sm font-sans focus:outline-none focus:border-[#F0DF58]/70 transition-all placeholder:text-white/30" 
-                placeholder="schaidenunes@gmail.com" 
+                placeholder="seu@email.com" 
                 required 
               />
             </div>
@@ -83,11 +83,13 @@ export default function LoginPage() {
 
           {/* Senha */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-white/80 uppercase ml-1">Senha de Acesso</label>
+            <label htmlFor="login-password" className="text-xs font-bold text-white/80 uppercase ml-1">Senha de Acesso</label>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={18} />
               <input 
+                id="login-password"
                 type="password" 
+                autoComplete="current-password"
                 value={password} 
                 onChange={(e) => setPassword(e.target.value)} 
                 className="w-full bg-white/[0.05] border border-white/15 rounded-2xl py-3.5 pl-12 pr-4 text-white text-sm font-sans focus:outline-none focus:border-[#F0DF58]/70 transition-all placeholder:text-white/30" 

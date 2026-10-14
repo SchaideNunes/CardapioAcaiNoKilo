@@ -46,6 +46,7 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { menuData as localFallbackData } from "@/data/menu";
 import { normalizeDeliveryMethod, normalizePaymentMethod, DELIVERY_LABELS, PAYMENT_LABELS } from "@/lib/orders";
+import { DEMO_TOKEN } from "@/lib/demo";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -311,7 +312,7 @@ export default function AdminPage() {
     path: string,
     init: RequestInit
   ): Promise<{ status: "saved"; data: unknown } | { status: "local" | "rejected" }> => {
-    if (!token || token === "demo-token-123") return { status: "local" };
+    if (!token || token === DEMO_TOKEN) return { status: "local" };
 
     let res: Response;
     try {
@@ -338,7 +339,7 @@ export default function AdminPage() {
   };
 
   const fetchData = async () => {
-    if (token === "demo-token-123") {
+    if (token === DEMO_TOKEN) {
       setMenuItems(getInitialFallbackItems());
       setOrders(demoOrders);
       setLoading(false);
@@ -361,7 +362,7 @@ export default function AdminPage() {
   const handleSyncData = async () => {
     setSyncing(true);
     try {
-      if (token === "demo-token-123") {
+      if (token === DEMO_TOKEN) {
         await new Promise(res => setTimeout(res, 600)); // Delay para sensação tátil de sincronização
         setMenuItems(getInitialFallbackItems());
         setOrders(demoOrders);

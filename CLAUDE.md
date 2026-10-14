@@ -12,7 +12,7 @@ Cardápio mobile-first para montar açaí personalizado (`/montar`) e comprar a�
 | `npx vitest run --project server` | Só os testes da API |
 | `npx tsc -b` | Typecheck (é o primeiro passo do `npm run build`) |
 | `npm run lint` | ESLint — **tem dívida existente** (ver Backlog); não piore a contagem |
-| `node server/create-admin.js` | Cria/reseta o usuário admin |
+| `ADMIN_EMAIL=... ADMIN_PASSWORD=... node server/create-admin.js` | Cria/reseta o admin (senha ≥ 12 caracteres; também lê de `server/.env`) |
 
 Ambiente: Windows, caminho do projeto contém `ç` (`Cardapio Açai`) e assets com espaço/acentos (`Logo açai.webp`) — sempre use aspas em caminhos.
 
@@ -30,7 +30,7 @@ Ambiente: Windows, caminho do projeto contém `ç` (`Cardapio Açai`) e assets c
 
 ### Modo Demo / fallback
 - Se o `fetch` falha, as páginas usam `src/data/menu.ts` e/ou o cache em `localStorage` (`cardapio_admin_menu_items_v3`, legado `_v2`).
-- Login offline aceita credenciais de demo e grava o token `"demo-token-123"`; o `AdminPage` verifica esse token para pular chamadas à API. Os testes do admin dependem desse caminho.
+- Login offline aceita **apenas** `admin`/`admin` ([src/lib/demo.ts](src/lib/demo.ts)) e grava `DEMO_TOKEN`; o `AdminPage` verifica esse token para pular chamadas à API. Os testes do admin dependem desse caminho. `VITE_DEMO_MODE=false` desliga o modo demo (use em produção).
 - Qualquer mudança no fluxo de dados precisa preservar o fallback offline.
 
 ## Regras de trabalho
@@ -54,7 +54,7 @@ Ambiente: Windows, caminho do projeto contém `ç` (`Cardapio Açai`) e assets c
 - Configuração do servidor via env ([server/index.js](server/index.js)): `JWT_SECRET` obrigatório (≥ 32 caracteres em produção, senão o processo não sobe), `CORS_ORIGINS` (lista separada por vírgula; fora de produção o padrão libera o Vite local), `TRUST_PROXY` (nº de proxies à frente, para o rate limit ver o IP real).
 - Validar e sanitizar tudo que vem de `req.body` / `req.params` no servidor: tipos primitivos esperados (rejeitar objetos onde se espera string — injeção de operadores `$`), tamanhos máximos, números finitos e ≥ 0 em preços.
 - Nunca montar `RegExp` com input do usuário sem escapar.
-- Não adicionar novas credenciais hardcoded no frontend.
+- Nunca colocar credenciais reais no código, testes ou documentação (o repositório é público).
 
 ### Design / UI
 - Mobile-first, de 320px a ultrawide, **zero scroll horizontal** (`w-full max-w-full overflow-x-hidden` nos contêineres raiz). Alvos de toque ≥ 44×44px.
@@ -79,15 +79,14 @@ Ambiente: Windows, caminho do projeto contém `ç` (`Cardapio Açai`) e assets c
 ## Backlog conhecido (dívidas encontradas na análise de 14/10/2026)
 
 Prioridade alta — corretude/segurança:
-1. Credenciais de demo hardcoded em `LoginPage.tsx` e `server/create-admin.js`.
 
 Prioridade média — estrutura:
-2. Extrair `API_URL` para `import.meta.env.VITE_API_URL` (hoje `localhost` fixo quebra o deploy no Vercel).
-3. Criar `.env.example` (raiz e `server/`).
-4. `dist/` está versionado no git — adicionar ao `.gitignore` e remover do índice.
-5. Lint: 71 erros (maioria `no-undef` em arquivos Node do `server/`, `migration.js` e `scripts/` por falta de `globals.node` na config; `any` em `OrderPage`/`ReadyMadePage`).
-6. Tipos de domínio (`MenuItem`, `Order`) duplicados entre páginas — centralizar em `src/types/`.
-7. Lógica de total/mensagem de WhatsApp duplicada entre `OrderPage` e `ReadyMadePage` — extrair para `src/lib/` com testes unitários.
-8. `window.open` do WhatsApp roda depois de um `await` (salvar pedido) — validar em iPhone/Safari real se o pop-up não é bloqueado; se for, abrir a aba de forma síncrona e só depois definir a URL.
+1. Extrair `API_URL` para `import.meta.env.VITE_API_URL` (hoje `localhost` fixo quebra o deploy no Vercel).
+2. Criar `.env.example` (raiz e `server/`).
+3. `dist/` está versionado no git — adicionar ao `.gitignore` e remover do índice.
+4. Lint: 71 erros (maioria `no-undef` em arquivos Node do `server/`, `migration.js` e `scripts/` por falta de `globals.node` na config; `any` em `OrderPage`/`ReadyMadePage`).
+5. Tipos de domínio (`MenuItem`, `Order`) duplicados entre páginas — centralizar em `src/types/`.
+6. Lógica de total/mensagem de WhatsApp duplicada entre `OrderPage` e `ReadyMadePage` — extrair para `src/lib/` com testes unitários.
+7. `window.open` do WhatsApp roda depois de um `await` (salvar pedido) — validar em iPhone/Safari real se o pop-up não é bloqueado; se for, abrir a aba de forma síncrona e só depois definir a URL.
 
 Ao concluir um item, remova-o daqui no mesmo commit.
