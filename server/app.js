@@ -3,7 +3,7 @@ const { ObjectId } = require('mongodb');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { validateOrder, isNonEmptyString } = require('./validation');
+const { validateOrder, validateMenuItem, isNonEmptyString } = require('./validation');
 
 const INVALID_CREDENTIALS = 'Usuário ou senha inválidos';
 const MAX_USERNAME_LENGTH = 254;
@@ -24,7 +24,8 @@ function createApp({ db, jwtSecret, menuCollection }) {
   const JWT_SECRET = jwtSecret;
 
   app.use(cors());
-  app.use(express.json());
+  // Limite acima do padrão (100kb) para comportar o upload de imagem em base64 do admin
+  app.use(express.json({ limit: '300kb' }));
 
   // Middleware para verificar token JWT
   const verifyToken = (req, res, next) => {
@@ -122,22 +123,19 @@ function createApp({ db, jwtSecret, menuCollection }) {
 
   // Criar Novo Item
   app.post('/api/admin/menu', verifyToken, async (req, res) => {
+    const { value, error } = validateMenuItem(req.body);
+    if (error) return res.status(422).json({ error });
+
     try {
-      const { name, price, category, original_category, image, description, type, active } = req.body;
-
-      if (!name || price === undefined || !original_category) {
-        return res.status(400).json({ error: 'Nome, preço e categoria são obrigatórios' });
-      }
-
       const newItem = {
-        name: name.trim(),
-        price: parseFloat(price) || 0,
-        category: category || original_category,
-        original_category,
-        image: image || '',
-        description: description || '',
-        type: type || '',
-        active: active !== false,
+        name: value.name,
+        price: value.price,
+        category: value.category || value.original_category,
+        original_category: value.original_category,
+        image: value.image || '',
+        description: value.description || '',
+        type: value.type || '',
+        active: value.active !== false,
         createdAt: new Date(),
         updatedAt: new Date()
       };
@@ -153,18 +151,11 @@ function createApp({ db, jwtSecret, menuCollection }) {
   // Atualizar Item Completo (Preço, Nome, Foto, Categoria, Estoque)
   app.put('/api/admin/menu/:id', verifyToken, async (req, res) => {
     const { id } = req.params;
-    const { name, price, category, original_category, image, description, type, active } = req.body;
+    const { value, error } = validateMenuItem(req.body, { partial: true });
+    if (error) return res.status(422).json({ error });
 
     try {
-      const updateData = { updatedAt: new Date() };
-      if (name !== undefined) updateData.name = name.trim();
-      if (price !== undefined) updateData.price = parseFloat(price);
-      if (category !== undefined) updateData.category = category;
-      if (original_category !== undefined) updateData.original_category = original_category;
-      if (image !== undefined) updateData.image = image;
-      if (description !== undefined) updateData.description = description;
-      if (type !== undefined) updateData.type = type;
-      if (active !== undefined) updateData.active = Boolean(active);
+      const updateData = { ...value, updatedAt: new Date() };
 
       const query = ObjectId.isValid(id) ? { _id: new ObjectId(id) } : { id };
       const result = await db.collection(menuCollection).updateOne(query, { $set: updateData });

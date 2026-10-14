@@ -217,6 +217,60 @@ describe('rotas /api/admin', () => {
     expect((await server.db.collection(MENU_COLLECTION).findOne({ id: 'fr_kiwi' })).price).toBe(1.75);
   });
 
+  it.each([
+    ['sem nome', { price: 1, original_category: 'fruits' }],
+    ['nome que não é texto', { name: { $ne: '' }, price: 1, original_category: 'fruits' }],
+    ['preço inválido', { name: 'Kiwi', price: 'abc', original_category: 'fruits' }],
+    ['preço negativo', { name: 'Kiwi', price: -1, original_category: 'fruits' }],
+    ['categoria desconhecida', { name: 'Kiwi', price: 1, original_category: 'bebidas' }],
+    ['active que não é booleano', { name: 'Kiwi', price: 1, original_category: 'fruits', active: 'false' }],
+    ['imagem que não é texto', { name: 'Kiwi', price: 1, original_category: 'fruits', image: { url: 'x' } }],
+  ])('recusam criar item inválido com 422 (%s)', async (_label, body) => {
+    const res = await request(app).post('/api/admin/menu').set(auth()).send(body);
+
+    expect(res.status).toBe(422);
+    expect(await server.db.collection(MENU_COLLECTION).countDocuments()).toBe(0);
+  });
+
+  it.each([
+    ['preço inválido', { price: 'abc' }],
+    ['nome vazio', { name: '   ' }],
+    ['categoria desconhecida', { original_category: 'bebidas' }],
+    ['nenhum campo conhecido', { foo: 'bar' }],
+  ])('recusam atualizar item com dados inválidos com 422 (%s)', async (_label, body) => {
+    await server.db.collection(MENU_COLLECTION).insertOne({ id: 'fr_kiwi', name: 'Kiwi', price: 1.5, original_category: 'fruits' });
+
+    const res = await request(app).put('/api/admin/menu/fr_kiwi').set(auth()).send(body);
+
+    expect(res.status).toBe(422);
+    expect(await server.db.collection(MENU_COLLECTION).findOne({ id: 'fr_kiwi' })).toMatchObject({ name: 'Kiwi', price: 1.5 });
+  });
+
+  it.each([
+    ['caminho local', '/assets/items/fr_kiwi.webp', 201],
+    ['URL https', 'https://cdn.loja.test/kiwi.webp', 201],
+    ['upload em base64 (webp)', `data:image/webp;base64,${'A'.repeat(40_000)}`, 201],
+    ['esquema javascript:', 'javascript:alert(1)', 422],
+    ['SVG em base64', 'data:image/svg+xml;base64,PHN2Zz4=', 422],
+  ])('validam o campo image (%s)', async (_label, image, status) => {
+    const res = await request(app).post('/api/admin/menu').set(auth())
+      .send({ name: 'Kiwi', price: 1, original_category: 'fruits', image });
+    expect(res.status).toBe(status);
+  });
+
+  it('ignoram campos desconhecidos ao atualizar (o admin envia o formulário inteiro)', async () => {
+    await server.db.collection(MENU_COLLECTION).insertOne({ id: 'fr_kiwi', name: 'Kiwi', price: 1.5, original_category: 'fruits' });
+
+    const res = await request(app).put('/api/admin/menu/fr_kiwi').set(auth())
+      .send({ _id: 'fr_kiwi', id: 'fr_kiwi', name: 'Kiwi', price: 2, createdAt: 'x', role: 'boss' });
+
+    expect(res.status).toBe(200);
+    const saved = await server.db.collection(MENU_COLLECTION).findOne({ id: 'fr_kiwi' });
+    expect(saved.price).toBe(2);
+    expect(saved.role).toBeUndefined();
+    expect(saved.createdAt).toBeUndefined();
+  });
+
   it('devolvem 404 para item inexistente', async () => {
     const res = await request(app).delete('/api/admin/menu/nao_existe').set(auth());
     expect(res.status).toBe(404);

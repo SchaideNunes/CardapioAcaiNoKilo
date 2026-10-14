@@ -68,6 +68,7 @@ Ambiente: Windows, caminho do projeto contém `ç` (`Cardapio Açai`) e assets c
 - Número da loja no WhatsApp: `557591585290` (hoje duplicado em `OrderPage` e `ReadyMadePage`).
 - Pedidos são gravados com códigos (`deliveryMethod: "delivery"|"pickup"`, `paymentMethod: "pix"|"card"|"cash"`). Ao ler pedidos, sempre passe por `normalizeDeliveryMethod` / `normalizePaymentMethod` (aceitam também rótulos legados em português) e exiba com `DELIVERY_LABELS` / `PAYMENT_LABELS`.
 - `POST /api/orders` valida o payload em [server/validation.js](server/validation.js) e grava **só** os campos conhecidos (`origin`, `items`, `total`, `deliveryMethod`, `paymentMethod`, `address` se entrega, `changeFor` se dinheiro). Campo novo no pedido = atualizar o validador e os testes. Inválido → 422.
+- `POST|PUT /api/admin/menu` validam com `validateMenuItem` (categorias fixas: `sizes`, `flavors`, `toppings`, `addons`, `creams`, `fruits`, `fillings`, `ready_made`; `image` aceita `/assets/...`, `https://` ou data URL base64 de até ~200KB). Campos desconhecidos são ignorados.
 - O `total` é calculado no cliente e serve de referência; o servidor não recalcula pelos preços do banco — o valor final é confirmado pela loja no WhatsApp.
 - Retirada no `/montar` pula a etapa de pagamento (paga no balcão): `paymentMethod: null` é válido.
 - Pagamento em dinheiro exige "troco para" ≥ total ou "Não preciso".
