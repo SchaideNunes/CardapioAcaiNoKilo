@@ -14,6 +14,8 @@ Cardápio mobile-first para montar açaí personalizado (`/montar`) e comprar a�
 | `npm run lint` | ESLint — **tem dívida existente** (ver Backlog); não piore a contagem |
 | `ADMIN_EMAIL=... ADMIN_PASSWORD=... node server/create-admin.js` | Cria/reseta o admin (senha ≥ 12 caracteres; também lê de `server/.env`) |
 
+Setup: `npm install && npm install --prefix server`, copie [server/.env.example](server/.env.example) para `server/.env` (e, se precisar, [.env.example](.env.example) para `.env.local`). Variável de ambiente nova = documentar no `.env.example` correspondente no mesmo commit.
+
 Ambiente: Windows, caminho do projeto contém `ç` (`Cardapio Açai`) e assets com espaço/acentos (`Logo açai.webp`) — sempre use aspas em caminhos.
 
 ## Mapa do código (estado real)
@@ -81,11 +83,10 @@ Ambiente: Windows, caminho do projeto contém `ç` (`Cardapio Açai`) e assets c
 Prioridade alta — corretude/segurança:
 
 Prioridade média — estrutura:
-1. Criar `.env.example` (raiz e `server/`).
-2. `dist/` está versionado no git — adicionar ao `.gitignore` e remover do índice.
-3. Lint: 71 erros (maioria `no-undef` em arquivos Node do `server/`, `migration.js` e `scripts/` por falta de `globals.node` na config; `any` em `OrderPage`/`ReadyMadePage`).
-4. Tipos de domínio (`MenuItem`, `Order`) duplicados entre páginas — centralizar em `src/types/`.
-5. Lógica de total/mensagem de WhatsApp duplicada entre `OrderPage` e `ReadyMadePage` — extrair para `src/lib/` com testes unitários.
-6. `window.open` do WhatsApp roda depois de um `await` (salvar pedido) — validar em iPhone/Safari real se o pop-up não é bloqueado; se for, abrir a aba de forma síncrona e só depois definir a URL.
+1. `dist/` está versionado no git — adicionar ao `.gitignore` e remover do índice.
+2. Lint: 71 erros (maioria `no-undef` em arquivos Node do `server/`, `migration.js` e `scripts/` por falta de `globals.node` na config; `any` em `OrderPage`/`ReadyMadePage`).
+3. Tipos de domínio (`MenuItem`, `Order`) duplicados entre páginas — centralizar em `src/types/`.
+4. Lógica de total/mensagem de WhatsApp duplicada entre `OrderPage` e `ReadyMadePage` — extrair para `src/lib/` com testes unitários.
+5. `window.open` do WhatsApp roda depois de um `await` (salvar pedido) — validar em iPhone/Safari real se o pop-up não é bloqueado; se for, abrir a aba de forma síncrona e só depois definir a URL.
 
 Ao concluir um item, remova-o daqui no mesmo commit.
