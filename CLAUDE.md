@@ -49,7 +49,9 @@ Ambiente: Windows, caminho do projeto contém `ç` (`Cardapio Açai`) e assets c
 
 ### Segurança
 - Nunca commitar `.env` / `server/.env` (já cobertos pelo `.gitignore`) nem imprimir seus valores.
-- Rotas novas de escrita administrativa sempre atrás de `verifyToken`.
+- Rotas novas de escrita administrativa sempre atrás de `verifyToken` (sem token/Bearer → 401; só HS256).
+- Já implementado em [server/app.js](server/app.js): Helmet, CORS por lista (`corsOrigins`), rate limit de 5 logins/min e 10 pedidos/min por IP. Rotas públicas novas que gravam dados precisam de limiter próprio.
+- Configuração do servidor via env ([server/index.js](server/index.js)): `JWT_SECRET` obrigatório (≥ 32 caracteres em produção, senão o processo não sobe), `CORS_ORIGINS` (lista separada por vírgula; fora de produção o padrão libera o Vite local), `TRUST_PROXY` (nº de proxies à frente, para o rate limit ver o IP real).
 - Validar e sanitizar tudo que vem de `req.body` / `req.params` no servidor: tipos primitivos esperados (rejeitar objetos onde se espera string — injeção de operadores `$`), tamanhos máximos, números finitos e ≥ 0 em preços.
 - Nunca montar `RegExp` com input do usuário sem escapar.
 - Não adicionar novas credenciais hardcoded no frontend.
@@ -77,16 +79,15 @@ Ambiente: Windows, caminho do projeto contém `ç` (`Cardapio Açai`) e assets c
 ## Backlog conhecido (dívidas encontradas na análise de 14/10/2026)
 
 Prioridade alta — corretude/segurança:
-1. `JWT_SECRET` cai em `'fallback_secret'` se ausente; `cors()` aberto para qualquer origem; sem Helmet nem rate limiting (o GEMINI.md descreve isso como existente, mas não está implementado).
-2. Credenciais de demo hardcoded em `LoginPage.tsx` e `server/create-admin.js`.
+1. Credenciais de demo hardcoded em `LoginPage.tsx` e `server/create-admin.js`.
 
 Prioridade média — estrutura:
-3. Extrair `API_URL` para `import.meta.env.VITE_API_URL` (hoje `localhost` fixo quebra o deploy no Vercel).
-4. Criar `.env.example` (raiz e `server/`).
-5. `dist/` está versionado no git — adicionar ao `.gitignore` e remover do índice.
-6. Lint: 71 erros (maioria `no-undef` em arquivos Node do `server/`, `migration.js` e `scripts/` por falta de `globals.node` na config; `any` em `OrderPage`/`ReadyMadePage`).
-7. Tipos de domínio (`MenuItem`, `Order`) duplicados entre páginas — centralizar em `src/types/`.
-8. Lógica de total/mensagem de WhatsApp duplicada entre `OrderPage` e `ReadyMadePage` — extrair para `src/lib/` com testes unitários.
-9. `window.open` do WhatsApp roda depois de um `await` (salvar pedido) — validar em iPhone/Safari real se o pop-up não é bloqueado; se for, abrir a aba de forma síncrona e só depois definir a URL.
+2. Extrair `API_URL` para `import.meta.env.VITE_API_URL` (hoje `localhost` fixo quebra o deploy no Vercel).
+3. Criar `.env.example` (raiz e `server/`).
+4. `dist/` está versionado no git — adicionar ao `.gitignore` e remover do índice.
+5. Lint: 71 erros (maioria `no-undef` em arquivos Node do `server/`, `migration.js` e `scripts/` por falta de `globals.node` na config; `any` em `OrderPage`/`ReadyMadePage`).
+6. Tipos de domínio (`MenuItem`, `Order`) duplicados entre páginas — centralizar em `src/types/`.
+7. Lógica de total/mensagem de WhatsApp duplicada entre `OrderPage` e `ReadyMadePage` — extrair para `src/lib/` com testes unitários.
+8. `window.open` do WhatsApp roda depois de um `await` (salvar pedido) — validar em iPhone/Safari real se o pop-up não é bloqueado; se for, abrir a aba de forma síncrona e só depois definir a URL.
 
 Ao concluir um item, remova-o daqui no mesmo commit.

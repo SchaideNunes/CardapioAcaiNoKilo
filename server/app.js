@@ -1,6 +1,8 @@
 const express = require('express');
 const { ObjectId } = require('mongodb');
 const cors = require('cors');
+const helmet = require('helmet');
+const { rateLimit } = require('express-rate-limit');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { validateOrder, validateMenuItem, isNonEmptyString } = require('./validation');
@@ -14,25 +16,47 @@ function escapeRegex(text) {
   return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+function createLimiter(limit, message) {
+  return rateLimit({
+    windowMs: 60 * 1000,
+    limit,
+    standardHeaders: 'draft-8',
+    legacyHeaders: false,
+    message: { error: message },
+  });
+}
+
 /**
  * Monta a aplicação Express sem abrir porta nem conexão, para que possa ser
  * testada com um banco em memória.
- * @param {{ db: import('mongodb').Db, jwtSecret: string, menuCollection: string }} options
+ * @param {object} options
+ * @param {import('mongodb').Db} options.db
+ * @param {string} options.jwtSecret segredo de assinatura dos tokens (obrigatório)
+ * @param {string} options.menuCollection coleção do cardápio
+ * @param {string[]} [options.corsOrigins] origens liberadas no CORS; vazio = nenhuma
+ * @param {number | boolean} [options.trustProxy] saltos de proxy confiáveis, para o rate limit enxergar o IP real
  */
-function createApp({ db, jwtSecret, menuCollection }) {
+function createApp({ db, jwtSecret, menuCollection, corsOrigins = [], trustProxy = false }) {
+  if (!jwtSecret) throw new Error('JWT_SECRET é obrigatório para iniciar a API');
+
   const app = express();
   const JWT_SECRET = jwtSecret;
 
-  app.use(cors());
+  app.set('trust proxy', trustProxy);
+  app.use(helmet());
+  app.use(cors({ origin: (origin, callback) => callback(null, corsOrigins.includes(origin)) }));
   // Limite acima do padrão (100kb) para comportar o upload de imagem em base64 do admin
   app.use(express.json({ limit: '300kb' }));
 
+  const loginLimiter = createLimiter(5, 'Muitas tentativas de login. Aguarde um minuto e tente novamente.');
+  const ordersLimiter = createLimiter(10, 'Muitos pedidos em sequência. Aguarde um minuto e tente novamente.');
+
   // Middleware para verificar token JWT
   const verifyToken = (req, res, next) => {
-    const token = req.headers['authorization'];
-    if (!token) return res.status(403).json({ error: 'Nenhum token fornecido' });
+    const [scheme, token] = (req.headers['authorization'] || '').split(' ');
+    if (scheme !== 'Bearer' || !token) return res.status(401).json({ error: 'Token de acesso ausente' });
 
-    jwt.verify(token.split(' ')[1], JWT_SECRET, (err, decoded) => {
+    jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] }, (err, decoded) => {
       if (err) return res.status(401).json({ error: 'Falha na autenticação do token' });
       req.userId = decoded.id;
       req.userRole = decoded.role;
@@ -66,7 +90,7 @@ function createApp({ db, jwtSecret, menuCollection }) {
   });
 
   // Login Admin
-  app.post('/api/login', async (req, res) => {
+  app.post('/api/login', loginLimiter, async (req, res) => {
     const { username, password } = req.body ?? {};
     if (!isNonEmptyString(username, MAX_USERNAME_LENGTH) || !isNonEmptyString(password, MAX_PASSWORD_LENGTH)) {
       return res.status(400).json({ error: 'Informe usuário e senha' });
@@ -96,7 +120,7 @@ function createApp({ db, jwtSecret, menuCollection }) {
   });
 
   // Salvar Pedido (Vindo do site)
-  app.post('/api/orders', async (req, res) => {
+  app.post('/api/orders', ordersLimiter, async (req, res) => {
     const { value, error } = validateOrder(req.body);
     if (error) return res.status(422).json({ error });
 

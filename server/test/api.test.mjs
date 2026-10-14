@@ -180,7 +180,7 @@ describe('POST /api/orders', () => {
 describe('rotas /api/admin', () => {
   it('rejeitam requisições sem token', async () => {
     const res = await request(app).get('/api/admin/menu');
-    expect([401, 403]).toContain(res.status);
+    expect(res.status).toBe(401);
   });
 
   it('rejeitam token inválido com 401', async () => {
