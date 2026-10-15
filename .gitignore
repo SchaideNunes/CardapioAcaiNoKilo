@@ -47,3 +47,4 @@ next-env.d.ts
 
 # impeccable: capturas de revisão (geradas)
 /.impeccable/review/
+/.impeccable/questions/
