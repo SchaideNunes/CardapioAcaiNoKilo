@@ -1,0 +1,81 @@
+{
+  "title": "Nova montagem do açaí (/montar)",
+  "question": "Três estruturas para a montagem, todas em 2D chapado (sem sombras nem vidro), no roxo e dourado do site. Escolha uma para eu construir, peça outra rodada, ou dê uma direção.",
+  "options": [
+    {
+      "id": "stories",
+      "label": "Montagem em stories",
+      "kicker": "THE ROLL",
+      "lineage": "stories do Instagram: tela cheia, barra segmentada, toque para avançar",
+      "thesis": "Cada etapa vira uma tela cheia, grande e tocável, com o progresso em segmentos no topo.",
+      "palette": ["#241220", "#F0DF58", "#F8EEA6", "#F58220", "#120714"],
+      "materials": ["cores chapadas", "fotos em círculo tipo adesivo", "cápsulas com contorno"],
+      "viewport": "Barra de segmentos no topo; logo e total em cápsula dourada; título enorme da etapa; 2 colunas de adesivos circulares grandes; botão 'Próximo: <etapa>' fixo embaixo.",
+      "risk": "Com 26 recheios a etapa vira rolagem longa; busca e grade de 3 colunas seguram isso.",
+      "raised": [
+        { "from": "mapa de zoológico ilustrado", "raise": "Cor chapada sem gradiente e controles em cápsula; seleção 'pula' com leve quique de 0,4s." }
+      ],
+      "html": ".impeccable/mocks/decision/stories.html",
+      "htmlFrame": "390x844"
+    },
+    {
+      "id": "bandeja",
+      "label": "Base + bandeja de complementos",
+      "lineage": "balcão de açaí: escolhe a base, depois vai pondo os complementos na bandeja",
+      "thesis": "Tamanho e sabor numa tela; todos os complementos numa tela só, com abas e uma bandeja fixa mostrando o que entrou.",
+      "palette": ["#241220", "#2f1729", "#F0DF58", "#F8EEA6", "#120714"],
+      "materials": ["cores chapadas", "abas em cápsula com contador", "bandeja com miniaturas empilhadas"],
+      "viewport": "Logo e base escolhida no topo; abas Coberturas/Adicionais/Cremes/Frutas/Recheios com contador; grade de 3 adesivos; bandeja fixa com miniaturas, total e 'Finalizar'.",
+      "risk": "Menos etapas = menos sensação de guiado; quem quer ir passo a passo precisa das abas.",
+      "raised": [
+        { "from": "mapa de zoológico ilustrado", "raise": "Abas como cápsulas chapadas cuja bolinha de contagem acende em dourado quando a categoria tem item." }
+      ],
+      "html": ".impeccable/mocks/decision/bandeja.html",
+      "htmlFrame": "390x844"
+    },
+    {
+      "id": "tigela",
+      "label": "Tigela que enche",
+      "lineage": "ilustração 2D do próprio açaí, no traço dos bonecos",
+      "thesis": "Uma tigela desenhada em 2D no topo ganha camadas a cada escolha; as categorias abrem em sanfona abaixo.",
+      "palette": ["#F0DF58", "#241220", "#4a1442", "#F58220", "#120714"],
+      "materials": ["ilustração vetorial chapada", "faixa dourada no topo", "fichas com foto"],
+      "viewport": "Faixa dourada no topo com a tigela ilustrada, nome da base, camadas escolhidas e total; abaixo, seções em sanfona com fichas de foto; botão fixo 'Entrega e pagamento'.",
+      "risk": "A tigela ilustrada é o ponto de maior risco de execução: se ficar simples demais, parece infantil.",
+      "raised": [
+        { "from": "mapa de zoológico ilustrado", "raise": "A tigela é um único SVG chapado com contorno, e as camadas entram com quique de 0,4s." }
+      ],
+      "html": ".impeccable/mocks/decision/tigela.html",
+      "htmlFrame": "390x844"
+    },
+    {
+      "id": "challenger-zoo",
+      "label": "Mapa de zoológico ilustrado",
+      "verdict": "declined",
+      "lineage": "guias ilustrados de parque, cores chapadas",
+      "thesis": "Áreas de cor chapada com cápsulas coloridas e movimento com quique.",
+      "palette": ["#8ED462", "#F5F1E4", "#F5E211", "#FF705D", "#2C2E2A"],
+      "materials": ["cor chapada", "cápsulas"],
+      "viewport": "Uma grande área de cor por tela, com cápsulas de controle.",
+      "case": "Combina com o 2D dos bonecos, mas a paleta verde/creme fugiria da identidade roxo e dourado.",
+      "risk": "Trocaria a identidade do site.",
+      "kept": "Cor chapada, cápsulas e o quique de 0,4s entraram nas três propostas."
+    },
+    {
+      "id": "challenger-streaming",
+      "label": "Parede de streaming",
+      "verdict": "declined",
+      "lineage": "catálogos de filmes em fileiras horizontais",
+      "thesis": "Uma fileira deslizante por categoria; o item focado cresce.",
+      "palette": ["#141414", "#F0DF58"],
+      "materials": ["fileiras com rolagem lateral"],
+      "viewport": "Cinco fileiras de fotos, uma por categoria.",
+      "case": "Esconde itens fora da tela e o crescimento no foco é um efeito 3D, contra a regra 2D.",
+      "risk": "Polui e esconde a variedade.",
+      "kept": "Nada além da rolagem lateral das abas na proposta da bandeja."
+    }
+  ],
+  "reroll": true,
+  "steer": true,
+  "buildPath": { "value": "code", "toggle": false }
+}

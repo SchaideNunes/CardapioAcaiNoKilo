@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=390">
+<title>Tigela que enche</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Raleway:wght@500;700;800&display=swap');
+  :root{--ground:#241220;--panel:#2f1729;--ink:#120714;--gold:#F0DF58;--orange:#F58220;--cream:#F8EEA6;--acai:#4a1442}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{width:390px;height:844px;background:var(--ground);color:#fff;font-family:Raleway,sans-serif;overflow:hidden}
+  .top{background:var(--gold);color:var(--ink);border-bottom:3px solid var(--ink);padding:14px 16px 16px;display:flex;gap:14px;align-items:center}
+  .bowl{width:132px;flex-shrink:0}
+  .info small{font-size:11px;font-weight:800;letter-spacing:.14em}
+  .info h1{font-family:'Bebas Neue';font-size:34px;line-height:.95;margin-top:2px}
+  .info b{font-family:'Bebas Neue';font-size:40px;display:block;margin-top:6px}
+  .layers{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+  .layers span{font-size:11px;font-weight:800;padding:3px 8px;border-radius:99px;border:2px solid var(--ink)}
+  .sec{border-bottom:2px solid #ffffff1a;padding:16px}
+  .head{display:flex;align-items:center;justify-content:space-between}
+  .head h2{font-family:'Bebas Neue';font-size:30px;line-height:1}
+  .count{font-weight:800;font-size:12px;padding:4px 10px;border-radius:99px;border:2px solid #ffffff33}
+  .count.on{background:var(--gold);color:var(--ink);border-color:var(--ink)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .chip{display:flex;align-items:center;gap:8px;padding:4px 14px 4px 4px;border-radius:99px;border:2px solid #ffffff33;font-weight:700;font-size:14px}
+  .chip img{width:36px;height:36px;border-radius:50%;object-fit:cover;transform:scale(1.3)}
+  .chip.on{background:var(--gold);color:var(--ink);border-color:var(--ink)}
+  .chev{font-size:20px;color:#ffffff80}
+  .go{position:absolute;left:16px;right:16px;bottom:24px;height:58px;border-radius:99px;background:var(--gold);color:var(--ink);border:2px solid var(--ink);font-family:'Bebas Neue';font-size:28px;display:flex;align-items:center;justify-content:center}
+</style></head>
+<body>
+  <div class="top">
+    <svg class="bowl" viewBox="0 0 132 110" aria-hidden="true">
+      <path d="M8 40 h116 l-12 58 a10 10 0 0 1 -10 8 h-72 a10 10 0 0 1 -10 -8z" fill="#fff" stroke="#120714" stroke-width="3"/>
+      <path d="M14 70 h104 l-5 26 a8 8 0 0 1 -8 6 h-78 a8 8 0 0 1 -8 -6z" fill="#4a1442"/>
+      <rect x="11" y="58" width="110" height="12" fill="#F58220"/>
+      <rect x="9" y="46" width="114" height="12" fill="#c98a3a"/>
+      <circle cx="40" cy="38" r="9" fill="#F8EEA6" stroke="#120714" stroke-width="3"/><circle cx="66" cy="34" r="10" fill="#e8434f" stroke="#120714" stroke-width="3"/><circle cx="92" cy="38" r="9" fill="#F8EEA6" stroke="#120714" stroke-width="3"/>
+    </svg>
+    <div class="info"><small>SEU AÇAÍ</small><h1>Pote de 500<br>Natural</h1>
+      <div class="layers"><span>Calda</span><span>Granola</span><span>Morango</span></div>
+      <b>R$ 21,50</b></div>
+  </div>
+  <section class="sec"><div class="head"><h2>Coberturas</h2><span class="count on">1</span></div>
+    <div class="chips"><span class="chip on"><img src="../../../public/assets/items/t_calda.webp" alt="">Calda</span><span class="chip"><img src="../../../public/assets/items/t_leite_cond.webp" alt="">Leite condensado</span><span class="chip"><img src="../../../public/assets/items/t_mel.webp" alt="">Mel</span><span class="chip"><img src="../../../public/assets/items/t_melaco.webp" alt="">Melaço</span></div></section>
+  <section class="sec"><div class="head"><h2>Adicionais</h2><span class="count on">1</span></div></section>
+  <section class="sec"><div class="head"><h2>Cremes</h2><span class="chev">＋</span></div></section>
+  <section class="sec"><div class="head"><h2>Frutas</h2><span class="count on">1</span></div></section>
+  <section class="sec"><div class="head"><h2>Recheios</h2><span class="chev">＋</span></div></section>
+  <span class="go">Entrega e pagamento →</span>
+</body></html>

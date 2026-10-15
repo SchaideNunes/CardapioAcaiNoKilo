@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=390">
+<title>Base + bandeja de complementos</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Raleway:wght@500;700;800&display=swap');
+  :root{--ground:#241220;--panel:#2f1729;--ink:#120714;--gold:#F0DF58;--orange:#F58220;--cream:#F8EEA6}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{width:390px;height:844px;background:var(--ground);color:#fff;font-family:Raleway,sans-serif;display:flex;flex-direction:column;overflow:hidden}
+  header{display:flex;align-items:center;gap:12px;padding:14px 16px}
+  header img{height:36px}
+  .base{flex:1;font-size:13px;color:#ffffffb3}.base b{display:block;color:#fff;font-size:15px}
+  h1{font-family:'Bebas Neue';font-size:46px;line-height:.95;padding:4px 16px 0}
+  .tabs{display:flex;gap:8px;padding:14px 16px;overflow:hidden}
+  .tab{flex-shrink:0;display:flex;align-items:center;gap:6px;font-weight:700;font-size:14px;padding:8px 8px 8px 14px;border-radius:99px;border:2px solid #ffffff33}
+  .tab i{font-style:normal;width:22px;height:22px;border-radius:50%;background:#ffffff1f;display:grid;place-items:center;font-size:12px}
+  .tab.on{background:var(--gold);color:var(--ink);border-color:var(--ink)} .tab.on i{background:var(--ink);color:var(--gold)}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px 10px;padding:6px 16px}
+  .it{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;position:relative}
+  .sticker{width:96px;height:96px;border-radius:50%;overflow:hidden;border:4px solid var(--cream)}
+  .sticker img{width:100%;height:100%;object-fit:cover;transform:scale(1.4)}
+  .it.on .sticker{border-color:var(--gold);outline:3px solid var(--ink)}
+  .check{position:absolute;top:0;right:8px;width:28px;height:28px;border-radius:50%;background:var(--gold);color:var(--ink);border:2px solid var(--ink);display:grid;place-items:center;font-weight:800}
+  .name{font-size:13px;font-weight:700;line-height:1.15}
+  .price{font-family:'Bebas Neue';font-size:17px;color:var(--gold)}
+  .tray{margin-top:auto;background:var(--panel);border-top:2px solid var(--ink);padding:12px 16px 24px}
+  .chosen{display:flex;align-items:center;gap:10px;font-size:13px;color:#ffffffb3}
+  .dots{display:flex}.dots img{width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);margin-left:-8px;background:var(--ink)}
+  .dots img:first-child{margin-left:0}
+  .row{display:flex;align-items:center;justify-content:space-between;margin-top:12px}
+  .sum small{display:block;font-size:11px;letter-spacing:.14em;font-weight:800;color:var(--orange)}
+  .sum b{font-family:'Bebas Neue';font-size:38px;line-height:1}
+  .go{height:56px;padding:0 26px;border-radius:99px;background:var(--gold);color:var(--ink);border:2px solid var(--ink);font-family:'Bebas Neue';font-size:26px;display:flex;align-items:center}
+</style></head>
+<body>
+  <header><img src="../../../public/assets/Logo açai.webp" alt="Açaí no Kilo"><div class="base">Sua base<b>Pote de 500 · Natural</b></div></header>
+  <h1>Monte do seu jeito</h1>
+  <nav class="tabs"><span class="tab">Coberturas <i>1</i></span><span class="tab on">Adicionais <i>2</i></span><span class="tab">Cremes <i>0</i></span><span class="tab">Frutas <i>0</i></span></nav>
+  <div class="grid">
+    <div class="it on"><span class="check">✓</span><div class="sticker"><img src="../../../public/assets/items/a_granola_trad.webp" alt=""></div><span class="name">Granola tradicional</span><span class="price">+ R$ 1,00</span></div>
+    <div class="it"><div class="sticker"><img src="../../../public/assets/items/a_granulado_croc.webp" alt=""></div><span class="name">Granulado crocante</span><span class="price">+ R$ 1,00</span></div>
+    <div class="it on"><span class="check">✓</span><div class="sticker"><img src="../../../public/assets/items/a_farinha_lactea.webp" alt=""></div><span class="name">Farinha láctea</span><span class="price">+ R$ 1,50</span></div>
+    <div class="it"><div class="sticker"><img src="../../../public/assets/items/a_amendoim.webp" alt=""></div><span class="name">Amendoim torrado</span><span class="price">+ R$ 1,00</span></div>
+    <div class="it"><div class="sticker"><img src="../../../public/assets/items/a_neston.webp" alt=""></div><span class="name">Neston</span><span class="price">+ R$ 1,00</span></div>
+    <div class="it"><div class="sticker"><img src="../../../public/assets/items/a_aveia.webp" alt=""></div><span class="name">Aveia</span><span class="price">+ R$ 1,00</span></div>
+  </div>
+  <div class="tray">
+    <div class="chosen"><span class="dots"><img src="../../../public/assets/items/t_calda.webp" alt=""><img src="../../../public/assets/items/a_granola_trad.webp" alt=""><img src="../../../public/assets/items/a_farinha_lactea.webp" alt=""></span>3 complementos no seu açaí</div>
+    <div class="row"><div class="sum"><small>TOTAL</small><b>R$ 21,00</b></div><span class="go">Finalizar →</span></div>
+  </div>
+</body></html>
