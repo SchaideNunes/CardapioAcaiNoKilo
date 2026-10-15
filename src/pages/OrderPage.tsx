@@ -436,8 +436,12 @@ export default function OrderPage() {
                     : "bg-white/[0.03] border-white/10 hover:bg-white/[0.06] hover:border-white/20 hover:-translate-y-0.5"
                 )}
               >
-                <div className="flex items-center gap-3.5 w-full">
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 relative flex-shrink-0 flex items-center justify-center">
+                <div className="flex items-center gap-3.5 sm:gap-4 w-full">
+                  {/* Miniatura circular: o zoom enquadra a tigela e esconde o fundo da foto */}
+                  <div className={cn(
+                    "w-14 h-14 sm:w-16 sm:h-16 relative flex-shrink-0 rounded-full overflow-hidden ring-1 transition-all duration-300 shadow-lg shadow-black/40",
+                    sel ? "ring-2 ring-primary ring-offset-2 ring-offset-[#241220]" : "ring-white/10 group-hover:ring-white/25"
+                  )}>
                     <img
                       src={`/assets/items/${item.id}.webp`}
                       alt={item.name}
@@ -447,7 +451,7 @@ export default function OrderPage() {
                         e.currentTarget.onerror = null;
                         e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&background=3d1b34&color=D8AC4F&font-size=0.33&bold=true`;
                       }}
-                      className="w-full h-full object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)] group-hover:scale-115 transition-transform duration-500"
+                      className="w-full h-full object-cover scale-[1.4] group-hover:scale-[1.5] transition-transform duration-500 ease-out"
                     />
                   </div>
                   <div className="flex flex-col gap-0.5 flex-1 min-w-0">
