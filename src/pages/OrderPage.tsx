@@ -316,7 +316,7 @@ export default function OrderPage() {
         )}
 
         {step.id === "size" ? (
-          <div className="grid grid-cols-2 gap-3 sm:gap-4">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
             {filtered.map(item => {
               const sel = isSelected(item);
               return (
@@ -646,7 +646,7 @@ export default function OrderPage() {
                     disabled={idx >= currentStep || skipped}
                     aria-label={`${SHORT_TITLES[s.id]}${current ? " (etapa atual)" : done ? " (concluída)" : ""}`}
                     aria-current={current ? "step" : undefined}
-                    className="group flex-1 py-2 disabled:cursor-default"
+                    className="group flex-1 py-3 disabled:cursor-default"
                   >
                     <span className="block h-[5px] overflow-hidden rounded-full bg-white/15">
                       {(done || current) && !skipped && (
