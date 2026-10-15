@@ -20,7 +20,7 @@ export default function HomePage() {
   useEffect(() => {
     if (showContent) {
       gsap.to('.cta-element', {
-        x: 5,
+        x: 4,
         duration: 0.8,
         repeat: -1,
         yoyo: true,
@@ -43,12 +43,12 @@ export default function HomePage() {
           <img
             src="/assets/Mascote_comendo.webp"
             alt="Mascote saboreando açaí"
-            className="w-20 xs:w-24 sm:w-32 md:w-44 lg:w-56 xl:w-64 2xl:w-72 max-h-[20vh] lg:max-h-[35vh] object-contain drop-shadow-[0_15px_35px_rgba(0,0,0,0.5)] animate-float-slow select-none pointer-events-none"
+            className="w-20 xs:w-24 sm:w-32 md:w-36 lg:w-40 xl:w-64 2xl:w-72 max-h-[20vh] lg:max-h-[30vh] xl:max-h-[35vh] object-contain animate-float-slow select-none pointer-events-none"
           />
         </div>
 
         {/* Main Centered Content */}
-        <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 py-8 w-full max-w-md lg:max-w-2xl xl:max-w-3xl mx-auto">
+        <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 pt-8 pb-28 sm:pb-32 lg:pb-8 w-full max-w-md lg:max-w-2xl xl:max-w-3xl mx-auto">
           {/* Logo */}
           <div className={`transition-all duration-700 mb-6 md:mb-10 lg:mb-12 ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-6'}`}>
             <img
@@ -63,38 +63,30 @@ export default function HomePage() {
             {/* CRIAR O SEU */}
             <Link
               to="/montar"
-              className="group relative p-[1.5px] rounded-[34px] lg:rounded-[42px] overflow-hidden transition-all duration-500 hover:scale-[1.01] active:scale-[0.98] shadow-2xl shadow-black/40"
+              className="group relative rounded-[32px] lg:rounded-[40px] outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#F0DF58]"
             >
-              {/* Rotating Conic Pastel Yellow Border Beam */}
-              <div 
-                className="absolute -inset-[100%] animate-[spin_5s_linear_infinite] opacity-60 group-hover:opacity-100 transition-opacity"
-                style={{
-                  background: 'conic-gradient(from 0deg, transparent 0deg, transparent 270deg, rgba(248, 238, 166, 0.9) 320deg, rgba(255, 246, 189, 1) 335deg, transparent 360deg)'
-                }}
-              />
 
               {/* Inner Card Content */}
-              <div className="relative w-full h-full min-h-[160px] md:min-h-[190px] lg:min-h-[220px] p-5 md:p-6 lg:p-8 rounded-[32px] lg:rounded-[40px] bg-[#2d1527] border border-white/10 group-hover:bg-[#34192d] transition-all duration-500 overflow-hidden flex flex-col justify-end">
+              <div className="relative w-full h-full min-h-[160px] md:min-h-[190px] lg:min-h-[220px] p-5 md:p-6 lg:p-8 rounded-[32px] lg:rounded-[40px] bg-[#2f1729] border-2 border-white/10 group-hover:border-white/30 group-active:border-[#F0DF58] transition-colors duration-200 ease-out overflow-hidden flex flex-col justify-end">
                 {/* Floating image (Vertically Centered) */}
                 <div className="absolute top-1/2 -translate-y-1/2 right-0 sm:right-2 lg:right-6 w-40 h-40 sm:w-48 sm:h-48 lg:w-60 lg:h-60 pointer-events-none flex items-center justify-center">
                   <img
                     src="/assets/Acai_montar.webp"
                     alt="Monte seu açaí"
-                    className="w-full h-full object-contain drop-shadow-2xl group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-700 ease-out"
+                    className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300 ease-out"
                   />
                 </div>
                 
                 <div className="relative z-10 w-[64%] lg:w-[60%]">
-                  <h2 className="font-heading text-4xl sm:text-5xl lg:text-6xl text-white uppercase tracking-wide group-hover:text-[#F8EEA6] transition-colors leading-none mb-2 drop-shadow-lg">
+                  <h2 className="font-heading text-4xl sm:text-5xl lg:text-6xl text-white uppercase tracking-wide group-hover:text-[#F8EEA6] transition-colors leading-none mb-2">
                     Monte o seu
                   </h2>
-                  <p className="text-white/60 text-sm lg:text-base font-sans drop-shadow-md">
+                  <p className="text-white/75 text-sm lg:text-base font-sans">
                     Personalize <strong className="text-[#F8EEA6] font-bold">do seu jeito!</strong>
                   </p>
-                  <div className="cta-element mt-4 lg:mt-6 flex items-center gap-2 text-white/40 group-hover:text-[#F8EEA6] transition-colors">
-                    <span className="text-[10px] lg:text-xs font-bold uppercase tracking-[0.2em]">Começar</span>
-                    <ArrowRight size={16} />
-                  </div>
+                  <span className="mt-4 lg:mt-6 inline-flex h-11 items-center gap-2 rounded-full border-2 border-[#120714] bg-[#F0DF58] px-5 font-heading text-xl lg:text-2xl uppercase text-[#120714] transition-colors group-hover:bg-[#F8EEA6]">
+                    Começar <ArrowRight size={18} strokeWidth={2.5} className="cta-element" />
+                  </span>
                 </div>
               </div>
             </Link>
@@ -102,38 +94,30 @@ export default function HomePage() {
             {/* COMPRAR PRONTO */}
             <Link
               to="/prontos"
-              className="group relative p-[1.5px] rounded-[34px] lg:rounded-[42px] overflow-hidden transition-all duration-500 hover:scale-[1.01] active:scale-[0.98] shadow-2xl shadow-black/40"
+              className="group relative rounded-[32px] lg:rounded-[40px] outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#F0DF58]"
             >
-              {/* Rotating Conic Pastel Yellow Border Beam */}
-              <div 
-                className="absolute -inset-[100%] animate-[spin_5s_linear_infinite] opacity-60 group-hover:opacity-100 transition-opacity"
-                style={{
-                  background: 'conic-gradient(from 180deg, transparent 0deg, transparent 270deg, rgba(248, 238, 166, 0.9) 320deg, rgba(255, 246, 189, 1) 335deg, transparent 360deg)'
-                }}
-              />
 
               {/* Inner Card Content */}
-              <div className="relative w-full h-full min-h-[160px] md:min-h-[190px] lg:min-h-[220px] p-5 md:p-6 lg:p-8 rounded-[32px] lg:rounded-[40px] bg-[#2d1527] border border-white/10 group-hover:bg-[#34192d] transition-all duration-500 overflow-hidden flex flex-col justify-end">
+              <div className="relative w-full h-full min-h-[160px] md:min-h-[190px] lg:min-h-[220px] p-5 md:p-6 lg:p-8 rounded-[32px] lg:rounded-[40px] bg-[#2f1729] border-2 border-white/10 group-hover:border-white/30 group-active:border-[#F0DF58] transition-colors duration-200 ease-out overflow-hidden flex flex-col justify-end">
                 {/* Floating image (Vertically Centered) */}
                 <div className="absolute top-1/2 -translate-y-1/2 right-1 sm:right-3 lg:right-6 w-36 h-36 sm:w-44 sm:h-44 lg:w-56 lg:h-56 pointer-events-none flex items-center justify-center">
                   <img
                     src="/assets/Acai_fechado.webp"
                     alt="Açaí pronto"
-                    className="w-full h-full object-contain drop-shadow-2xl group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-700 ease-out"
+                    className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300 ease-out"
                   />
                 </div>
                 
                 <div className="relative z-10 w-[64%] lg:w-[60%]">
-                  <h2 className="font-heading text-4xl sm:text-5xl lg:text-6xl text-white uppercase tracking-wide group-hover:text-[#F8EEA6] transition-colors leading-none mb-2 drop-shadow-lg">
+                  <h2 className="font-heading text-4xl sm:text-5xl lg:text-6xl text-white uppercase tracking-wide group-hover:text-[#F8EEA6] transition-colors leading-none mb-2">
                     Compre Pronto
                   </h2>
-                  <p className="text-white/60 text-sm lg:text-base font-sans drop-shadow-md">
+                  <p className="text-white/75 text-sm lg:text-base font-sans">
                     <strong className="text-[#F8EEA6] font-bold">Prontos para levar!</strong>
                   </p>
-                  <div className="cta-element mt-4 lg:mt-6 flex items-center gap-2 text-white/40 group-hover:text-[#F8EEA6] transition-colors">
-                    <span className="text-[10px] lg:text-xs font-bold uppercase tracking-[0.2em]">Ver Opções</span>
-                    <ArrowRight size={16} />
-                  </div>
+                  <span className="mt-4 lg:mt-6 inline-flex h-11 items-center gap-2 rounded-full border-2 border-[#120714] bg-[#F0DF58] px-5 font-heading text-xl lg:text-2xl uppercase text-[#120714] transition-colors group-hover:bg-[#F8EEA6]">
+                    Ver opções <ArrowRight size={18} strokeWidth={2.5} className="cta-element" />
+                  </span>
                 </div>
               </div>
             </Link>
@@ -149,7 +133,7 @@ export default function HomePage() {
           <img
             src="/assets/Mascote.webp"
             alt="Mascote Açaí no Kilo"
-            className="w-20 xs:w-24 sm:w-32 lg:w-72 xl:w-80 2xl:w-[380px] max-h-[20vh] lg:max-h-[68vh] object-contain drop-shadow-[0_15px_35px_rgba(0,0,0,0.6)] animate-float-slow select-none pointer-events-none translate-x-2 translate-y-1 lg:translate-x-0 lg:translate-y-0"
+            className="w-20 xs:w-24 sm:w-32 lg:w-40 xl:w-80 2xl:w-[380px] max-h-[20vh] lg:max-h-[40vh] xl:max-h-[68vh] object-contain animate-float-slow select-none pointer-events-none translate-x-2 translate-y-1 lg:translate-x-0 lg:translate-y-0"
           />
         </div>
 
