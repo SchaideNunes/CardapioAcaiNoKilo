@@ -157,7 +157,7 @@ export default function ReadyMadePage() {
           <div className={cn("absolute right-0 top-0 h-full w-[85%] max-w-[400px] bg-[#241220] shadow-2xl flex flex-col transition-transform duration-500", showCart ? "translate-x-0" : "translate-x-full")}>
             <div className="p-6 border-b border-white/10 flex items-center justify-between">
               <h3 className="font-heading text-2xl text-primary uppercase">Seu Pedido</h3>
-              <button onClick={() => setShowCart(false)} className="text-white/50"><ArrowRight size={24} /></button>
+              <button onClick={() => setShowCart(false)} aria-label="Fechar carrinho" className="w-11 h-11 -mr-2 flex items-center justify-center rounded-full text-white/50 hover:text-white transition-colors"><ArrowRight size={24} /></button>
             </div>
             <div className="flex-1 overflow-y-auto p-6 space-y-4" data-lenis-prevent>
               {cart.length === 0 ? (
@@ -173,11 +173,11 @@ export default function ReadyMadePage() {
                       <p className="text-primary font-heading text-sm">R$ {(item.price * item.qty).toFixed(2)}</p>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
-                      <button onClick={() => updateQty(item.id, -1)} className="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-white/70 hover:bg-white/20 transition-colors">
+                      <button onClick={() => updateQty(item.id, -1)} className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white/70 hover:bg-white/20 transition-colors">
                         <Minus size={14} />
                       </button>
                       <span className="text-sm font-bold w-5 text-center">{item.qty}</span>
-                      <button onClick={() => updateQty(item.id, 1)} className="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-white/70 hover:bg-white/20 transition-colors">
+                      <button onClick={() => updateQty(item.id, 1)} className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white/70 hover:bg-white/20 transition-colors">
                         <Plus size={14} />
                       </button>
                     </div>
@@ -222,7 +222,7 @@ export default function ReadyMadePage() {
               </span>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
               {products.map((product) => {
                 const sel = getQty(product.id) > 0;
                 // Extract size for the badge
@@ -318,11 +318,11 @@ export default function ReadyMadePage() {
                         <p className="text-primary font-heading text-sm mt-0.5">R$ {(item.price * item.qty).toFixed(2)}</p>
                       </div>
                       <div className="flex items-center gap-1.5 flex-shrink-0 bg-white/5 p-1 rounded-xl">
-                        <button onClick={() => updateQty(item.id, -1)} className="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center text-white/70 hover:bg-white/20 transition-colors">
+                        <button onClick={() => updateQty(item.id, -1)} className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-white/70 hover:bg-white/20 transition-colors">
                           <Minus size={12} />
                         </button>
                         <span className="text-xs font-bold w-4 text-center">{item.qty}</span>
-                        <button onClick={() => updateQty(item.id, 1)} className="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center text-white/70 hover:bg-white/20 transition-colors">
+                        <button onClick={() => updateQty(item.id, 1)} className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-white/70 hover:bg-white/20 transition-colors">
                           <Plus size={12} />
                         </button>
                       </div>
@@ -426,9 +426,9 @@ export default function ReadyMadePage() {
                 {deliveryMethod === "delivery" && (
                   <div className="flex flex-col gap-3 animate-in fade-in zoom-in-95">
                     <input type="text" placeholder="Rua" value={address.street} onChange={(e) => setAddress(p => ({ ...p, street: e.target.value }))} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-primary" />
-                    <div className="grid grid-cols-3 gap-3">
-                      <input type="text" placeholder="Número" value={address.number} onChange={(e) => setAddress(p => ({ ...p, number: e.target.value }))} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-primary col-span-1" />
-                      <input type="text" placeholder="Bairro / Complemento" value={address.neighborhood} onChange={(e) => setAddress(p => ({ ...p, neighborhood: e.target.value }))} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-primary col-span-2" />
+                    <div className="grid grid-cols-1 xs:grid-cols-3 gap-3">
+                      <input type="text" placeholder="Número" value={address.number} onChange={(e) => setAddress(p => ({ ...p, number: e.target.value }))} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-primary xs:col-span-1" />
+                      <input type="text" placeholder="Bairro / Complemento" value={address.neighborhood} onChange={(e) => setAddress(p => ({ ...p, neighborhood: e.target.value }))} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-primary xs:col-span-2" />
                     </div>
                   </div>
                 )}
