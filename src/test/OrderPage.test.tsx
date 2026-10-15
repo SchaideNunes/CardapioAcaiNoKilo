@@ -95,14 +95,14 @@ describe('OrderPage ("Monte seu Açaí")', () => {
     const caldaBtn = screen.getAllByRole('button').find(btn => btn.textContent?.includes('Calda 50ml'))!;
     await user.click(caldaBtn);
 
-    // Total should now be 18.50
-    expect(screen.getAllByText(/R\$ 18\.50/i).length).toBeGreaterThan(0);
+    // Total should now be 18,50
+    expect(screen.getAllByText(/R\$ 18,50/i).length).toBeGreaterThan(0);
 
     // Click again to unselect Calda 50ml
     await user.click(caldaBtn);
 
-    // Total should go back to 17.00
-    expect(screen.getAllByText(/R\$ 17\.00/i).length).toBeGreaterThan(0);
+    // Total should go back to 17,00
+    expect(screen.getAllByText(/R\$ 17,00/i).length).toBeGreaterThan(0);
   });
 
   it('salva o pedido com tamanho, sabor e complementos na lista de itens', async () => {
@@ -172,16 +172,21 @@ describe('OrderPage ("Monte seu Açaí")', () => {
     localStorage.clear();
   });
 
-  it('renders the desktop sidebar with live order summary', async () => {
+  it('mostra o total na cápsula do topo e abre "Seu açaí" com o resumo', async () => {
     const user = userEvent.setup();
     renderOrderPage();
 
-    // Select Pote de 500
     const sizeButton = screen.getAllByRole('button').find(btn => btn.textContent?.includes('Pote de 500'))!;
     await user.click(sizeButton);
 
-    // Check that "Seu Açaí" sidebar displays Pote de 500
-    expect(screen.getByText('Seu Açaí')).toBeInTheDocument();
-    expect(screen.getByText('Base: R$ 17.00')).toBeInTheDocument();
+    const totalCapsule = screen.getByRole('button', { name: /ver seu açaí: 1 item, total R\$ 17,00/i });
+    await user.click(totalCapsule);
+
+    const sheet = screen.getByRole('dialog', { name: /seu açaí/i });
+    expect(sheet).toHaveTextContent('Pote de 500');
+    expect(sheet).toHaveTextContent('Base: R$ 17,00');
+
+    await user.click(screen.getByRole('button', { name: /continuar montando/i }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 });
