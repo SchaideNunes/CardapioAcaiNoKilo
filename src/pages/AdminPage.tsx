@@ -48,6 +48,7 @@ import { MENU_CACHE_KEY, readCachedMenuItems } from "@/lib/menuCache";
 import { computeOrderMetrics, earliestReportStart, filterOrdersByPeriod, type ReportPeriod } from "@/lib/reports";
 import { apiUrl } from "@/lib/api";
 import { formatBRL } from "@/lib/whatsapp";
+import { useEscapeKey } from "@/lib/useEscapeKey";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -336,6 +337,10 @@ export default function AdminPage() {
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" | "info" } | null>(null);
 
   const navigate = useNavigate();
+
+  // Esc fecha a gaveta do menu e a confirmação de exclusão (o formulário de item cuida do próprio Esc)
+  useEscapeKey(mobileDrawerOpen, () => setMobileDrawerOpen(false));
+  useEscapeKey(itemToDelete !== null, () => setItemToDelete(null));
 
   const showToast = (message: string, type: "success" | "error" | "info" = "success") => {
     setToast({ message, type });
@@ -1311,7 +1316,6 @@ export default function AdminPage() {
       {itemToDelete && (
         <div
           className="fixed inset-0 z-[130] flex items-end justify-center bg-[#120714]/75 p-4 sm:items-center"
-          onKeyDown={(e) => { if (e.key === "Escape") setItemToDelete(null); }}
         >
           <div
             role="alertdialog"
@@ -1368,6 +1372,7 @@ function ItemModal({ item, onClose, onSave, loading }: ItemModalProps) {
   const [description, setDescription] = useState(item?.description || "");
   const [type, setType] = useState(item?.type || "");
   const [active, setActive] = useState(item ? item.active !== false : true);
+  useEscapeKey(true, onClose);
 
   // Manipular upload local de imagem
   const handleImageFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1402,7 +1407,6 @@ function ItemModal({ item, onClose, onSave, loading }: ItemModalProps) {
   return (
     <div
       className="fixed inset-0 z-[130] flex items-end justify-center bg-[#120714]/75 sm:items-center sm:p-4"
-      onKeyDown={(e) => { if (e.key === "Escape") onClose(); }}
     >
       <div
         role="dialog"

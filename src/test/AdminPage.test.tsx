@@ -125,6 +125,24 @@ describe("AdminPage - Painel Administrativo", () => {
     expect((price as HTMLInputElement).checkValidity()).toBe(true);
   });
 
+  it("fecha o formulário de item e a confirmação de exclusão com Esc", async () => {
+    render(
+      <BrowserRouter>
+        <AdminPage />
+      </BrowserRouter>
+    );
+
+    fireEvent.click(await screen.findByText(/novo item/i));
+    expect(await screen.findByRole("dialog", { name: /adicionar novo item/i })).toBeInTheDocument();
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getAllByRole("button", { name: /^excluir /i })[0]);
+    expect(screen.getByRole("alertdialog")).toBeInTheDocument();
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+  });
+
   it("opens delete confirmation modal and removes item", async () => {
     render(
       <BrowserRouter>

@@ -10,6 +10,7 @@ import { readCachedMenuItems } from "@/lib/menuCache";
 import { readyMadeProducts } from "@/data/menu";
 import type { MenuItemRecord, ReadyProduct } from "@/types/menu";
 import { apiUrl } from "@/lib/api";
+import { useEscapeKey } from "@/lib/useEscapeKey";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -54,6 +55,9 @@ export default function ReadyMadePage() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [showCart, setShowCart] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
+  // Esc fecha a camada de cima: o checkout primeiro, depois o carrinho
+  useEscapeKey(showCheckout, () => setShowCheckout(false));
+  useEscapeKey(showCart && !showCheckout, () => setShowCart(false));
 
   // Checkout state
   const [deliveryMethod, setDeliveryMethod] = useState<"pickup" | "delivery" | null>(null);

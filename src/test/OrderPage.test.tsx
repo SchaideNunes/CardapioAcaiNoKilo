@@ -189,4 +189,16 @@ describe('OrderPage ("Monte seu Açaí")', () => {
     await user.click(screen.getByRole('button', { name: /continuar montando/i }));
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
+
+  it('fecha "Seu açaí" com a tecla Esc', async () => {
+    const user = userEvent.setup();
+    renderOrderPage();
+
+    await user.click(screen.getAllByRole('button').find(btn => btn.textContent?.includes('Pote de 500'))!);
+    await user.click(screen.getByRole('button', { name: /ver seu açaí/i }));
+    expect(screen.getByRole('dialog', { name: /seu açaí/i })).toBeInTheDocument();
+
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
 });

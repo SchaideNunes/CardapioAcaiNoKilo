@@ -145,6 +145,23 @@ describe('ReadyMadePage', () => {
     expect(screen.getByText('2. Pagamento')).toBeInTheDocument();
   });
 
+  it('fecha o carrinho e o checkout com a tecla Esc', async () => {
+    const user = userEvent.setup();
+    renderPage();
+
+    await user.click(screen.getAllByRole('button').find(btn => btn.textContent?.includes('Açaí Natural'))!);
+
+    await user.click(screen.getByText('Ver'));
+    expect(screen.getByRole('dialog', { name: /seu pedido/i })).toBeInTheDocument();
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+
+    await user.click(screen.getByText('Finalizar'));
+    expect(screen.getByRole('dialog', { name: /finalizar pedido/i })).toBeInTheDocument();
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
   it('disables "Enviar Pedido" until form is complete', async () => {
     const user = userEvent.setup();
     renderPage();

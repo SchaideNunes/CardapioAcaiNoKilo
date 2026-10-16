@@ -24,6 +24,7 @@ import SmoothScrollProvider from "@/components/SmoothScrollProvider";
 import { saveOrder, PAYMENT_LABELS } from "@/lib/orders";
 import { buildCheckoutSection, buildWhatsAppUrl, deliveryFee, formatBRL, openWhatsApp, DELIVERY_FEE } from "@/lib/whatsapp";
 import { apiUrl } from "@/lib/api";
+import { useEscapeKey } from "@/lib/useEscapeKey";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -94,6 +95,7 @@ export default function OrderPage() {
     return cached.length > 0 ? groupBuilderMenu(cached) : localFallbackData;
   });
   const [showCart, setShowCart] = useState(false);
+  useEscapeKey(showCart, () => setShowCart(false));
   const [currentStep, setCurrentStep] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [order, setOrder] = useState<OrderState>({

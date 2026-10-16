@@ -21,7 +21,7 @@ Ambiente: Windows, caminho do projeto contém `ç` (`Cardapio Açai`) e assets c
 ## Mapa do código (estado real)
 
 - [src/main.tsx](src/main.tsx) — rotas: `/`, `/montar`, `/prontos`, `/login`, `/admin`.
-- [src/pages/](src/pages/) — cada página é um componente grande e autocontido (`AdminPage.tsx` ~1.600 linhas, `OrderPage.tsx` ~800). Não há camada de services/hooks no frontend ainda.
+- [src/pages/](src/pages/) — cada página é um componente grande e autocontido (`AdminPage.tsx` ~1.600 linhas, `OrderPage.tsx` ~800). Não há camada de services no frontend; o único hook compartilhado é [src/lib/useEscapeKey.ts](src/lib/useEscapeKey.ts) (Esc fecha diálogos e folhas — use em todo diálogo novo).
 - [src/lib/orders.ts](src/lib/orders.ts) — `saveOrder()`: persistência do pedido usada por `OrderPage` e `ReadyMadePage` (nunca lança; campo `origin`: `"custom"` | `"ready_made"`). Lógica compartilhada nova vai em `src/lib/`.
 - [src/types/](src/types/) — tipos de domínio compartilhados: `menu.ts` (`MenuItem`, `MenuItemRecord` = item do banco/admin, `MenuData`, `ReadyProduct`, `MENU_CATEGORIES`) e `order.ts` (`OrderPayload`, `OrderRecord`, `DeliveryMethod`, `PaymentMethod`). Não declare tipos de domínio dentro das páginas.
 - [src/lib/reports.ts](src/lib/reports.ts) — períodos dos relatórios (`periodStart`: hoje à meia-noite local, últimos 7 dias, mês corrente), `filterOrdersByPeriod` e `computeOrderMetrics` (cancelados ficam fora do faturamento). O admin busca pedidos a partir de `earliestReportStart`.
