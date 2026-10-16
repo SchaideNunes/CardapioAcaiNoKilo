@@ -25,7 +25,10 @@ export function buildCheckoutSection(details: CheckoutDetails, total: number): s
   const { deliveryMethod, address, paymentMethod, changeFor } = details;
   let section = `\n*Entrega:* ${deliveryMethod === "delivery" ? "Receber em casa" : "Retirar na loja"}\n`;
   if (deliveryMethod === "delivery") section += `*Endereço:* ${address.street}, ${address.number} - ${address.neighborhood}\n`;
-  section += `\n*Pagamento:* ${paymentMethod ? PAYMENT_LABELS[paymentMethod] : "Não definido"}\n`;
+  const paymentLabel = paymentMethod
+    ? PAYMENT_LABELS[paymentMethod]
+    : deliveryMethod === "pickup" ? "No balcão" : "Não definido";
+  section += `\n*Pagamento:* ${paymentLabel}\n`;
   if (paymentMethod === "cash" && changeFor) {
     section += changeFor === "Não preciso" ? `*Troco:* Não preciso\n` : `*Troco para:* R$ ${changeFor}\n`;
   }

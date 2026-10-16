@@ -50,10 +50,19 @@ describe('buildCheckoutSection', () => {
     );
   });
 
-  it('dinheiro sem troco e pagamento não definido', () => {
+  it('dinheiro sem troco', () => {
     expect(buildCheckoutSection({ deliveryMethod: 'pickup', address, paymentMethod: 'cash', changeFor: 'Não preciso' }, 10))
       .toContain('*Troco:* Não preciso\n');
-    expect(buildCheckoutSection({ deliveryMethod: 'pickup', address, paymentMethod: null, changeFor: '' }, 10))
+  });
+
+  it('retirada sem forma de pagamento sai como "No balcão"', () => {
+    const section = buildCheckoutSection({ deliveryMethod: 'pickup', address, paymentMethod: null, changeFor: '' }, 10);
+    expect(section).toContain('*Pagamento:* No balcão\n');
+    expect(section).not.toContain('Não definido');
+  });
+
+  it('entrega sem forma de pagamento continua "Não definido"', () => {
+    expect(buildCheckoutSection({ deliveryMethod: 'delivery', address, paymentMethod: null, changeFor: '' }, 10))
       .toContain('*Pagamento:* Não definido\n');
   });
 });
