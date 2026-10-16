@@ -44,13 +44,26 @@ describe("AdminPage - Painel Administrativo", () => {
       </BrowserRouter>
     );
 
-    const searchInput = await screen.findByPlaceholderText(/buscar por nome ou categoria/i);
+    const searchInput = await screen.findByLabelText(/buscar item/i);
     fireEvent.change(searchInput, { target: { value: "NutellaInexistente12345" } });
 
     expect(await screen.findByText(/nenhum item encontrado/i)).toBeInTheDocument();
 
     fireEvent.change(searchInput, { target: { value: "Banana" } });
     expect((await screen.findAllByText(/banana/i)).length).toBeGreaterThan(0);
+  });
+
+  it("limpa a busca pelo botão de limpar", async () => {
+    render(
+      <BrowserRouter>
+        <AdminPage />
+      </BrowserRouter>
+    );
+
+    const searchInput = await screen.findByLabelText(/buscar item/i);
+    fireEvent.change(searchInput, { target: { value: "Banana" } });
+    fireEvent.click(screen.getByRole("button", { name: /limpar busca/i }));
+    expect(searchInput).toHaveValue("");
   });
 
   it("opens 'Novo Item' modal and adds an item", async () => {
@@ -84,13 +97,13 @@ describe("AdminPage - Painel Administrativo", () => {
       </BrowserRouter>
     );
 
-    const searchInput = await screen.findByPlaceholderText(/buscar por nome ou categoria/i);
+    const searchInput = await screen.findByLabelText(/buscar item/i);
     fireEvent.change(searchInput, { target: { value: "Abacaxi ao vinho" } });
 
-    const deleteButtons = await screen.findAllByTitle(/excluir/i);
+    const deleteButtons = await screen.findAllByRole("button", { name: /^excluir abacaxi ao vinho/i });
     fireEvent.click(deleteButtons[0]);
 
-    expect(await screen.findByText(/excluir item\?/i)).toBeInTheDocument();
+    expect(await screen.findByRole("alertdialog", { name: /excluir item\?/i })).toBeInTheDocument();
     expect(screen.getByText(/tem certeza que deseja excluir/i)).toBeInTheDocument();
 
     const confirmBtn = screen.getByRole("button", { name: /excluir definitivamente/i });

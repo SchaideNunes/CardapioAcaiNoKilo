@@ -7,8 +7,6 @@ import {
   PlusCircle,
   Layers,
   BarChart3,
-  CheckCircle2,
-  XCircle,
   Plus, 
   Trash2, 
   Edit3, 
@@ -20,7 +18,6 @@ import {
   Upload,
   Sparkles,
   LayoutGrid,
-  List,
   Droplets,
   Milk,
   Apple,
@@ -28,8 +25,6 @@ import {
   ShoppingBag,
   LogOut,
   RefreshCw,
-  Menu,
-  SlidersHorizontal,
   MoreHorizontal,
   DollarSign,
   TrendingUp,
@@ -53,6 +48,7 @@ import { DEMO_TOKEN } from "@/lib/demo";
 import { MENU_CACHE_KEY, readCachedMenuItems } from "@/lib/menuCache";
 import { computeOrderMetrics, earliestReportStart, filterOrdersByPeriod, type ReportPeriod } from "@/lib/reports";
 import { apiUrl } from "@/lib/api";
+import { formatBRL } from "@/lib/whatsapp";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -60,15 +56,15 @@ function cn(...inputs: ClassValue[]) {
 
 
 export const CATEGORIES_CONFIG = [
-  { key: "all", label: "Todos os Itens", shortLabel: "Todos", Icon: LayoutGrid, iconColor: "text-[#F0DF58]" },
-  { key: "sizes", label: "Tamanhos de Potes", shortLabel: "Potes", Icon: Layers, iconColor: "text-purple-300" },
-  { key: "flavors", label: "Sabores de Açaí", shortLabel: "Sabores", Icon: Sparkles, iconColor: "text-violet-300" },
-  { key: "toppings", label: "Coberturas", shortLabel: "Coberturas", Icon: Droplets, iconColor: "text-amber-300" },
-  { key: "addons", label: "Adicionais", shortLabel: "Adicionais", Icon: PlusCircle, iconColor: "text-emerald-300" },
-  { key: "creams", label: "Cremes", shortLabel: "Cremes", Icon: Milk, iconColor: "text-pink-300" },
-  { key: "fruits", label: "Frutas Frescas", shortLabel: "Frutas", Icon: Apple, iconColor: "text-rose-300" },
-  { key: "fillings", label: "Recheios Especiais", shortLabel: "Recheios", Icon: Cookie, iconColor: "text-amber-400" },
-  { key: "ready_made", label: "Prontos para Levar", shortLabel: "Prontos", Icon: ShoppingBag, iconColor: "text-cyan-300" },
+  { key: "all", label: "Todos os Itens", shortLabel: "Todos", Icon: LayoutGrid },
+  { key: "sizes", label: "Tamanhos de Potes", shortLabel: "Potes", Icon: Layers },
+  { key: "flavors", label: "Sabores de Açaí", shortLabel: "Sabores", Icon: Sparkles },
+  { key: "toppings", label: "Coberturas", shortLabel: "Coberturas", Icon: Droplets },
+  { key: "addons", label: "Adicionais", shortLabel: "Adicionais", Icon: PlusCircle },
+  { key: "creams", label: "Cremes", shortLabel: "Cremes", Icon: Milk },
+  { key: "fruits", label: "Frutas Frescas", shortLabel: "Frutas", Icon: Apple },
+  { key: "fillings", label: "Recheios Especiais", shortLabel: "Recheios", Icon: Cookie },
+  { key: "ready_made", label: "Prontos para Levar", shortLabel: "Prontos", Icon: ShoppingBag },
 ];
 
 export function resolveItemImage(item: Partial<MenuItemRecord>): string {
@@ -111,6 +107,37 @@ const ORDER_STATUS_STYLES: Record<OrderStatus, string> = {
   done: "bg-emerald-400/15 text-emerald-300 border-emerald-400/40",
   cancelled: "bg-white/[0.06] text-white/50 border-white/15 line-through",
 };
+
+// Classes do sistema 2D (DESIGN.md), as mesmas da montagem e da /prontos
+const focusRing = "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F0DF58]";
+const pillBase = "inline-flex min-h-11 items-center justify-center gap-1.5 whitespace-nowrap rounded-full border-2 px-4 text-sm font-bold transition-colors duration-200 ease-out";
+const pillIdle = "border-white/10 bg-[#2f1729] text-white/80 hover:border-white/30 hover:text-white";
+const pillOn = "border-[#120714] bg-[#F0DF58] text-[#120714]";
+const roundGhost = "flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-2 border-white/20 text-white/80 transition-colors duration-200 ease-out hover:border-white/50 hover:text-white lg:h-10 lg:w-10";
+const primaryBtn = "inline-flex h-12 items-center justify-center gap-2 rounded-full border-2 border-[#120714] bg-[#F0DF58] px-5 font-heading text-[22px] uppercase leading-none text-[#120714] transition-colors duration-200 ease-out hover:bg-[#F8EEA6]";
+const panelCard = "rounded-[28px] border-2 border-white/10 bg-[#2f1729]";
+const sideLink = "flex min-h-11 items-center gap-3 rounded-full border-2 border-transparent px-4 text-left text-sm font-semibold text-white/75 transition-colors duration-200 ease-out hover:border-white/20 hover:text-white disabled:opacity-60";
+
+type AdminTab = "overview" | "menu" | "orders" | "reports";
+
+const NAV_TABS: { key: AdminTab; label: string; short: string; Icon: typeof Home }[] = [
+  { key: "overview", label: "Visão Geral", short: "Início", Icon: Home },
+  { key: "menu", label: "Gestão do Cardápio", short: "Cardápio", Icon: Box },
+  { key: "orders", label: "Pedidos do Dia", short: "Pedidos", Icon: Receipt },
+  { key: "reports", label: "Relatórios", short: "Relatórios", Icon: BarChart3 },
+];
+
+function PageHeader({ title, hint, children }: { title: string; hint: string; children?: React.ReactNode }) {
+  return (
+    <div className="flex items-start justify-between gap-4">
+      <div className="min-w-0">
+        <h2 className="text-balance font-heading text-[clamp(2.5rem,9vw,3.5rem)] uppercase leading-[0.9] text-white">{title}</h2>
+        <p className="mt-2 text-[15px] text-white/75">{hint}</p>
+      </div>
+      {children && <div className="flex shrink-0 items-center gap-2">{children}</div>}
+    </div>
+  );
+}
 
 const LOCAL_STORAGE_KEY = MENU_CACHE_KEY;
 
@@ -222,11 +249,10 @@ async function fetchAdminData(token: string): Promise<AdminData | "unauthorized"
 }
 
 export default function AdminPage() {
-  const [activeTab, setActiveTab] = useState<"overview" | "menu" | "orders" | "reports">("menu");
+  const [activeTab, setActiveTab] = useState<AdminTab>("menu");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   
   // Filtros da aba de pedidos
@@ -493,6 +519,11 @@ export default function AdminPage() {
     [orders, reportPeriod, now]
   );
 
+  const openOrdersCount = useMemo(
+    () => todayOrders.filter(o => ["new", "preparing", "ready"].includes(normalizeOrderStatus(o.status))).length,
+    [todayOrders]
+  );
+
   // Filtragem dos Pedidos do Dia
   const filteredOrders = useMemo(() => {
     return todayOrders.filter(order => {
@@ -534,204 +565,141 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#241220] text-white lining-nums tabular-nums flex flex-col md:flex-row relative selection:bg-[#F0DF58] selection:text-[#0e0711] font-sans pb-24 md:pb-0 overflow-x-hidden w-full max-w-full">
-      {/* Toast Notification */}
+    <div className="flex min-h-[100dvh] w-full max-w-full flex-col overflow-x-hidden bg-[#241220] pb-24 font-sans text-white lining-nums tabular-nums selection:bg-[#F0DF58] selection:text-[#120714] md:flex-row md:pb-0">
+      {/* Aviso rápido */}
       {toast && (
-        <div className={cn(
-          "fixed bottom-20 md:bottom-6 right-6 z-[100] px-5 py-3.5 rounded-2xl font-sans text-sm flex items-center gap-3 animate-in slide-in-from-bottom-5 duration-300 border",
-          toast.type === "success" && "bg-[#25D366]/20 border-[#25D366]/40 text-[#25D366]",
-          toast.type === "error" && "bg-rose-500/20 border-rose-500/40 text-rose-300",
-          toast.type === "info" && "bg-[#F0DF58]/20 border-[#F0DF58]/40 text-[#F0DF58]"
-        )}>
-          {toast.type === "success" ? <Check size={18} /> : <AlertTriangle size={18} />}
-          <span className="font-medium text-white">{toast.message}</span>
+        <div
+          role="status"
+          className={cn(
+            "fixed inset-x-4 bottom-24 z-[140] flex items-center gap-3 rounded-2xl border-2 bg-[#2f1729] px-4 py-3 text-sm font-semibold text-white sm:left-auto sm:right-6 sm:max-w-sm md:bottom-6",
+            toast.type === "error" ? "border-[#F58220]" : "border-[#F0DF58]"
+          )}
+        >
+          {toast.type === "error"
+            ? <AlertTriangle size={18} className="shrink-0 text-[#F58220]" aria-hidden="true" />
+            : <Check size={18} className="shrink-0 text-[#F0DF58]" aria-hidden="true" />}
+          <span>{toast.message}</span>
         </div>
       )}
 
-      {/* ================= MOBILE DRAWER OVERLAY ================= */}
+      {/* ================= VÉU DO MENU NO CELULAR ================= */}
       {mobileDrawerOpen && (
-        <div 
+        <div
           onClick={() => setMobileDrawerOpen(false)}
-          className="fixed inset-0 bg-black/80 z-[110] md:hidden animate-in fade-in duration-200"
+          aria-hidden="true"
+          className="fixed inset-0 z-[110] bg-[#120714]/75 md:hidden"
         />
       )}
 
-      {/* ================= SIDEBAR (DESKTOP + MOBILE DRAWER) ================= */}
-      <aside className={cn(
-        "bg-[#120714] border-r border-white/[0.06] p-5 flex flex-col gap-6 flex-shrink-0 z-[120] transition-transform duration-300",
-        "fixed md:static inset-y-0 left-0 w-72 md:w-64",
-        mobileDrawerOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-      )}>
-        {/* Header da Sidebar */}
-        <div className="flex items-center justify-between gap-3 pb-3 border-b border-white/[0.06]">
+      {/* ================= BARRA LATERAL (DESKTOP) / GAVETA (CELULAR) ================= */}
+      <aside
+        aria-label="Menu do painel"
+        className={cn(
+          "fixed inset-y-0 left-0 z-[120] flex w-72 max-w-[85vw] shrink-0 flex-col gap-6 overflow-y-auto border-r-2 border-[#120714] bg-[#2f1729] p-5 transition-transform duration-300 ease-out motion-reduce:transition-none",
+          "md:visible md:sticky md:top-0 md:h-[100dvh] md:w-72 md:translate-x-0",
+          mobileDrawerOpen ? "visible translate-x-0" : "invisible -translate-x-full"
+        )}
+      >
+        <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-black/40 border-2 border-white/10 p-1 flex items-center justify-center overflow-hidden flex-shrink-0">
-              <img 
-                src="/assets/Logo açai.webp" 
-                alt="Logo Açaí no Kilo" 
-                className="w-full h-full object-contain"
-              />
-            </div>
+            <img src="/assets/Logo açai.webp" alt="Logo Açaí no Kilo" className="h-12 w-12 shrink-0 object-contain" />
             <div>
-              <h1 className="font-heading text-lg uppercase text-[#F0DF58] leading-tight tracking-wider">
-                ADMIN PAINEL
-              </h1>
-              <p className="text-[10px] text-white/50 uppercase font-bold tracking-widest">
-                Açaí no Kilo
-              </p>
+              <h1 className="font-heading text-[28px] uppercase leading-[0.9] text-[#F0DF58]">Admin Painel</h1>
+              <p className="mt-1 text-xs font-bold text-white/60">Açaí no Kilo</p>
             </div>
           </div>
-          <button 
-            onClick={() => setMobileDrawerOpen(false)} 
-            title="Fechar Menu"
+          <button
+            onClick={() => setMobileDrawerOpen(false)}
             aria-label="Fechar menu"
-            className="w-11 h-11 -mr-2 flex items-center justify-center text-white/40 hover:text-white transition-colors md:hidden"
+            className={cn(roundGhost, focusRing, "md:hidden")}
           >
-            <X size={20} />
+            <X size={20} aria-hidden="true" />
           </button>
         </div>
 
-        {/* Links Principais */}
-        <nav className="flex flex-col gap-1.5">
-          <button 
-            onClick={() => { setActiveTab("overview"); setMobileDrawerOpen(false); }} 
-            className={cn(
-              "flex items-center justify-between px-3.5 py-2.5 min-h-11 lg:min-h-0 rounded-xl text-xs font-semibold tracking-wide transition-all",
-              activeTab === "overview"
-                ? "border border-[#F0DF58]/80 bg-[#F0DF58]/10 text-[#F0DF58]"
-                : "text-white/60 hover:text-white hover:bg-white/[0.04]"
-            )}
-          >
-            <div className="flex items-center gap-2.5">
-              <Home size={17} />
-              <span>Visão Geral</span>
-            </div>
-          </button>
-
-          <button 
-            onClick={() => { setActiveTab("menu"); setMobileDrawerOpen(false); }} 
-            className={cn(
-              "flex items-center justify-between px-3.5 py-2.5 min-h-11 lg:min-h-0 rounded-xl text-xs font-semibold tracking-wide transition-all",
-              activeTab === "menu"
-                ? "border border-[#F0DF58]/80 bg-[#F0DF58]/10 text-[#F0DF58]"
-                : "text-white/60 hover:text-white hover:bg-white/[0.04]"
-            )}
-          >
-            <div className="flex items-center gap-2.5">
-              <Box size={17} />
-              <span>Gestão do Cardápio</span>
-            </div>
-            <span className="bg-[#F0DF58] text-[#120714] font-heading font-black text-xs px-2 py-0.5 rounded-full">
-              {stats.total}
-            </span>
-          </button>
-
-          <button 
-            onClick={() => { setActiveTab("orders"); setMobileDrawerOpen(false); }} 
-            className={cn(
-              "flex items-center justify-between px-3.5 py-2.5 min-h-11 lg:min-h-0 rounded-xl text-xs font-semibold tracking-wide transition-all",
-              activeTab === "orders"
-                ? "border border-[#F0DF58]/80 bg-[#F0DF58]/10 text-[#F0DF58]"
-                : "text-white/60 hover:text-white hover:bg-white/[0.04]"
-            )}
-          >
-            <div className="flex items-center gap-2.5">
-              <LayoutDashboard size={17} />
-              <span>Pedidos do Dia</span>
-            </div>
-            <span className="bg-white/10 text-white/70 text-[10px] font-bold px-2 py-0.5 rounded-full">
-              {todayOrders.length}
-            </span>
-          </button>
-
-          <button 
-            onClick={() => { setActiveTab("reports"); setMobileDrawerOpen(false); }} 
-            className={cn(
-              "flex items-center justify-between px-3.5 py-2.5 min-h-11 lg:min-h-0 rounded-xl text-xs font-semibold tracking-wide transition-all",
-              activeTab === "reports"
-                ? "border border-[#F0DF58]/80 bg-[#F0DF58]/10 text-[#F0DF58]"
-                : "text-white/60 hover:text-white hover:bg-white/[0.04]"
-            )}
-          >
-            <div className="flex items-center gap-2.5">
-              <BarChart3 size={17} />
-              <span>Relatórios</span>
-            </div>
-          </button>
+        <nav aria-label="Seções do painel" className="flex flex-col gap-1.5">
+          {NAV_TABS.map(({ key, label, Icon }) => {
+            const on = activeTab === key;
+            const badge = key === "menu" ? stats.total : key === "orders" ? openOrdersCount : null;
+            return (
+              <button
+                key={key}
+                onClick={() => { setActiveTab(key); setMobileDrawerOpen(false); }}
+                aria-current={on ? "page" : undefined}
+                className={cn(
+                  "flex min-h-11 items-center gap-3 rounded-full border-2 px-4 text-sm font-bold transition-colors duration-200 ease-out",
+                  focusRing,
+                  on ? "border-[#120714] bg-[#F0DF58] text-[#120714]" : "border-transparent text-white/75 hover:border-white/20 hover:text-white"
+                )}
+              >
+                <Icon size={18} aria-hidden="true" />
+                <span className="flex-1 text-left">{label}</span>
+                {badge !== null && (
+                  <span className={cn(
+                    "min-w-7 rounded-full px-2 text-center font-heading text-base leading-6",
+                    on ? "bg-[#120714] text-[#F0DF58]" : "bg-white/10 text-white/80"
+                  )}>
+                    {badge}
+                    {key === "orders" && <span className="sr-only"> em aberto</span>}
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </nav>
 
-        {/* Seção RÁPIDAS (Sem categorias e sem configurações conforme solicitado) */}
-        <div className="flex flex-col gap-1 pt-1">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-white/30 px-3 mb-1">
-            RÁPIDAS
-          </p>
-          <button 
+        <div className="flex flex-col gap-1.5 border-t-2 border-white/10 pt-5">
+          <p className="px-4 pb-1 text-xs font-bold text-white/60">Atalhos</p>
+          <button
             onClick={() => { setEditingItem(null); setModalOpen(true); setMobileDrawerOpen(false); }}
-            className="flex items-center gap-2.5 px-3.5 py-2 min-h-11 lg:min-h-0 rounded-xl text-xs font-medium text-white/60 hover:text-white hover:bg-white/[0.04] transition-all text-left"
+            className={cn(sideLink, focusRing)}
           >
-            <PlusCircle size={16} className="text-[#F0DF58]" />
-            <span>Adicionar Item</span>
+            <PlusCircle size={18} className="text-[#F0DF58]" aria-hidden="true" />
+            Adicionar item
           </button>
-          <button 
+          <button
             onClick={() => { handleSyncData(); setMobileDrawerOpen(false); }}
             disabled={syncing}
-            className={cn(
-              "flex items-center gap-2.5 px-3.5 py-2 min-h-11 lg:min-h-0 rounded-xl text-xs font-medium transition-all text-left group",
-              syncing 
-                ? "bg-[#F0DF58]/15 text-[#F0DF58] border border-[#F0DF58]/30" 
-                : "text-white/60 hover:text-white hover:bg-white/[0.04]"
-            )}
+            className={cn(sideLink, focusRing)}
           >
-            <RefreshCw 
-              size={16} 
-              className={cn(
-                "text-white/40 transition-transform",
-                syncing ? "animate-spin text-[#F0DF58]" : "group-hover:rotate-180 duration-500"
-              )} 
-            />
-            <span>{syncing ? "Sincronizando..." : "Sincronizar Dados"}</span>
+            <RefreshCw size={18} className={cn(syncing && "animate-spin text-[#F0DF58] motion-reduce:animate-none")} aria-hidden="true" />
+            {syncing ? "Sincronizando..." : "Sincronizar dados"}
           </button>
         </div>
 
-        {/* Rodapé da Sidebar */}
-        <div className="mt-auto pt-4 border-t border-white/[0.06]">
-          <button 
-            onClick={handleLogout} 
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/20 text-xs font-bold uppercase tracking-wider transition-all active:scale-95"
+        <div className="mt-auto border-t-2 border-white/10 pt-5">
+          <button
+            onClick={handleLogout}
+            className={cn(
+              "flex h-12 w-full items-center justify-center gap-2 rounded-full border-2 border-white/20 text-sm font-bold text-white/80 transition-colors duration-200 ease-out hover:border-[#F58220] hover:text-[#F58220]",
+              focusRing
+            )}
           >
-            <LogOut size={16} /> Sair do Painel
+            <LogOut size={18} aria-hidden="true" /> Sair do painel
           </button>
         </div>
       </aside>
 
       {/* ================= CONTEÚDO PRINCIPAL ================= */}
-      <main className="flex-1 p-3.5 sm:p-7 lg:p-8 overflow-y-auto overflow-x-hidden space-y-4 sm:space-y-6 w-full max-w-full">
-        {/* ================= CABEÇALHO MOBILE ================= */}
-        <div className="flex md:hidden items-center justify-between gap-3 pb-2">
-          <button 
-            onClick={() => setMobileDrawerOpen(true)}
-            title="Abrir Menu"
-            className="w-11 h-11 rounded-xl bg-white/[0.05] border-2 border-white/10 flex items-center justify-center text-white/80 active:scale-95"
-          >
-            <Menu size={20} />
-          </button>
-
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-black/40 border-2 border-white/10 p-0.5 flex items-center justify-center overflow-hidden">
-              <img src="/assets/Logo açai.webp" alt="Logo" className="w-full h-full object-contain" />
-            </div>
+      <main className="mx-auto w-full min-w-0 max-w-[1400px] flex-1 space-y-6 px-4 pb-10 sm:px-6 md:px-8 md:pt-8 lg:px-10">
+        {/* ================= CABEÇALHO NO CELULAR ================= */}
+        <div className="sticky top-0 z-[90] -mx-4 flex items-center justify-between gap-3 border-b-2 border-[#120714] bg-[#241220] px-4 py-3 sm:-mx-6 sm:px-6 md:hidden">
+          <div className="flex items-center gap-2.5">
+            <img src="/assets/Logo açai.webp" alt="" className="h-11 w-11 object-contain" />
             <div>
-              <span className="font-heading text-sm uppercase text-[#F0DF58] leading-none block">PAINEL</span>
-              <p className="text-[8px] text-white/50 uppercase font-bold tracking-widest mt-0.5">Açaí no Kilo</p>
+              <p className="font-heading text-2xl uppercase leading-none text-[#F0DF58]">Painel</p>
+              <p className="text-xs font-bold text-white/60">Açaí no Kilo</p>
             </div>
           </div>
-
-          <button 
+          <button
             onClick={() => { setEditingItem(null); setModalOpen(true); }}
-            title="Adicionar Novo Item"
-            className="w-11 h-11 rounded-xl bg-[#F0DF58] text-[#120714] flex items-center justify-center font-black active:scale-95"
+            aria-label="Adicionar item"
+            className={cn(
+              "flex h-11 w-11 items-center justify-center rounded-full border-2 border-[#120714] bg-[#F0DF58] text-[#120714] transition-colors duration-200 ease-out hover:bg-[#F8EEA6]",
+              focusRing
+            )}
           >
-            <Plus size={20} strokeWidth={3} />
+            <Plus size={22} strokeWidth={2.5} aria-hidden="true" />
           </button>
         </div>
 
@@ -739,330 +707,175 @@ export default function AdminPage() {
         {/* ======================= ABA: GESTÃO DO CARDÁPIO ========================= */}
         {/* ========================================================================= */}
         {activeTab === "menu" && (
-          <div className="space-y-4 sm:space-y-6">
-            {/* Título da Página Desktop & Mobile */}
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-              <div>
-                <h2 className="font-sans text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight">
-                  Contrôle total do cardápio
-                </h2>
-                <p className="text-white/50 text-xs sm:text-sm font-sans mt-0.5">
-                  Adicione, edite valores, ative/desative qualquer item
-                </p>
-              </div>
+          <div className="space-y-5">
+            <PageHeader title="Cardápio" hint="Preços, fotos e o que aparece para o cliente.">
+              <button
+                onClick={() => { setEditingItem(null); setModalOpen(true); }}
+                className={cn(primaryBtn, focusRing, "hidden md:inline-flex")}
+              >
+                <Plus size={18} strokeWidth={2.5} aria-hidden="true" />
+                Novo item
+              </button>
+            </PageHeader>
 
-              {/* Desktop Button */}
-              <div className="hidden md:flex items-center gap-3">
-                <button 
-                  onClick={() => { setEditingItem(null); setModalOpen(true); }}
-                  className="px-4 py-2 bg-[#F0DF58] hover:bg-[#e4d347] text-[#120714] font-heading font-black text-sm rounded-xl flex items-center gap-1.5 transition-all active:scale-95 uppercase tracking-wide flex-shrink-0"
-                >
-                  <Plus size={16} strokeWidth={3} />
-                  <span>Novo Item</span>
-                </button>
-              </div>
+            {/* Categorias: faixa rolável no celular, quebra de linha a partir do tablet */}
+            <div
+              role="group"
+              aria-label="Categorias"
+              className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6 md:mx-0 md:flex-wrap md:overflow-visible md:px-0 md:pb-0"
+            >
+              {CATEGORIES_CONFIG.map(cat => {
+                const on = selectedCategory === cat.key;
+                const CategoryIcon = cat.Icon;
+                return (
+                  <button
+                    key={cat.key}
+                    onClick={() => setSelectedCategory(cat.key)}
+                    aria-pressed={on}
+                    className={cn(pillBase, focusRing, "shrink-0", on ? pillOn : pillIdle)}
+                  >
+                    <CategoryIcon size={16} aria-hidden="true" />
+                    <span aria-hidden="true">{cat.shortLabel}</span>
+                    <span className="sr-only">{cat.label}</span>
+                    <span className={cn(
+                      "rounded-full px-1.5 font-heading text-base leading-5",
+                      on ? "bg-[#120714] text-[#F0DF58]" : "bg-white/10 text-white/80"
+                    )}>
+                      {categoryCounts[cat.key] ?? 0}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
 
-            {/* CARDS DE MÉTRICAS */}
-            <div className="grid grid-cols-3 gap-2.5 sm:gap-4">
-              {/* TOTAL DE ITENS */}
-              <div className="bg-[#2f1729] border border-purple-900/40 rounded-2xl sm:rounded-3xl p-3 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between relative overflow-hidden group">
-                <div>
-                  <p className="text-[9px] sm:text-xs font-bold text-purple-300 uppercase tracking-wider">
-                    TOTAL DE ITENS
-                  </p>
-                  <p className="font-heading text-2xl sm:text-4xl lg:text-5xl font-bold text-white mt-1 sm:mt-2">
-                    {stats.total}
-                  </p>
-                </div>
-                <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-300 mt-2 sm:mt-0 self-end sm:self-auto">
-                  <Box size={16} className="sm:hidden" />
-                  <Box size={22} className="hidden sm:block" />
-                </div>
-              </div>
-
-              {/* ATIVOS */}
-              <div className="bg-[#2f1729] border border-emerald-900/40 rounded-2xl sm:rounded-3xl p-3 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between relative overflow-hidden group">
-                <div>
-                  <p className="text-[9px] sm:text-xs font-bold text-emerald-400 uppercase tracking-wider">
-                    ATIVOS
-                  </p>
-                  <p className="font-heading text-2xl sm:text-4xl lg:text-5xl font-bold text-emerald-400 mt-1 sm:mt-2">
-                    {stats.active}
-                  </p>
-                </div>
-                <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mt-2 sm:mt-0 self-end sm:self-auto">
-                  <CheckCircle2 size={16} className="sm:hidden" />
-                  <CheckCircle2 size={22} className="hidden sm:block" />
-                </div>
-              </div>
-
-              {/* DESATIVADOS */}
-              <div className="bg-[#2f1729] border border-rose-900/40 rounded-2xl sm:rounded-3xl p-3 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between relative overflow-hidden group">
-                <div>
-                  <p className="text-[9px] sm:text-xs font-bold text-rose-400 uppercase tracking-wider">
-                    DESATIVADOS
-                  </p>
-                  <p className="font-heading text-2xl sm:text-4xl lg:text-5xl font-bold text-rose-400 mt-1 sm:mt-2">
-                    {stats.inactive}
-                  </p>
-                </div>
-                <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-rose-400 mt-2 sm:mt-0 self-end sm:self-auto">
-                  <XCircle size={16} className="sm:hidden" />
-                  <XCircle size={22} className="hidden sm:block" />
-                </div>
-              </div>
-            </div>
-
-            {/* CATEGORIAS (SLIDE CARROSSEL HORIZONTAL) */}
-            <div className="flex flex-col gap-2 bg-[#170a18]/60 border border-white/[0.06] rounded-2xl sm:rounded-3xl p-3 sm:p-5 w-full max-w-full">
-              <div className="flex items-center justify-between px-1">
-                <p className="text-[11px] sm:text-xs font-bold text-white/70 uppercase tracking-widest flex items-center gap-1.5">
-                  <Layers size={14} className="text-[#F0DF58]" />
-                  CATEGORIAS
-                </p>
-                <button 
-                  onClick={() => setSelectedCategory("all")}
-                  className="text-[11px] font-semibold text-white/40 hover:text-white transition-colors inline-flex items-center min-h-11 px-2 -mr-2"
-                >
-                  Ver todas
-                </button>
-              </div>
-
-              <div className="flex items-center md:justify-center gap-2.5 overflow-x-auto pb-1.5 pt-1 no-scrollbar w-full scroll-smooth">
-                {CATEGORIES_CONFIG.map(cat => {
-                  const IconComponent = cat.Icon;
-                  const isSelected = selectedCategory === cat.key;
-                  const count = categoryCounts[cat.key] ?? 0;
-
-                  return (
-                    <button
-                      key={cat.key}
-                      onClick={() => setSelectedCategory(cat.key)}
-                      className={cn(
-                        "flex flex-col items-center justify-center py-2.5 sm:py-3.5 px-3.5 sm:px-5 rounded-2xl border transition-all flex-shrink-0 min-w-[78px] sm:min-w-[95px] gap-1 group",
-                        isSelected 
-                          ? "border-[#F0DF58] bg-[#F0DF58]/15 text-[#F0DF58] scale-[1.02]" 
-                          : "border-white/[0.08] bg-[#130716]/90 text-white/70 hover:border-white/25 hover:text-white"
-                      )}
-                    >
-                      <IconComponent 
-                        size={18} 
-                        className={cn("sm:w-[22px] sm:h-[22px]", isSelected ? "text-[#F0DF58]" : cat.iconColor)} 
-                      />
-                      <span className="text-[11px] sm:text-xs font-bold tracking-tight whitespace-nowrap">
-                        {cat.shortLabel}
-                        <span className="sr-only"> {cat.label}</span>
-                      </span>
-                      <span className={cn(
-                        "text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full transition-colors",
-                        isSelected 
-                          ? "bg-[#F0DF58] text-[#120714]" 
-                          : "bg-white/10 text-white/70"
-                      )}>
-                        {count}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* SEARCH INPUT */}
-            <div className="flex items-center gap-2 w-full max-w-full">
+            {/* Busca e situação */}
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
               <div className="relative flex-1">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/30" size={16} />
-                <input 
+                <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={18} aria-hidden="true" />
+                <input
                   type="text"
-                  placeholder="Buscar por nome ou categoria..."
+                  aria-label="Buscar item"
+                  placeholder="Nome ou categoria"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-[#2f1729] border-2 border-white/10 rounded-xl h-11 pl-9 pr-8 text-white text-xs font-sans focus:outline-none focus:border-[#F0DF58]/60 transition-all placeholder:text-white/30"
+                  className="h-12 w-full rounded-full border-2 border-white/10 bg-[#2f1729] pl-11 pr-12 text-base text-white caret-[#F0DF58] transition-colors placeholder:text-white/40 focus:border-[#F0DF58] focus:outline-none"
                 />
                 {searchQuery && (
-                  <button 
+                  <button
                     onClick={() => setSearchQuery("")}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/40 hover:text-white"
+                    aria-label="Limpar busca"
+                    className={cn("absolute right-0.5 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full text-white/60 hover:text-white", focusRing)}
                   >
-                    <X size={14} />
+                    <X size={18} aria-hidden="true" />
                   </button>
                 )}
               </div>
-              <button 
-                onClick={() => {
-                  if (statusFilter === "all") setStatusFilter("active");
-                  else if (statusFilter === "active") setStatusFilter("inactive");
-                  else setStatusFilter("all");
-                }}
-                title="Filtrar Status"
-                className="w-11 h-11 rounded-xl bg-[#2f1729] border-2 border-white/10 flex items-center justify-center text-white/70 active:scale-95 flex-shrink-0 md:hidden"
-              >
-                <SlidersHorizontal size={17} />
-              </button>
-            </div>
-
-            {/* SUB-FILTROS DE STATUS & MODO DE EXIBIÇÃO */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-1 w-full max-w-full">
-              <div className="grid grid-cols-3 gap-1.5 sm:gap-2 w-full sm:w-auto">
-                <button
-                  onClick={() => setStatusFilter("all")}
-                  className={cn(
-                    "min-h-11 lg:min-h-0 py-2 px-1 text-center rounded-xl sm:rounded-full text-[11px] sm:text-xs font-bold transition-all truncate",
-                    statusFilter === "all"
-                      ? "bg-[#F0DF58] text-[#120714]"
-                      : "bg-[#2f1729] text-white/70 hover:text-white border-2 border-white/10"
-                  )}
-                >
-                  Todos ({stats.total})
-                </button>
-                <button
-                  onClick={() => setStatusFilter("active")}
-                  className={cn(
-                    "min-h-11 lg:min-h-0 py-2 px-1 text-center rounded-xl sm:rounded-full text-[11px] sm:text-xs font-bold transition-all truncate",
-                    statusFilter === "active"
-                      ? "bg-emerald-500/25 text-emerald-400 border border-emerald-500/40 font-black"
-                      : "bg-[#2f1729] text-white/70 hover:text-white border-2 border-white/10"
-                  )}
-                >
-                  Ativos ({stats.active})
-                </button>
-                <button
-                  onClick={() => setStatusFilter("inactive")}
-                  className={cn(
-                    "min-h-11 lg:min-h-0 py-2 px-1 text-center rounded-xl sm:rounded-full text-[11px] sm:text-xs font-bold transition-all truncate",
-                    statusFilter === "inactive"
-                      ? "bg-rose-500/25 text-rose-300 border border-rose-500/40 font-black"
-                      : "bg-[#2f1729] text-white/70 hover:text-white border-2 border-white/10"
-                  )}
-                >
-                  Desativados ({stats.inactive})
-                </button>
-              </div>
-
-              <div className="hidden md:flex items-center gap-1.5 bg-[#2f1729] p-1.5 rounded-2xl border-2 border-white/10">
-                <button
-                  onClick={() => setViewMode("grid")}
-                  className={cn(
-                    "p-2 rounded-xl transition-all",
-                    viewMode === "grid" ? "text-[#F0DF58] bg-[#F0DF58]/15" : "text-white/40 hover:text-white"
-                  )}
-                  title="Visualização em Grade"
-                >
-                  <LayoutGrid size={18} />
-                </button>
-                <button
-                  onClick={() => setViewMode("list")}
-                  className={cn(
-                    "p-2 rounded-xl transition-all",
-                    viewMode === "list" ? "text-[#F0DF58] bg-[#F0DF58]/15" : "text-white/40 hover:text-white"
-                  )}
-                  title="Visualização em Lista"
-                >
-                  <List size={18} />
-                </button>
+              <div role="group" aria-label="Situação dos itens" className="flex flex-wrap gap-2">
+                {([
+                  ["all", "Todos", stats.total],
+                  ["active", "Ativos", stats.active],
+                  ["inactive", "Desativados", stats.inactive],
+                ] as const).map(([key, label, count]) => (
+                  <button
+                    key={key}
+                    onClick={() => setStatusFilter(key)}
+                    aria-pressed={statusFilter === key}
+                    className={cn(pillBase, focusRing, statusFilter === key ? pillOn : pillIdle)}
+                  >
+                    {label} <span className="font-heading text-base leading-none">{count}</span>
+                  </button>
+                ))}
               </div>
             </div>
 
-            {/* GRADE DE PRODUTOS */}
+            {/* Lista de itens */}
             {filteredItems.length === 0 ? (
-              <div className="text-center py-16 bg-[#170a18]/40 border border-white/[0.06] rounded-3xl p-8">
-                <p className="text-white/60 text-sm font-sans mb-4">Nenhum item encontrado com os filtros selecionados.</p>
-                <button 
+              <div className={cn(panelCard, "px-6 py-12 text-center")}>
+                <p className="text-[15px] text-white/75">Nenhum item encontrado com os filtros selecionados.</p>
+                <button
                   onClick={() => { setSelectedCategory("all"); setStatusFilter("all"); setSearchQuery(""); }}
-                  className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-bold uppercase text-white transition-all border-2 border-white/10"
+                  className={cn(pillBase, pillIdle, focusRing, "mt-4")}
                 >
-                  Limpar Filtros
+                  Limpar filtros
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-2.5 sm:gap-4 w-full max-w-full">
+              <ul className="grid grid-cols-1 gap-3 lg:grid-cols-2 2xl:grid-cols-3">
                 {filteredItems.map(item => {
                   const itemImg = item.image || resolveItemImage(item);
+                  const isProduct = item.original_category === "sizes" || item.original_category === "ready_made";
+                  const isActive = item.active !== false;
 
                   return (
-                    <div 
+                    <li
                       key={item._id}
-                      className={cn(
-                        "group relative bg-[#130716]/95 border-2 border-white/10 hover:border-[#F0DF58]/35 rounded-2xl sm:rounded-3xl p-2.5 sm:p-4 transition-all hover:bg-[#1a0c1e] flex items-center justify-between gap-2.5 sm:gap-3 w-full max-w-full overflow-hidden",
-                        item.active === false && "opacity-55 grayscale bg-black/40 border-white/5"
-                      )}
+                      className="flex flex-wrap items-center gap-3 rounded-[24px] border-2 border-white/10 bg-[#2f1729] p-3 min-[360px]:flex-nowrap"
                     >
-                      {/* Foto do Produto (Esquerda) */}
-                      <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-2xl bg-black/40 border-2 border-white/10 overflow-hidden flex items-center justify-center p-1 flex-shrink-0 group-hover:border-[#F0DF58]/20 transition-all">
+                      {/* Foto: adesivo redondo para ingredientes, quadro para potes e prontos */}
+                      <div className={cn(
+                        "flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden bg-[#3a1d33]",
+                        isProduct ? "rounded-2xl" : "rounded-full border-[3px] border-[#F8EEA6]",
+                        !isActive && "opacity-50"
+                      )}>
                         {itemImg ? (
-                          <img 
-                            src={itemImg} 
-                            alt={item.name} 
-                            className={cn(
-                              "w-full h-full rounded-xl transition-transform duration-300",
-                              (item.original_category === 'sizes' || item.original_category === 'ready_made')
-                                ? "object-contain p-0.5"
-                                : "object-cover scale-105"
-                            )}
+                          <img
+                            src={itemImg}
+                            alt=""
+                            loading="lazy"
+                            className={cn("h-full w-full", isProduct ? "object-contain p-1" : "scale-[1.4] object-cover")}
                             onError={(e) => {
                               (e.target as HTMLElement).style.display = 'none';
                             }}
                           />
                         ) : (
-                          <ImageIcon className="text-white/20" size={20} />
+                          <ImageIcon className="text-white/30" size={22} aria-hidden="true" />
                         )}
                       </div>
 
-                      {/* Informações: Categoria, Nome e Preço (Centro) */}
-                      <div className="flex flex-col justify-between h-16 sm:h-24 min-w-0 flex-1 pr-1">
-                        <div>
-                          <span className="inline-block text-[8px] sm:text-[9px] font-black text-[#c084fc] uppercase bg-[#3b174a]/80 border border-[#7e22ce]/30 px-1.5 sm:px-2 py-0.5 rounded tracking-wider truncate max-w-full">
-                            {item.category || item.original_category}
-                          </span>
-                          <h4 className="font-heading text-sm sm:text-lg uppercase text-white font-bold tracking-wide mt-0.5 sm:mt-1 line-clamp-1 group-hover:text-[#F0DF58] transition-colors">
-                            {item.name}
-                          </h4>
-                        </div>
-                        <div className="font-heading text-base sm:text-xl text-[#F0DF58] font-bold tracking-wide select-none">
-                          R$ {item.price.toFixed(2).replace('.', ',')}
-                        </div>
+                      <div className={cn("min-w-0 flex-1", !isActive && "opacity-60")}>
+                        <p className="truncate text-xs font-bold text-white/60">{item.category || item.original_category}</p>
+                        <h3 className="mt-0.5 line-clamp-2 font-sans text-[15px] font-bold leading-snug tracking-normal text-white">
+                          {item.name}
+                        </h3>
+                        <p className="mt-1 font-heading text-xl leading-none text-[#F0DF58]">{formatBRL(item.price)}</p>
                       </div>
 
-                      {/* Status no Topo e Botões ✏️ / 🗑️ na Base (Direita) */}
-                      <div className="flex flex-col justify-between items-end h-16 sm:h-24 flex-shrink-0">
-                        <button 
-                          onClick={() => updateItemQuick(item._id, { active: item.active === false ? true : false })}
-                          title={item.active === false ? "Clique para ativar" : "Clique para desativar"}
+                      {/* Situação e ações: linha própria abaixo de 360px, coluna à direita a partir daí */}
+                      <div className="flex w-full items-center justify-between gap-2 border-t-2 border-white/10 pt-3 min-[360px]:w-auto min-[360px]:flex-col min-[360px]:items-end min-[360px]:border-t-0 min-[360px]:pt-0">
+                        <button
+                          onClick={() => updateItemQuick(item._id, { active: !isActive })}
+                          title={isActive ? "Clique para desativar" : "Clique para ativar"}
                           className={cn(
-                            "relative after:absolute after:-inset-3 after:content-[''] px-1.5 sm:px-2 py-0.5 rounded-full text-[8px] sm:text-[9px] font-bold uppercase tracking-wider border flex items-center gap-1 transition-all active:scale-95",
-                            item.active !== false 
-                              ? "bg-[#0c2417] border-[#166534]/60 text-[#4ade80] hover:bg-[#113522]" 
-                              : "bg-[#281119] border-rose-900/50 text-rose-400 hover:bg-[#381522]"
+                            "relative inline-flex h-9 items-center gap-1.5 rounded-full border-2 px-3 text-xs font-bold transition-colors duration-200 ease-out after:absolute after:-inset-1 after:content-['']",
+                            focusRing,
+                            isActive ? "border-white/20 text-white/85 hover:border-white/50" : "border-[#F58220]/60 text-[#F58220] hover:border-[#F58220]"
                           )}
                         >
-                          <span>{item.active !== false ? "ATIVO" : "DESATIVADO"}</span>
-                          <span className={cn(
-                            "w-1.5 h-1.5 rounded-full",
-                            item.active !== false ? "bg-[#4ade80] animate-pulse" : "bg-rose-400"
-                          )} />
+                          <span aria-hidden="true" className={cn("h-2 w-2 rounded-full", isActive ? "bg-[#F0DF58]" : "bg-[#F58220]")} />
+                          {isActive ? "Ativo" : "Desativado"}
                         </button>
 
-                        <div className="flex items-center gap-1 sm:gap-1.5">
-                          <button 
+                        <div className="flex gap-1.5">
+                          <button
                             onClick={() => { setEditingItem(item); setModalOpen(true); }}
-                            title="Editar"
-                            className="w-11 h-11 sm:w-9 sm:h-9 rounded-xl bg-[#1d1222] hover:bg-white/10 text-white/70 hover:text-white border-2 border-white/10 flex items-center justify-center transition-all active:scale-95"
+                            aria-label={`Editar ${item.name}`}
+                            className={cn(roundGhost, focusRing)}
                           >
-                            <Edit3 size={13} />
+                            <Edit3 size={16} aria-hidden="true" />
                           </button>
-                          <button 
+                          <button
                             onClick={() => setItemToDelete(item)}
-                            title="Excluir"
-                            className="w-11 h-11 sm:w-9 sm:h-9 rounded-xl bg-[#281119] hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/20 flex items-center justify-center transition-all active:scale-95"
+                            aria-label={`Excluir ${item.name}`}
+                            className={cn(roundGhost, focusRing, "hover:border-[#F58220] hover:text-[#F58220]")}
                           >
-                            <Trash2 size={13} />
+                            <Trash2 size={16} aria-hidden="true" />
                           </button>
                         </div>
                       </div>
-                    </div>
+                    </li>
                   );
                 })}
-              </div>
+              </ul>
             )}
           </div>
         )}
@@ -1539,64 +1352,47 @@ export default function AdminPage() {
         )}
       </main>
 
-      {/* ================= BOTTOM NAVIGATION BAR (FIXA NO MOBILE) ================= */}
-      <nav className="md:hidden fixed bottom-0 inset-x-0 bg-[#120714] border-t border-white/[0.08] px-4 py-2 flex items-center justify-around z-[100]">
-        {/* Tab 1: Cardápio */}
-        <button
-          onClick={() => setActiveTab("menu")}
-          className={cn(
-            "flex flex-col items-center justify-center gap-1 min-h-11 min-w-11 text-[10px] font-bold uppercase transition-colors",
-            activeTab === "menu" ? "text-[#F0DF58]" : "text-white/40 hover:text-white"
-          )}
-        >
-          <Box size={18} />
-          <span>Cardápio</span>
-        </button>
-
-        {/* Tab 2: Pedidos */}
-        <button
-          onClick={() => setActiveTab("orders")}
-          className={cn(
-            "flex flex-col items-center justify-center gap-1 min-h-11 min-w-11 text-[10px] font-bold uppercase transition-colors relative",
-            activeTab === "orders" ? "text-[#F0DF58]" : "text-white/40 hover:text-white"
-          )}
-        >
-          <div className="relative">
-            <LayoutDashboard size={18} />
-            <span className="absolute -top-1.5 -right-2 bg-[#F0DF58] text-[#120714] text-[8px] font-black px-1 rounded-full">
-              {todayOrders.length}
-            </span>
-          </div>
-          <span>Pedidos</span>
-        </button>
-
-        {/* Botão Central Destacado (+) */}
-        <button
-          onClick={() => { setEditingItem(null); setModalOpen(true); }}
-          title="Adicionar Item"
-          className="w-12 h-12 rounded-2xl bg-[#F0DF58] text-[#120714] flex items-center justify-center -translate-y-3 active:scale-95 transition-transform"
-        >
-          <Plus size={24} strokeWidth={3} />
-        </button>
-
-        {/* Tab 4: Relatórios */}
-        <button
-          onClick={() => setActiveTab("reports")}
-          className={cn(
-            "flex flex-col items-center justify-center gap-1 min-h-11 min-w-11 text-[10px] font-bold uppercase transition-colors",
-            activeTab === "reports" ? "text-[#F0DF58]" : "text-white/40 hover:text-white"
-          )}
-        >
-          <BarChart3 size={18} />
-          <span>Relatórios</span>
-        </button>
-
-        {/* Tab 5: Mais */}
+      {/* ================= NAVEGAÇÃO INFERIOR (CELULAR) ================= */}
+      <nav
+        aria-label="Seções do painel"
+        className="fixed inset-x-0 bottom-0 z-[100] grid grid-cols-5 border-t-2 border-[#120714] bg-[#2f1729] px-1 pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2 md:hidden"
+      >
+        {NAV_TABS.map(({ key, short, Icon }) => {
+          const on = activeTab === key;
+          return (
+            <button
+              key={key}
+              onClick={() => setActiveTab(key)}
+              aria-current={on ? "page" : undefined}
+              className={cn(
+                "flex min-h-12 flex-col items-center justify-center gap-1 rounded-2xl text-[11px] font-bold transition-colors",
+                focusRing,
+                on ? "text-white" : "text-white/60 hover:text-white"
+              )}
+            >
+              <span className={cn(
+                "relative flex h-8 w-14 items-center justify-center rounded-full border-2 transition-colors",
+                on ? "border-[#120714] bg-[#F0DF58] text-[#120714]" : "border-transparent"
+              )}>
+                <Icon size={18} aria-hidden="true" />
+                {key === "orders" && openOrdersCount > 0 && (
+                  <span className="absolute -right-1.5 -top-2 min-w-5 rounded-full bg-[#120714] px-1 text-center font-heading text-sm leading-5 text-[#F0DF58]">
+                    {openOrdersCount}
+                    <span className="sr-only"> em aberto</span>
+                  </span>
+                )}
+              </span>
+              <span>{short}</span>
+            </button>
+          );
+        })}
         <button
           onClick={() => setMobileDrawerOpen(true)}
-          className="flex flex-col items-center justify-center gap-1 min-h-11 min-w-11 text-[10px] font-bold uppercase text-white/40 hover:text-white transition-colors"
+          className={cn("flex min-h-12 flex-col items-center justify-center gap-1 rounded-2xl text-[11px] font-bold text-white/60 transition-colors hover:text-white", focusRing)}
         >
-          <MoreHorizontal size={18} />
+          <span className="flex h-8 w-14 items-center justify-center">
+            <MoreHorizontal size={18} aria-hidden="true" />
+          </span>
           <span>Mais</span>
         </button>
       </nav>
@@ -1611,36 +1407,41 @@ export default function AdminPage() {
         />
       )}
 
-      {/* ================= MODAL DE CONFIRMAÇÃO DE EXCLUSÃO ================= */}
+      {/* ================= CONFIRMAÇÃO DE EXCLUSÃO ================= */}
       {itemToDelete && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 animate-in fade-in duration-200">
-          <div className="bg-[#2f1729] border-2 border-white/10 rounded-3xl p-6 sm:p-8 max-w-md w-full space-y-6">
-            <div className="flex items-center gap-4 text-rose-400">
-              <div className="p-3 bg-rose-500/10 rounded-2xl border border-rose-500/20">
-                <Trash2 size={28} />
-              </div>
-              <div>
-                <h3 className="font-heading text-2xl uppercase text-white">Excluir Item?</h3>
-                <p className="text-white/70 text-xs font-sans">Esta ação removerá o produto do cardápio.</p>
-              </div>
+        <div
+          className="fixed inset-0 z-[130] flex items-end justify-center bg-[#120714]/75 p-4 sm:items-center"
+          onKeyDown={(e) => { if (e.key === "Escape") setItemToDelete(null); }}
+        >
+          <div
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="delete-item-title"
+            aria-describedby="delete-item-desc"
+            className="w-full max-w-md space-y-6 rounded-[32px] border-2 border-white/10 bg-[#2f1729] p-6"
+          >
+            <div>
+              <h2 id="delete-item-title" className="font-heading text-[34px] uppercase leading-[0.95] text-white">
+                Excluir item?
+              </h2>
+              <p id="delete-item-desc" className="mt-2 text-[15px] leading-relaxed text-white/75">
+                Tem certeza que deseja excluir <strong className="text-white">"{itemToDelete.name}"</strong>? Ele sai do cardápio dos clientes.
+              </p>
             </div>
 
-            <p className="text-white/90 text-sm font-sans bg-white/5 p-4 rounded-2xl border-2 border-white/10">
-              Tem certeza que deseja excluir <strong>"{itemToDelete.name}"</strong>?
-            </p>
-
-            <div className="flex gap-3">
-              <button 
+            <div className="flex flex-col-reverse gap-2 xs:flex-row">
+              <button
                 onClick={() => setItemToDelete(null)}
-                className="flex-1 py-3 bg-white/10 hover:bg-white/20 text-white font-heading text-base rounded-xl transition-all uppercase border-2 border-white/10"
+                autoFocus
+                className={cn("h-12 w-full rounded-full border-2 border-white/20 xs:flex-1 px-4 text-sm font-bold text-white transition-colors hover:border-white/50", focusRing)}
               >
                 Cancelar
               </button>
-              <button 
+              <button
                 onClick={handleDeleteConfirm}
-                className="flex-1 py-3 bg-rose-500 text-white font-heading text-base rounded-xl hover:bg-rose-600 transition-all active:scale-95 uppercase font-bold"
+                className={cn("h-12 w-full rounded-full border-2 border-[#120714] bg-[#F58220] xs:flex-1 px-4 text-sm font-bold text-[#120714]", focusRing)}
               >
-                Excluir Definitivamente
+                Excluir definitivamente
               </button>
             </div>
           </div>
