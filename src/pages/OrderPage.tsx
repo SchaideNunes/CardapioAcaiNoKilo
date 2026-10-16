@@ -357,9 +357,9 @@ export default function OrderPage() {
                   <span className="relative">
                     <span
                       className={cn(
-                        "block aspect-square overflow-hidden rounded-full border-[5px] transition-colors duration-200",
+                        "block aspect-square overflow-hidden rounded-full border-[3px] transition-colors duration-200",
                         step.multiple ? "w-[88px] sm:w-[104px] lg:w-[116px]" : "w-[136px] sm:w-[150px]",
-                        sel ? "border-[#F0DF58] outline outline-[3px] outline-[#120714] anim-pop" : "border-[#F8EEA6]"
+                        sel ? "border-[#F0DF58] outline outline-2 outline-[#120714] anim-pop" : "border-[#F8EEA6]"
                       )}
                     >
                       <img
