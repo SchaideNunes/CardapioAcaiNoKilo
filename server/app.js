@@ -5,7 +5,7 @@ const helmet = require('helmet');
 const { rateLimit } = require('express-rate-limit');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { validateOrder, validateMenuItem, validateDateRange, isNonEmptyString } = require('./validation');
+const { validateOrder, validateOrderStatus, validateMenuItem, validateDateRange, isNonEmptyString } = require('./validation');
 
 const INVALID_CREDENTIALS = 'Usuário ou senha inválidos';
 const MAX_USERNAME_LENGTH = 254;
@@ -127,7 +127,7 @@ function createApp({ db, jwtSecret, menuCollection, corsOrigins = [], trustProxy
     if (error) return res.status(422).json({ error });
 
     try {
-      const order = { ...value, createdAt: new Date() };
+      const order = { ...value, status: 'new', createdAt: new Date() };
       const result = await db.collection('pedidos').insertOne(order);
       res.status(201).json({ success: true, id: result.insertedId });
     } catch {
@@ -216,6 +216,25 @@ function createApp({ db, jwtSecret, menuCollection, corsOrigins = [], trustProxy
   });
 
   // Buscar pedidos (opcionalmente de um período: ?from=&to= em ISO)
+  // Atualizar o status de um pedido (novo, em preparo, pronto, concluído, cancelado)
+  app.patch('/api/admin/orders/:id/status', verifyToken, async (req, res) => {
+    const { value: status, error } = validateOrderStatus(req.body);
+    if (error) return res.status(422).json({ error });
+    if (!ObjectId.isValid(req.params.id)) return res.status(404).json({ error: 'Pedido não encontrado' });
+
+    try {
+      const result = await db.collection('pedidos').updateOne(
+        { _id: new ObjectId(req.params.id) },
+        { $set: { status, statusUpdatedAt: new Date() } }
+      );
+      if (result.matchedCount === 0) return res.status(404).json({ error: 'Pedido não encontrado' });
+      res.json({ success: true, status });
+    } catch (err) {
+      console.error('Erro ao atualizar status do pedido:', err);
+      res.status(500).json({ error: 'Erro ao atualizar status do pedido' });
+    }
+  });
+
   app.get('/api/admin/orders', verifyToken, async (req, res) => {
     const { value: filter, error } = validateDateRange(req.query);
     if (error) return res.status(422).json({ error });

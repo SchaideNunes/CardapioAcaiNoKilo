@@ -143,10 +143,11 @@ describe('POST /api/orders', () => {
 
     const saved = await server.db.collection('pedidos').findOne({});
     expect(Object.keys(saved).sort()).toEqual(
-      ['_id', 'createdAt', 'deliveryMethod', 'items', 'origin', 'paymentMethod', 'total'].sort()
+      ['_id', 'createdAt', 'deliveryMethod', 'items', 'origin', 'paymentMethod', 'status', 'total'].sort()
     );
     expect(saved._id).not.toBe('forjado');
     expect(saved.createdAt.getFullYear()).toBeGreaterThan(2000);
+    expect(saved.status).toBe('new'); // o cliente não define o status
   });
 
   it.each([
@@ -286,6 +287,55 @@ describe('rotas /api/admin', () => {
 
     expect(res.status).toBe(200);
     expect(res.body.map(o => o.items[0])).toEqual(['recente', 'antigo']);
+  });
+
+  describe('status do pedido', () => {
+    async function createOrder() {
+      const res = await request(app).post('/api/orders').send({
+        origin: 'custom', items: ['Pote de 500'], total: 17, deliveryMethod: 'pickup', paymentMethod: null,
+      });
+      return res.body.id;
+    }
+
+    it('pedido novo nasce com status "new"', async () => {
+      const id = await createOrder();
+      const list = await request(app).get('/api/admin/orders').set(auth());
+      expect(list.body.find(o => o._id === id).status).toBe('new');
+    });
+
+    it.each(['preparing', 'ready', 'done', 'cancelled'])('muda o status para %s', async (status) => {
+      const id = await createOrder();
+
+      const res = await request(app).patch(`/api/admin/orders/${id}/status`).set(auth()).send({ status });
+
+      expect(res.status).toBe(200);
+      expect(res.body).toMatchObject({ success: true, status });
+      const saved = await server.db.collection('pedidos').findOne({});
+      expect(saved.status).toBe(status);
+      expect(saved.statusUpdatedAt).toBeInstanceOf(Date);
+    });
+
+    it('exige token', async () => {
+      const id = await createOrder();
+      const res = await request(app).patch(`/api/admin/orders/${id}/status`).send({ status: 'done' });
+      expect(res.status).toBe(401);
+    });
+
+    it.each([
+      ['status desconhecido', { status: 'pago' }],
+      ['status que não é texto', { status: { $ne: 'new' } }],
+      ['sem status', {}],
+    ])('recusa com 422 (%s)', async (_label, body) => {
+      const id = await createOrder();
+      const res = await request(app).patch(`/api/admin/orders/${id}/status`).set(auth()).send(body);
+      expect(res.status).toBe(422);
+      expect((await server.db.collection('pedidos').findOne({})).status).toBe('new');
+    });
+
+    it.each(['6710aa000000000000000099', 'nao-e-um-id'])('responde 404 para pedido inexistente (%s)', async (id) => {
+      const res = await request(app).patch(`/api/admin/orders/${id}/status`).set(auth()).send({ status: 'done' });
+      expect(res.status).toBe(404);
+    });
   });
 
   describe('filtro de pedidos por período', () => {

@@ -2,6 +2,8 @@
 // { value } com apenas os campos conhecidos, ou { error } com a mensagem para o cliente.
 
 const ORDER_ORIGINS = ['custom', 'ready_made'];
+// Ciclo do pedido na loja: novo → em preparo → pronto/saiu → concluído (ou cancelado)
+const ORDER_STATUSES = ['new', 'preparing', 'ready', 'done', 'cancelled'];
 const DELIVERY_METHODS = ['pickup', 'delivery'];
 const PAYMENT_METHODS = ['pix', 'card', 'cash'];
 
@@ -162,4 +164,19 @@ function validateDateRange(query) {
   return { value: Object.keys(createdAt).length ? { createdAt } : {} };
 }
 
-module.exports = { validateOrder, validateMenuItem, validateDateRange, isNonEmptyString, isPlainObject };
+/** Valida o corpo de PATCH /api/admin/orders/:id/status. */
+function validateOrderStatus(body) {
+  const status = isPlainObject(body) ? body.status : undefined;
+  if (!ORDER_STATUSES.includes(status)) return { error: `Status inválido. Use: ${ORDER_STATUSES.join(', ')}` };
+  return { value: status };
+}
+
+module.exports = {
+  ORDER_STATUSES,
+  validateOrder,
+  validateOrderStatus,
+  validateMenuItem,
+  validateDateRange,
+  isNonEmptyString,
+  isPlainObject,
+};
