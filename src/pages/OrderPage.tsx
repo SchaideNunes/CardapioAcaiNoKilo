@@ -633,8 +633,9 @@ export default function OrderPage() {
 
         {/* Topo fixo: progresso em segmentos + voltar, logo e total */}
         <header className="sticky top-0 z-40 border-b-2 border-[#120714] bg-[#241220]">
-          <div className="mx-auto w-full max-w-[680px] px-4 pt-3 sm:px-6">
-            <nav aria-label="Etapas da montagem" className="flex gap-1.5">
+          <div className="mx-auto w-full max-w-[680px] px-4 pt-1 sm:px-6">
+            {/* Segmentos colados: cada botão tem 44px de altura e divide a largura toda, sem vão entre os alvos */}
+            <nav aria-label="Etapas da montagem" className="-mx-[3px] flex">
               {STEPS.map((s, idx) => {
                 const done = idx < currentStep;
                 const current = idx === currentStep;
@@ -646,9 +647,9 @@ export default function OrderPage() {
                     disabled={idx >= currentStep || skipped}
                     aria-label={`${SHORT_TITLES[s.id]}${current ? " (etapa atual)" : done ? " (concluída)" : ""}`}
                     aria-current={current ? "step" : undefined}
-                    className="group flex-1 py-3 disabled:cursor-default"
+                    className={cn("group flex h-11 flex-1 items-center px-[3px] disabled:cursor-default", focusRing)}
                   >
-                    <span className="block h-[5px] overflow-hidden rounded-full bg-white/15">
+                    <span className="block h-[5px] w-full overflow-hidden rounded-full bg-white/15">
                       {(done || current) && !skipped && (
                         <span key={`${s.id}-${current}`} className={cn("block h-full rounded-full bg-[#F0DF58]", current && "anim-seg-fill", done && "group-hover:bg-[#F8EEA6]")} />
                       )}
@@ -658,7 +659,7 @@ export default function OrderPage() {
               })}
             </nav>
 
-            <div className="flex items-center gap-3 pb-3 pt-1">
+            <div className="flex items-center gap-3 pb-3">
               <Link to="/" aria-label="Sair da montagem e voltar para o início" className={cn("grid h-11 w-11 place-items-center rounded-full border-2 border-white/20 text-white hover:border-white/40", focusRing)}>
                 <X size={20} />
               </Link>
