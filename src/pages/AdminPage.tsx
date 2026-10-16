@@ -40,14 +40,15 @@ import {
   Clock,
   Award,
   ArrowUpRight,
+  ArrowRight,
   Receipt
 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { menuData as localFallbackData, readyMadeProducts } from "@/data/menu";
 import type { MenuItemRecord } from "@/types/menu";
-import type { OrderRecord } from "@/types/order";
-import { normalizeDeliveryMethod, normalizePaymentMethod, DELIVERY_LABELS, PAYMENT_LABELS } from "@/lib/orders";
+import type { OrderRecord, OrderStatus } from "@/types/order";
+import { normalizeDeliveryMethod, normalizePaymentMethod, normalizeOrderStatus, nextOrderStatus, orderStatusLabel, DELIVERY_LABELS, PAYMENT_LABELS } from "@/lib/orders";
 import { DEMO_TOKEN } from "@/lib/demo";
 import { MENU_CACHE_KEY, readCachedMenuItems } from "@/lib/menuCache";
 import { computeOrderMetrics, earliestReportStart, filterOrdersByPeriod, type ReportPeriod } from "@/lib/reports";
@@ -100,7 +101,16 @@ function createLocalItemId(): string {
   return "item_" + Date.now().toString(36) + Math.random().toString(36).substring(2, 6);
 }
 
-type OrderFilter = "all" | "delivery" | "pickup" | "pix" | "card" | "cash";
+type OrderFilter = "all" | "open" | "delivery" | "pickup" | "pix" | "card" | "cash";
+
+// Cor da etiqueta de cada status (chapada, sem sombra)
+const ORDER_STATUS_STYLES: Record<OrderStatus, string> = {
+  new: "bg-[#F0DF58] text-[#120714] border-[#120714]",
+  preparing: "bg-[#F58220]/15 text-[#F58220] border-[#F58220]/40",
+  ready: "bg-cyan-400/15 text-cyan-300 border-cyan-400/40",
+  done: "bg-emerald-400/15 text-emerald-300 border-emerald-400/40",
+  cancelled: "bg-white/[0.06] text-white/50 border-white/15 line-through",
+};
 
 const LOCAL_STORAGE_KEY = MENU_CACHE_KEY;
 
@@ -112,6 +122,7 @@ const demoOrders: OrderRecord[] = [
     deliveryMethod: "Entrega",
     items: ["Pote de 500ml", "Morango", "Leite em pó", "Calda de Chocolate"],
     createdAt: new Date().toISOString(),
+    status: "new",
     address: { street: "Av. Principal", neighborhood: "Centro", number: "120" }
   },
   {
@@ -120,7 +131,8 @@ const demoOrders: OrderRecord[] = [
     paymentMethod: "Dinheiro",
     deliveryMethod: "Retirada",
     items: ["Pote de 360ml", "Granola tradicional", "Mel"],
-    createdAt: new Date(Date.now() - 3600000).toISOString()
+    createdAt: new Date(Date.now() - 20 * 60000).toISOString(),
+    status: "preparing"
   },
   {
     _id: "demo_3",
@@ -128,8 +140,9 @@ const demoOrders: OrderRecord[] = [
     paymentMethod: "Cartão",
     deliveryMethod: "Entrega",
     items: ["Açaí Zero Açúcar 1L (Pronto)"],
-    createdAt: new Date(Date.now() - 7200000).toISOString(),
-    address: { street: "Rua das Flores", neighborhood: "Jardim América", number: "45" }
+    createdAt: new Date(Date.now() - 45 * 60000).toISOString(),
+    address: { street: "Rua das Flores", neighborhood: "Jardim América", number: "45" },
+    status: "ready"
   },
   {
     _id: "demo_4",
@@ -137,8 +150,9 @@ const demoOrders: OrderRecord[] = [
     paymentMethod: "Pix",
     deliveryMethod: "Entrega",
     items: ["Pote de 750ml", "Nutella", "Leite em pó", "Morango", "Banana"],
-    createdAt: new Date(Date.now() - 10800000).toISOString(),
-    address: { street: "Rua Santos Dumont", neighborhood: "Vila Nova", number: "302" }
+    createdAt: new Date(Date.now() - 90 * 60000).toISOString(),
+    address: { street: "Rua Santos Dumont", neighborhood: "Vila Nova", number: "302" },
+    status: "done"
   }
 ];
 
@@ -217,6 +231,8 @@ export default function AdminPage() {
   
   // Filtros da aba de pedidos
   const [orderFilter, setOrderFilter] = useState<OrderFilter>("all");
+  // Pedido aguardando a confirmação de cancelamento
+  const [cancelingOrderId, setCancelingOrderId] = useState<string | null>(null);
   // Filtro de período da aba de relatórios
   const [reportPeriod, setReportPeriod] = useState<ReportPeriod>("today");
   // Momento de referência para "hoje" e para os períodos; renovado ao sincronizar
@@ -429,6 +445,14 @@ export default function AdminPage() {
     }
   };
 
+  // Muda o status de um pedido (atualiza a tela na hora; o servidor confirma ou o painel recarrega)
+  const updateOrderStatus = async (orderId: string, status: OrderStatus) => {
+    setCancelingOrderId(null);
+    setOrders(prev => prev.map(o => (o._id === orderId ? { ...o, status } : o)));
+    const result = await sendAdminChange(`/api/admin/orders/${orderId}/status`, { method: "PATCH", body: JSON.stringify({ status }) });
+    if (result.status !== "rejected") showToast(`Pedido #${orderId.slice(-6).toUpperCase()} atualizado.`);
+  };
+
   // Excluir Item
   const handleDeleteConfirm = async () => {
     if (!itemToDelete) return;
@@ -473,6 +497,7 @@ export default function AdminPage() {
   const filteredOrders = useMemo(() => {
     return todayOrders.filter(order => {
       if (orderFilter === "all") return true;
+      if (orderFilter === "open") return ["new", "preparing", "ready"].includes(normalizeOrderStatus(order.status));
       if (orderFilter === "delivery" || orderFilter === "pickup") {
         return normalizeDeliveryMethod(order.deliveryMethod) === orderFilter;
       }
@@ -1101,6 +1126,7 @@ export default function AdminPage() {
             <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
               {([
                 { key: "all", label: `Todos (${todayOrders.length})` },
+                { key: "open", label: `Em aberto (${todayOrders.filter(o => ["new", "preparing", "ready"].includes(normalizeOrderStatus(o.status))).length})` },
                 { key: "delivery", label: `🛵 Entrega (${todayMetrics.deliveryCount})` },
                 { key: "pickup", label: `🛍️ Retirada (${todayMetrics.pickupCount})` },
                 { key: "pix", label: "Pix" },
@@ -1133,6 +1159,9 @@ export default function AdminPage() {
                 {filteredOrders.map(order => {
                   const delivery = normalizeDeliveryMethod(order.deliveryMethod);
                   const payment = normalizePaymentMethod(order.paymentMethod);
+                  const status = normalizeOrderStatus(order.status);
+                  const next = nextOrderStatus(status);
+                  const isOpen = status !== "done" && status !== "cancelled";
                   const isDelivery = delivery === "delivery";
                   const dateFormatted = new Date(order.createdAt).toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' });
 
@@ -1148,6 +1177,9 @@ export default function AdminPage() {
                           </span>
                           <span className="text-xs text-white/50 flex items-center gap-1">
                             <Clock size={12} /> {dateFormatted}
+                          </span>
+                          <span className={cn("text-[11px] font-bold px-2.5 py-0.5 rounded-full border-2 uppercase", ORDER_STATUS_STYLES[status])}>
+                            {orderStatusLabel(status, delivery)}
                           </span>
                           <span className={cn(
                             "text-[10px] font-bold px-2 py-0.5 rounded-full uppercase",
@@ -1188,6 +1220,47 @@ export default function AdminPage() {
                           R$ {(Number(order.total) || 0).toFixed(2).replace('.', ',')}
                         </span>
                       </div>
+
+                      {/* Ações de status */}
+                      {isOpen && (
+                        <div className="flex flex-wrap items-center gap-2 sm:flex-col sm:items-stretch">
+                          {cancelingOrderId === order._id ? (
+                            <>
+                              <button
+                                onClick={() => updateOrderStatus(order._id, "cancelled")}
+                                className="h-11 rounded-full border-2 border-[#120714] bg-[#F58220] px-4 text-sm font-bold text-[#120714]"
+                              >
+                                Confirmar cancelamento
+                              </button>
+                              <button
+                                onClick={() => setCancelingOrderId(null)}
+                                className="h-11 rounded-full border-2 border-white/20 px-4 text-sm font-bold text-white hover:border-white/40"
+                              >
+                                Voltar
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              {next && (
+                                <button
+                                  onClick={() => updateOrderStatus(order._id, next)}
+                                  aria-label={`Marcar como ${orderStatusLabel(next, delivery).toLowerCase()}`}
+                                  className="flex h-11 items-center justify-center gap-1.5 rounded-full border-2 border-[#120714] bg-[#F0DF58] px-4 font-heading text-lg uppercase text-[#120714] hover:bg-[#F8EEA6] transition-colors"
+                                >
+                                  {orderStatusLabel(next, delivery)} <ArrowRight size={16} strokeWidth={2.5} />
+                                </button>
+                              )}
+                              <button
+                                onClick={() => setCancelingOrderId(order._id)}
+                                aria-label="Cancelar pedido"
+                                className="h-11 rounded-full border-2 border-white/15 px-4 text-sm font-bold text-white/70 hover:border-[#F58220] hover:text-[#F58220] transition-colors"
+                              >
+                                Cancelar
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      )}
                     </div>
                   );
                 })}

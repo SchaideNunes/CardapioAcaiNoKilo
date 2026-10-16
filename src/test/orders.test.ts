@@ -4,6 +4,9 @@ import {
   normalizePaymentMethod,
   DELIVERY_LABELS,
   PAYMENT_LABELS,
+  normalizeOrderStatus,
+  nextOrderStatus,
+  orderStatusLabel,
 } from '@/lib/orders';
 
 describe('normalizeDeliveryMethod', () => {
@@ -45,5 +48,28 @@ describe('rótulos', () => {
   it('exibe entrega e pagamento em português', () => {
     expect(DELIVERY_LABELS).toEqual({ delivery: 'Entrega', pickup: 'Retirada' });
     expect(PAYMENT_LABELS).toEqual({ pix: 'Pix', card: 'Cartão', cash: 'Dinheiro' });
+  });
+});
+
+describe('status do pedido', () => {
+  it('pedido sem status (antigo) conta como novo', () => {
+    expect(normalizeOrderStatus(undefined)).toBe('new');
+    expect(normalizeOrderStatus('qualquer')).toBe('new');
+    expect(normalizeOrderStatus('done')).toBe('done');
+  });
+
+  it('avança novo → em preparo → pronto → concluído', () => {
+    expect(nextOrderStatus('new')).toBe('preparing');
+    expect(nextOrderStatus('preparing')).toBe('ready');
+    expect(nextOrderStatus('ready')).toBe('done');
+    expect(nextOrderStatus('done')).toBeNull();
+    expect(nextOrderStatus('cancelled')).toBeNull();
+  });
+
+  it('o rótulo de "pronto" depende da entrega', () => {
+    expect(orderStatusLabel('ready', 'delivery')).toBe('Saiu para entrega');
+    expect(orderStatusLabel('ready', 'pickup')).toBe('Pronto para retirar');
+    expect(orderStatusLabel('new', 'pickup')).toBe('Novo');
+    expect(orderStatusLabel('cancelled', 'delivery')).toBe('Cancelado');
   });
 });

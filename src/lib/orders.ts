@@ -1,5 +1,5 @@
 import { apiUrl } from "./api";
-import type { DeliveryMethod, OrderPayload, PaymentMethod } from "@/types/order";
+import type { DeliveryMethod, OrderPayload, OrderStatus, PaymentMethod } from "@/types/order";
 
 export const ORDERS_ENDPOINT = apiUrl("/api/orders");
 
@@ -29,6 +29,25 @@ export function normalizePaymentMethod(value: unknown): PaymentMethod | null {
   if (text === "card" || text.startsWith("cartao")) return "card";
   if (text === "cash" || text === "dinheiro") return "cash";
   return null;
+}
+
+const ORDER_STATUSES: OrderStatus[] = ["new", "preparing", "ready", "done", "cancelled"];
+const STATUS_FLOW: Partial<Record<OrderStatus, OrderStatus>> = { new: "preparing", preparing: "ready", ready: "done" };
+
+/** Pedidos gravados antes do controle de status não têm o campo: contam como "new". */
+export function normalizeOrderStatus(value: unknown): OrderStatus {
+  return ORDER_STATUSES.includes(value as OrderStatus) ? (value as OrderStatus) : "new";
+}
+
+/** Próxima etapa do pedido; null quando já foi concluído ou cancelado. */
+export function nextOrderStatus(status: OrderStatus): OrderStatus | null {
+  return STATUS_FLOW[status] ?? null;
+}
+
+/** "Pronto" vira "Saiu para entrega" ou "Pronto para retirar" conforme a entrega. */
+export function orderStatusLabel(status: OrderStatus, delivery: DeliveryMethod | null): string {
+  if (status === "ready") return delivery === "delivery" ? "Saiu para entrega" : "Pronto para retirar";
+  return { new: "Novo", preparing: "Em preparo", done: "Concluído", cancelled: "Cancelado" }[status];
 }
 
 /**

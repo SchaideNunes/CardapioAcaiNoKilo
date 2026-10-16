@@ -255,6 +255,72 @@ describe("AdminPage - Painel Administrativo", () => {
     });
   });
 
+  describe("status dos pedidos", () => {
+    const statusOrders = [
+      {
+        _id: "6710dd000000000000000001", total: 30, deliveryMethod: "delivery", paymentMethod: "pix",
+        items: ["Pedido em aberto"], createdAt: new Date().toISOString(),
+        address: { street: "Rua A", number: "1", neighborhood: "Centro" },
+      },
+    ];
+    let fetchSpy: MockInstance<typeof fetch>;
+
+    beforeEach(() => {
+      localStorage.setItem("adminToken", "real-jwt-token");
+      fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation((input, init) => {
+        if (init?.method === "PATCH") {
+          const body = JSON.parse(String(init.body));
+          return Promise.resolve(new Response(JSON.stringify({ success: true, status: body.status }), { status: 200 }));
+        }
+        const body = String(input).includes("/api/admin/orders") ? statusOrders : [];
+        return Promise.resolve(new Response(JSON.stringify(body), { status: 200 }));
+      });
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    async function openOrders() {
+      render(
+        <BrowserRouter>
+          <AdminPage />
+        </BrowserRouter>
+      );
+      fireEvent.click((await screen.findAllByText(/pedidos do dia/i))[0]);
+      await screen.findByText("Pedido em aberto");
+    }
+
+    const patchCalls = () => fetchSpy.mock.calls.filter(([, init]) => init?.method === "PATCH");
+
+    it("mostra o status e avança o pedido etapa por etapa", async () => {
+      await openOrders();
+      expect(screen.getByText("Novo")).toBeInTheDocument();
+
+      fireEvent.click(screen.getByRole("button", { name: /marcar como em preparo/i }));
+      expect(await screen.findByText("Em preparo")).toBeInTheDocument();
+
+      fireEvent.click(screen.getByRole("button", { name: /marcar como saiu para entrega/i }));
+      expect(await screen.findByText("Saiu para entrega")).toBeInTheDocument();
+
+      const [url, init] = patchCalls()[0];
+      expect(String(url)).toContain("/api/admin/orders/6710dd000000000000000001/status");
+      expect(JSON.parse(String(init?.body))).toEqual({ status: "preparing" });
+      expect(JSON.parse(String(patchCalls()[1][1]?.body))).toEqual({ status: "ready" });
+    });
+
+    it("cancela só depois de confirmar", async () => {
+      await openOrders();
+
+      fireEvent.click(screen.getByRole("button", { name: /cancelar pedido/i }));
+      expect(patchCalls()).toHaveLength(0);
+
+      fireEvent.click(screen.getByRole("button", { name: /confirmar cancelamento/i }));
+      expect(await screen.findByText("Cancelado")).toBeInTheDocument();
+      expect(JSON.parse(String(patchCalls()[0][1]?.body))).toEqual({ status: "cancelled" });
+    });
+  });
+
   describe("quando o servidor recusa uma alteração", () => {
     const serverItem = {
       _id: "6710bb000000000000000001", id: "fr_kiwi", name: "Kiwi", price: 1.5,

@@ -76,6 +76,17 @@ describe('computeOrderMetrics', () => {
     expect(m.topItems[0]).toEqual({ name: 'Pote de 500', count: 2 });
   });
 
+  it('pedidos cancelados não entram no faturamento nem nas contagens', () => {
+    const m = computeOrderMetrics([
+      order(NOW, { total: 20 }),
+      order(NOW, { total: 50, status: 'cancelled', items: ['Pote de 1L'] }),
+    ]);
+    expect(m.totalOrdersCount).toBe(1);
+    expect(m.totalRevenue).toBe(20);
+    expect(m.cancelledCount).toBe(1);
+    expect(m.topItems.map(i => i.name)).not.toContain('Pote de 1L');
+  });
+
   it('zera tudo sem pedidos', () => {
     const m = computeOrderMetrics([]);
     expect(m.totalOrdersCount).toBe(0);

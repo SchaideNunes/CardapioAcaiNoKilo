@@ -1,6 +1,8 @@
 export type DeliveryMethod = "pickup" | "delivery";
 export type PaymentMethod = "pix" | "card" | "cash";
 export type OrderOrigin = "custom" | "ready_made";
+/** Ciclo do pedido na loja (definido no servidor; pedidos antigos sem status contam como "new"). */
+export type OrderStatus = "new" | "preparing" | "ready" | "done" | "cancelled";
 
 export interface Address {
   street: string;
@@ -38,4 +40,5 @@ export interface OrderRecord {
     number?: string;
   };
   changeFor?: string;
+  status?: OrderStatus | string;
 }

@@ -1,4 +1,4 @@
-import { normalizeDeliveryMethod, normalizePaymentMethod } from "./orders";
+import { normalizeDeliveryMethod, normalizeOrderStatus, normalizePaymentMethod } from "./orders";
 import type { OrderRecord } from "@/types/order";
 
 export type ReportPeriod = "today" | "week" | "month";
@@ -36,11 +36,14 @@ export interface OrderMetrics {
   card: { count: number; revenue: number };
   cash: { count: number; revenue: number };
   topItems: { name: string; count: number }[];
+  cancelledCount: number;
 }
 
 const orderTotal = (order: OrderRecord) => Number(order.total) || 0;
 
-export function computeOrderMetrics(orders: OrderRecord[]): OrderMetrics {
+/** Métricas de venda; pedidos cancelados ficam de fora (só são contados em cancelledCount). */
+export function computeOrderMetrics(allOrders: OrderRecord[]): OrderMetrics {
+  const orders = allOrders.filter(o => normalizeOrderStatus(o.status) !== "cancelled");
   const totalOrdersCount = orders.length;
   const totalRevenue = orders.reduce((sum, o) => sum + orderTotal(o), 0);
   const deliveryCount = orders.filter(o => normalizeDeliveryMethod(o.deliveryMethod) === "delivery").length;
@@ -73,5 +76,6 @@ export function computeOrderMetrics(orders: OrderRecord[]): OrderMetrics {
     card: byPayment("card"),
     cash: byPayment("cash"),
     topItems,
+    cancelledCount: allOrders.length - orders.length,
   };
 }
