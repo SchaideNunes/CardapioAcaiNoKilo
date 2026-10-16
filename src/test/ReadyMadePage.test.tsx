@@ -29,7 +29,7 @@ describe('ReadyMadePage', () => {
       expect(screen.getAllByText(name).length).toBeGreaterThan(0);
     });
     // Count product images
-    const images = screen.getAllByRole('img').filter(img => img.getAttribute('alt') !== 'Logo');
+    const images = screen.getAllByRole('img').filter(img => img.getAttribute('alt') !== 'Açaí no Kilo');
     expect(images.length).toBe(13);
   });
 
@@ -60,7 +60,7 @@ describe('ReadyMadePage', () => {
     await user.click(productButton);
 
     // Should now be selected
-    expect(productButton.className).toContain('bg-primary');
+    expect(productButton).toHaveAttribute('aria-pressed', 'true');
   });
 
   it('deselects a product when clicking again', async () => {
@@ -72,11 +72,11 @@ describe('ReadyMadePage', () => {
 
     // Select
     await user.click(productButton);
-    expect(productButton.className).toContain('bg-primary');
+    expect(productButton).toHaveAttribute('aria-pressed', 'true');
 
     // Deselect
     await user.click(productButton);
-    expect(productButton.className).toContain('bg-black/20');
+    expect(productButton).toHaveAttribute('aria-pressed', 'false');
   });
 
   it('shows bottom bar when a product is selected', async () => {
@@ -209,15 +209,11 @@ describe('ReadyMadePage', () => {
     expect(screen.getByText('Seu Pedido')).toBeInTheDocument();
 
     // Find and click trash button
-    const trashButtons = screen.getAllByRole('button').filter(btn =>
-      btn.className.includes('text-red-400')
-    );
+    const trashButtons = screen.getAllByRole('button', { name: /^remover /i });
     expect(trashButtons.length).toBeGreaterThanOrEqual(2);
     await user.click(trashButtons[0]);
 
-    const remainingTrash = screen.getAllByRole('button').filter(btn =>
-      btn.className.includes('text-red-400')
-    );
+    const remainingTrash = screen.getAllByRole('button', { name: /^remover /i });
     expect(remainingTrash.length).toBeLessThan(trashButtons.length);
   });
 
@@ -355,7 +351,7 @@ describe('ReadyMadePage', () => {
     await user.click(product1);
     await user.click(product2);
 
-    // Total should be R$ 38.00
-    expect(screen.getAllByText(/38\.00/).length).toBeGreaterThan(0);
+    // Total should be R$ 38,00
+    expect(screen.getAllByText(/38,00/).length).toBeGreaterThan(0);
   });
 });
