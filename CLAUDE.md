@@ -87,7 +87,7 @@ Ambiente: Windows, caminho do projeto contém `ç` (`Cardapio Açai`) e assets c
 
 Itens da análise de 14/10/2026 concluídos. Pendências e sugestões abertas:
 
-1. **Antes da hospedagem própria (produção):** criar o admin com senha nova via `create-admin.js` e definir um `JWT_SECRET` forte. A senha antiga ficou no histórico público do git (commits anteriores a `6bcbe49`) e não deve ser reutilizada em produção. O deploy atual na Vercel é só demonstração para o cliente (roda em modo demo, sem backend).
+1. **Antes da hospedagem própria (produção):** criar o admin com senha nova via `create-admin.js` e definir um `JWT_SECRET` forte. A senha antiga ficou no histórico público do git (commits anteriores a `6bcbe49`) e não deve ser reutilizada em produção. O deploy atual na Vercel é só demonstração para o cliente (roda em modo demo, sem backend). No domínio próprio, adicionar `og:image` com URL absoluta no [index.html](index.html) (a prévia do link no WhatsApp não aceita caminho relativo).
 2. Validar em iPhone/Safari real o fluxo de envio (WhatsApp abre na hora; pedido aparece no admin).
 3. O total do pedido vem do cliente; se um dia o pagamento deixar de ser confirmado no WhatsApp, recalcular no servidor a partir dos preços do banco (exige enviar ids em vez de nomes).
 4. O token do admin fica em `localStorage` (exposto a XSS); avaliar cookie `httpOnly` + `SameSite` quando houver domínio próprio.
