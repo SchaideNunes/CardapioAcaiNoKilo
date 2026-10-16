@@ -90,11 +90,19 @@ describe("AdminPage - Painel Administrativo", () => {
     const novoItemBtn = await screen.findByText(/novo item/i);
     fireEvent.click(novoItemBtn);
 
-    expect(await screen.findByText(/adicionar novo item/i)).toBeInTheDocument();
+    expect(await screen.findByRole("dialog", { name: /adicionar novo item/i })).toBeInTheDocument();
     expect(screen.getByText(/dica de performance:/i)).toBeInTheDocument();
 
-    const nameInput = screen.getByPlaceholderText(/ex: açaí c\/ morango especial/i);
+    const nameInput = screen.getByLabelText(/nome do item/i);
     fireEvent.change(nameInput, { target: { value: "Super Açaí Teste Unitário" } });
+    expect(screen.getByLabelText(/^preço/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/^categoria$/i)).toBeInTheDocument();
+
+    const availability = screen.getByRole("switch", { name: /disponível no cardápio/i });
+    expect(availability).toHaveAttribute("aria-checked", "true");
+    fireEvent.click(availability);
+    expect(availability).toHaveAttribute("aria-checked", "false");
+    fireEvent.click(availability);
 
     const saveBtn = screen.getByRole("button", { name: /salvar item/i });
     fireEvent.click(saveBtn);
@@ -102,6 +110,19 @@ describe("AdminPage - Painel Administrativo", () => {
     await waitFor(() => {
       expect(screen.getByText("Super Açaí Teste Unitário")).toBeInTheDocument();
     });
+  });
+
+  it("aceita preço com centavos quebrados ao editar (R$ 29,99)", async () => {
+    render(
+      <BrowserRouter>
+        <AdminPage />
+      </BrowserRouter>
+    );
+
+    fireEvent.click(await screen.findByRole("button", { name: /^editar pote de 1l/i }));
+    const price = await screen.findByLabelText(/^preço/i);
+    expect(price).toHaveValue(29.99);
+    expect((price as HTMLInputElement).checkValidity()).toBe(true);
   });
 
   it("opens delete confirmation modal and removes item", async () => {

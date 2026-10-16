@@ -32,6 +32,7 @@ import {
   Clock,
   ArrowRight,
   Bike,
+  ChevronDown,
   Store,
   Banknote,
   Receipt
@@ -176,6 +177,21 @@ function OverviewTile({ label, value, hint, highlight, onClick }: { label: strin
     </button>
   );
 }
+
+const fieldLabel = "block text-sm font-bold text-white/80";
+const fieldInput = "h-12 w-full rounded-2xl border-2 border-white/10 bg-[#2f1729] px-4 text-base text-white caret-[#F0DF58] transition-colors placeholder:text-white/40 focus:border-[#F0DF58] focus:outline-none";
+
+// Categorias do formulário de item (as chaves são as do servidor, ver validateMenuItem)
+const ITEM_CATEGORY_OPTIONS: [string, string][] = [
+  ["sizes", "Tamanho de pote"],
+  ["flavors", "Sabor de açaí"],
+  ["toppings", "Cobertura"],
+  ["addons", "Adicional"],
+  ["creams", "Creme"],
+  ["fruits", "Fruta"],
+  ["fillings", "Recheio"],
+  ["ready_made", "Pronto para levar"],
+];
 
 const LOCAL_STORAGE_KEY = MENU_CACHE_KEY;
 
@@ -1381,220 +1397,223 @@ function ItemModal({ item, onClose, onSave, loading }: ItemModalProps) {
     });
   };
 
+  const isProduct = originalCategory === 'sizes' || originalCategory === 'ready_made';
+
   return (
-    <div className="fixed inset-0 z-[130] flex items-center justify-center p-4 bg-black/80 overflow-y-auto animate-in fade-in duration-200">
-      <div className="bg-[#2f1729] border-2 border-white/15 rounded-3xl p-6 sm:p-8 max-w-xl w-full space-y-6 my-8 max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between pb-4 border-b border-white/10">
-          <div>
-            <h3 className="font-heading text-2xl uppercase text-[#F0DF58]">
-              {item ? "Editar Item do Cardápio" : "Adicionar Novo Item"}
-            </h3>
-            <p className="text-white/70 text-xs font-sans">Preencha as informações do produto</p>
+    <div
+      className="fixed inset-0 z-[130] flex items-end justify-center bg-[#120714]/75 sm:items-center sm:p-4"
+      onKeyDown={(e) => { if (e.key === "Escape") onClose(); }}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="item-modal-title"
+        className="flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-[32px] border-2 border-b-0 border-white/10 bg-[#241220] sm:max-w-xl sm:rounded-[32px] sm:border-b-2"
+      >
+        <div className="flex items-start justify-between gap-4 border-b-2 border-[#120714] px-5 pb-4 pt-5 sm:px-6">
+          <div className="min-w-0">
+            <h2 id="item-modal-title" className="font-heading text-[34px] uppercase leading-[0.95] text-[#F0DF58]">
+              {item ? "Editar item" : "Adicionar novo item"}
+            </h2>
+            <p className="mt-1 truncate text-sm text-white/75">{item ? item.name : "Preencha as informações do produto"}</p>
           </div>
-          <button onClick={onClose} className="p-2 text-white/60 hover:text-white rounded-xl">
-            <X size={20} />
+          <button type="button" onClick={onClose} aria-label="Fechar" className={cn(roundGhost, focusRing)}>
+            <X size={20} aria-hidden="true" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Seção de Imagem com Dica de WebP */}
-          <div className="space-y-3">
-            <label className="text-xs font-bold uppercase text-white/90 block">
-              Imagem do Produto
-            </label>
+        <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+          <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-5 py-5 sm:px-6">
+            {/* Imagem */}
+            <fieldset className="space-y-3">
+              <legend className={fieldLabel}>Imagem do produto</legend>
+              <div className="flex items-center gap-4">
+                <div className={cn(
+                  "flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden bg-[#3a1d33]",
+                  isProduct ? "rounded-2xl" : "rounded-full border-[3px] border-[#F8EEA6]"
+                )}>
+                  {image ? (
+                    <img
+                      src={image}
+                      alt="Prévia da imagem"
+                      className={cn("h-full w-full", isProduct ? "object-contain p-1.5" : "scale-[1.4] object-cover")}
+                    />
+                  ) : (
+                    <ImageIcon className="text-white/30" size={28} aria-hidden="true" />
+                  )}
+                </div>
 
-            {/* Dica WebP em destaque */}
-            <div className="flex items-start gap-2.5 bg-[#F0DF58]/10 border border-[#F0DF58]/25 p-3 rounded-2xl text-[#F0DF58] text-xs font-sans leading-relaxed">
-              <Sparkles size={16} className="flex-shrink-0 mt-0.5" />
-              <span>
-                <strong>Dica de Performance:</strong> Utilize imagens no formato <strong>.webp</strong> otimizado (&lt;30KB) para garantir carregamento instantâneo no celular.
-              </span>
+                <div className="min-w-0 flex-1 space-y-2">
+                  <label htmlFor="item-image" className="sr-only">Caminho ou URL da imagem</label>
+                  <input
+                    id="item-image"
+                    type="text"
+                    placeholder="/assets/items/fr_morango.webp"
+                    value={image}
+                    onChange={(e) => setImage(e.target.value)}
+                    className={fieldInput}
+                  />
+                  <label className={cn(pillBase, pillIdle, "cursor-pointer focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[#F0DF58]")}>
+                    <Upload size={16} aria-hidden="true" /> Escolher arquivo
+                    <input type="file" accept="image/*" onChange={handleImageFile} className="sr-only" />
+                  </label>
+                </div>
+              </div>
+              <p className="flex items-start gap-2 text-[13px] leading-relaxed text-white/60">
+                <Sparkles size={14} className="mt-0.5 shrink-0 text-[#F0DF58]" aria-hidden="true" />
+                <span>
+                  <strong className="text-white/80">Dica de performance:</strong> use imagens .webp otimizadas (menos de 30KB) para carregar rápido no celular.
+                </span>
+              </p>
+            </fieldset>
+
+            {/* Nome */}
+            <div className="space-y-1.5">
+              <label htmlFor="item-name" className={fieldLabel}>Nome do item</label>
+              <input
+                id="item-name"
+                type="text"
+                required
+                placeholder="Ex: Açaí c/ Morango Especial"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className={fieldInput}
+              />
             </div>
 
-            <div className="flex items-center gap-4">
-              {/* Preview */}
-              <div className="w-20 h-20 rounded-2xl bg-black/50 border-2 border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0 relative">
-                {image ? (
-                  <img 
-                    src={image} 
-                    alt="Preview" 
-                    className={cn(
-                      "w-full h-full",
-                      (originalCategory === 'sizes' || originalCategory === 'ready_made')
-                        ? "object-contain p-1.5"
-                        : "object-cover scale-105"
-                    )} 
-                  />
-                ) : (
-                  <ImageIcon className="text-white/30" size={28} />
-                )}
+            {/* Categoria e rótulo */}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <label htmlFor="item-category" className={fieldLabel}>Categoria</label>
+                <div className="relative">
+                  <select
+                    id="item-category"
+                    value={originalCategory}
+                    onChange={(e) => {
+                      setOriginalCategory(e.target.value);
+                      const selectedCat = CATEGORIES_CONFIG.find(c => c.key === e.target.value);
+                      if (selectedCat && selectedCat.key !== 'all') {
+                        setCategory(selectedCat.label);
+                      }
+                    }}
+                    className={cn(fieldInput, "appearance-none pr-10")}
+                  >
+                    {ITEM_CATEGORY_OPTIONS.map(([value, label]) => (
+                      <option key={value} value={value} className="bg-[#241220]">{label}</option>
+                    ))}
+                  </select>
+                  <ChevronDown size={18} className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-white/60" aria-hidden="true" />
+                </div>
               </div>
 
-              {/* Upload & Path */}
-              <div className="flex-1 space-y-2">
-                <input 
+              <div className="space-y-1.5">
+                <label htmlFor="item-label" className={fieldLabel}>Rótulo de exibição</label>
+                <input
+                  id="item-label"
                   type="text"
-                  placeholder="URL ou Caminho (ex: /assets/items/fr_morango.webp)"
-                  value={image}
-                  onChange={(e) => setImage(e.target.value)}
-                  className="w-full bg-white/[0.06] border-2 border-white/15 rounded-xl py-2 px-3 text-white text-xs font-sans focus:outline-none focus:border-[#F0DF58]/60 transition-all placeholder:text-white/40"
+                  placeholder="Ex: Adicional, Cobertura, Fruta"
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className={fieldInput}
                 />
-                
-                <label className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white/90 text-xs font-bold uppercase cursor-pointer transition-all border-2 border-white/15">
-                  <Upload size={14} /> Selecionar Arquivo
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    onChange={handleImageFile} 
-                    className="hidden" 
+              </div>
+            </div>
+
+            {/* Preço e volume */}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <label htmlFor="item-price" className={fieldLabel}>Preço (R$)</label>
+                <div className="relative">
+                  <span aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 font-heading text-lg text-[#F0DF58]">R$</span>
+                  <input
+                    id="item-price"
+                    type="number"
+                    inputMode="decimal"
+                    min="0"
+                    step="0.01"
+                    required
+                    placeholder="0,00"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    className={cn(fieldInput, "pl-11 font-heading text-xl")}
                   />
-                </label>
+                </div>
               </div>
-            </div>
-          </div>
 
-          {/* Nome do Item */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold uppercase text-white/90 block">
-              Nome do Item *
-            </label>
-            <input 
-              type="text"
-              required
-              placeholder="Ex: Açaí c/ Morango Especial"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full bg-white/[0.06] border-2 border-white/15 rounded-xl py-3 px-4 text-white text-sm font-sans focus:outline-none focus:border-[#F0DF58]/60 transition-all placeholder:text-white/40"
-            />
-          </div>
-
-          {/* Categoria e Subcategoria */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold uppercase text-white/90 block">
-                Categoria do Sistema *
-              </label>
-              <select 
-                value={originalCategory}
-                onChange={(e) => {
-                  setOriginalCategory(e.target.value);
-                  const selectedCat = CATEGORIES_CONFIG.find(c => c.key === e.target.value);
-                  if (selectedCat && selectedCat.key !== 'all') {
-                    setCategory(selectedCat.label);
-                  }
-                }}
-                className="w-full bg-[#120714] border-2 border-white/15 rounded-xl py-3 px-3 text-white text-sm font-sans focus:outline-none focus:border-[#F0DF58]/60 transition-all"
-              >
-                <option value="sizes">🥣 Tamanho de Pote (sizes)</option>
-                <option value="flavors">🍇 Sabor de Açaí (flavors)</option>
-                <option value="toppings">🍯 Cobertura (toppings)</option>
-                <option value="addons">🥜 Adicional (addons)</option>
-                <option value="creams">🍧 Creme (creams)</option>
-                <option value="fruits">🍓 Fruta Fresca (fruits)</option>
-                <option value="fillings">🍫 Recheio (fillings)</option>
-                <option value="ready_made">📦 Pronto para Levar (ready_made)</option>
-              </select>
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold uppercase text-white/90 block">
-                Rótulo de Exibição
-              </label>
-              <input 
-                type="text"
-                placeholder="Ex: Adicional, Cobertura, Fruta"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full bg-white/[0.06] border-2 border-white/15 rounded-xl py-3 px-4 text-white text-sm font-sans focus:outline-none focus:border-[#F0DF58]/60 transition-all placeholder:text-white/40"
-              />
-            </div>
-          </div>
-
-          {/* Preço e Volume */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold uppercase text-white/90 block">
-                Preço (R$) *
-              </label>
-              <div className="relative">
-                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#F0DF58] font-bold text-sm">R$</span>
-                <input 
-                  type="number"
-                  step="0.25"
-                  required
-                  placeholder="0.00"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  className="w-full bg-white/[0.06] border-2 border-white/15 rounded-xl py-3 pl-10 pr-4 text-white text-sm font-sans focus:outline-none focus:border-[#F0DF58]/60 transition-all"
+              <div className="space-y-1.5">
+                <label htmlFor="item-type" className={fieldLabel}>Volume / tipo <span className="font-normal text-white/60">(opcional)</span></label>
+                <input
+                  id="item-type"
+                  type="text"
+                  placeholder="Ex: 50ml, 100ml, Pote"
+                  value={type}
+                  onChange={(e) => setType(e.target.value)}
+                  className={fieldInput}
                 />
               </div>
             </div>
 
+            {/* Descrição */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold uppercase text-white/90 block">
-                Volume / Tipo (Opcional)
-              </label>
-              <input 
+              <label htmlFor="item-description" className={fieldLabel}>Descrição <span className="font-normal text-white/60">(opcional)</span></label>
+              <input
+                id="item-description"
                 type="text"
-                placeholder="Ex: 50ml, 100ml, Pote"
-                value={type}
-                onChange={(e) => setType(e.target.value)}
-                className="w-full bg-white/[0.06] border-2 border-white/15 rounded-xl py-3 px-4 text-white text-sm font-sans focus:outline-none focus:border-[#F0DF58]/60 transition-all placeholder:text-white/40"
+                placeholder="Ex: Açaí puro batido sem conservantes"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className={fieldInput}
               />
             </div>
-          </div>
 
-          {/* Descrição Opcional */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold uppercase text-white/90 block">
-              Descrição (Opcional)
-            </label>
-            <input 
-              type="text"
-              placeholder="Ex: Açaí puro batido sem conservantes"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full bg-white/[0.06] border-2 border-white/15 rounded-xl py-3 px-4 text-white text-sm font-sans focus:outline-none focus:border-[#F0DF58]/60 transition-all placeholder:text-white/40"
-            />
-          </div>
-
-          {/* Status Ativo / Em Estoque */}
-          <div className="flex items-center justify-between p-4 bg-white/[0.04] border-2 border-white/10 rounded-2xl">
-            <div>
-              <p className="font-heading text-lg uppercase text-white">Disponível no Cardápio</p>
-              <p className="text-white/70 text-xs font-sans">Se desativado, o item ficará oculto para os clientes</p>
+            {/* Disponibilidade */}
+            <div className="flex items-center justify-between gap-4 rounded-[24px] border-2 border-white/10 bg-[#2f1729] p-4">
+              <div>
+                <p id="item-active-label" className="text-sm font-bold text-white">Disponível no cardápio</p>
+                <p id="item-active-hint" className="mt-0.5 text-[13px] text-white/60">Desligado, o item fica oculto para os clientes.</p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={active}
+                aria-labelledby="item-active-label"
+                aria-describedby="item-active-hint"
+                onClick={() => setActive(!active)}
+                className={cn(
+                  "relative h-8 w-14 shrink-0 rounded-full border-2 transition-colors duration-200 after:absolute after:-inset-1.5 after:content-['']",
+                  focusRing,
+                  active ? "border-[#120714] bg-[#F0DF58]" : "border-white/20 bg-white/10"
+                )}
+              >
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    "absolute left-0.5 top-0.5 h-6 w-6 rounded-full transition-transform duration-200 motion-reduce:transition-none",
+                    active ? "translate-x-6 bg-[#120714]" : "translate-x-0 bg-white/70"
+                  )}
+                />
+              </button>
             </div>
+          </div>
+
+          {/* Ações fixas na base da folha */}
+          <div className="flex gap-2 border-t-2 border-[#120714] bg-[#2f1729] px-5 pb-[max(env(safe-area-inset-bottom),1rem)] pt-4 sm:px-6">
             <button
               type="button"
-              onClick={() => setActive(!active)}
-              className={cn(
-                "w-14 h-8 rounded-full transition-colors relative p-1",
-                active ? "bg-[#25D366]" : "bg-white/20"
-              )}
-            >
-              <div className={cn(
-                "w-6 h-6 rounded-full bg-white transition-transform",
-                active ? "translate-x-6" : "translate-x-0"
-              )} />
-            </button>
-          </div>
-
-          {/* Botões de Ação */}
-          <div className="flex gap-3 pt-2">
-            <button 
-              type="button"
               onClick={onClose}
-              className="flex-1 py-3.5 bg-white/10 hover:bg-white/20 text-white font-heading text-base rounded-xl transition-all uppercase border-2 border-white/10"
+              className={cn("h-14 flex-1 rounded-full border-2 border-white/20 text-sm font-bold text-white transition-colors hover:border-white/50", focusRing)}
             >
               Cancelar
             </button>
-            <button 
+            <button
               type="submit"
               disabled={loading}
-              className="flex-1 py-3.5 bg-[#F0DF58] hover:bg-[#e4d347] text-[#120714] font-heading text-lg rounded-xl transition-all active:scale-95 uppercase font-black flex items-center justify-center gap-2"
+              className={cn(primaryBtn, focusRing, "h-14 flex-[1.4] text-2xl disabled:opacity-60")}
             >
-              {loading ? <RefreshCw className="animate-spin" size={20} /> : <Check size={20} />}
-              Salvar Item
+              {loading
+                ? <RefreshCw className="animate-spin motion-reduce:animate-none" size={20} aria-hidden="true" />
+                : <Check size={20} strokeWidth={2.5} aria-hidden="true" />}
+              Salvar item
             </button>
           </div>
         </form>
