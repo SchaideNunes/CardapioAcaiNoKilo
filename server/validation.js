@@ -140,4 +140,26 @@ function validateMenuItem(body, { partial = false } = {}) {
   return { value: item };
 }
 
-module.exports = { validateOrder, validateMenuItem, isNonEmptyString, isPlainObject };
+/**
+ * Valida o filtro de período de GET /api/admin/orders (?from=&to=, datas ISO).
+ * Os dois são opcionais; devolve o filtro do Mongo para createdAt.
+ */
+function validateDateRange(query) {
+  const range = {};
+  for (const key of ['from', 'to']) {
+    const raw = query[key];
+    if (raw === undefined) continue;
+    if (typeof raw !== 'string') return { error: `Parâmetro ${key} inválido` };
+    const date = new Date(raw);
+    if (Number.isNaN(date.getTime())) return { error: `Data inválida em ${key}` };
+    range[key] = date;
+  }
+  if (range.from && range.to && range.from > range.to) return { error: 'O fim do período é anterior ao início' };
+
+  const createdAt = {};
+  if (range.from) createdAt.$gte = range.from;
+  if (range.to) createdAt.$lte = range.to;
+  return { value: Object.keys(createdAt).length ? { createdAt } : {} };
+}
+
+module.exports = { validateOrder, validateMenuItem, validateDateRange, isNonEmptyString, isPlainObject };

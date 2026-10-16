@@ -287,4 +287,49 @@ describe('rotas /api/admin', () => {
     expect(res.status).toBe(200);
     expect(res.body.map(o => o.items[0])).toEqual(['recente', 'antigo']);
   });
+
+  describe('filtro de pedidos por período', () => {
+    beforeEach(async () => {
+      await server.db.collection('pedidos').insertMany([
+        { items: ['setembro'], total: 10, createdAt: new Date('2026-09-20T15:00:00Z') },
+        { items: ['inicio-outubro'], total: 20, createdAt: new Date('2026-10-01T03:00:00Z') },
+        { items: ['ontem'], total: 30, createdAt: new Date('2026-10-14T12:00:00Z') },
+        { items: ['hoje'], total: 40, createdAt: new Date('2026-10-15T09:00:00Z') },
+      ]);
+    });
+
+    it('devolve só os pedidos entre from e to (inclusive)', async () => {
+      const res = await request(app).get('/api/admin/orders')
+        .query({ from: '2026-10-01T03:00:00.000Z', to: '2026-10-14T23:59:59.999Z' })
+        .set(auth());
+
+      expect(res.status).toBe(200);
+      expect(res.body.map(o => o.items[0])).toEqual(['ontem', 'inicio-outubro']);
+    });
+
+    it('aceita só o início do período', async () => {
+      const res = await request(app).get('/api/admin/orders').query({ from: '2026-10-14T00:00:00.000Z' }).set(auth());
+      expect(res.body.map(o => o.items[0])).toEqual(['hoje', 'ontem']);
+    });
+
+    it('não corta o mês em 50 pedidos', async () => {
+      const many = Array.from({ length: 120 }, (_, i) => ({
+        items: [`p${i}`], total: 1, createdAt: new Date(Date.UTC(2026, 9, 2, 0, i)),
+      }));
+      await server.db.collection('pedidos').insertMany(many);
+
+      const res = await request(app).get('/api/admin/orders').query({ from: '2026-10-01T00:00:00.000Z' }).set(auth());
+
+      expect(res.body).toHaveLength(123);
+    });
+
+    it.each([
+      ['data inválida', { from: 'ontem' }],
+      ['fim antes do início', { from: '2026-10-14T00:00:00.000Z', to: '2026-10-01T00:00:00.000Z' }],
+      ['parâmetro repetido', 'from=2026-10-01T00:00:00.000Z&from=2026-10-02T00:00:00.000Z'],
+    ])('recusa filtro inválido com 422 (%s)', async (_label, query) => {
+      const res = await request(app).get('/api/admin/orders').query(query).set(auth());
+      expect(res.status).toBe(422);
+    });
+  });
 });

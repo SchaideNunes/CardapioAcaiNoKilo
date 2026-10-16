@@ -5,11 +5,13 @@ const helmet = require('helmet');
 const { rateLimit } = require('express-rate-limit');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { validateOrder, validateMenuItem, isNonEmptyString } = require('./validation');
+const { validateOrder, validateMenuItem, validateDateRange, isNonEmptyString } = require('./validation');
 
 const INVALID_CREDENTIALS = 'Usuário ou senha inválidos';
 const MAX_USERNAME_LENGTH = 254;
 const MAX_PASSWORD_LENGTH = 128;
+// Teto de segurança por consulta; um mês de pedidos de uma loja fica bem abaixo disso
+const MAX_ORDERS_PER_QUERY = 2000;
 const DUMMY_PASSWORD_HASH = bcrypt.hashSync('senha-inexistente', 10);
 
 function escapeRegex(text) {
@@ -213,10 +215,13 @@ function createApp({ db, jwtSecret, menuCollection, corsOrigins = [], trustProxy
     }
   });
 
-  // Buscar Pedidos do Dia
+  // Buscar pedidos (opcionalmente de um período: ?from=&to= em ISO)
   app.get('/api/admin/orders', verifyToken, async (req, res) => {
+    const { value: filter, error } = validateDateRange(req.query);
+    if (error) return res.status(422).json({ error });
+
     try {
-      const orders = await db.collection('pedidos').find().sort({ createdAt: -1 }).limit(50).toArray();
+      const orders = await db.collection('pedidos').find(filter).sort({ createdAt: -1 }).limit(MAX_ORDERS_PER_QUERY).toArray();
       res.json(orders);
     } catch {
       res.status(500).json({ error: 'Erro ao buscar pedidos' });
