@@ -3,7 +3,8 @@ import { useState, useEffect, useRef } from 'react';
 // All critical images to preload while the preloader is visible
 const PRELOAD_IMAGES = [
   '/assets/Logo açai.webp',
-  '/assets/Açai_hero.webp',
+  '/assets/Acai_montar.webp',
+  '/assets/Acai_fechado.webp',
   '/assets/items/Açai_350ml.webp',
   '/assets/items/Açai_500ml.webp',
   '/assets/items/Açai_750ml.webp',
@@ -21,9 +22,6 @@ const PRELOAD_IMAGES = [
   '/assets/1l_creme_moranto_zero.webp',
   '/assets/2l_acai_natural.webp',
   '/assets/2l_acai_banana.webp',
-  '/assets/pix.png',
-  '/assets/card.png',
-  '/assets/Dinheiro.webp',
 ];
 
 const TOTAL_DURATION = 3200; // 3.2s smooth assembly
