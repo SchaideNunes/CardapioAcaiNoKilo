@@ -27,6 +27,7 @@ const PRELOAD_IMAGES = [
 ];
 
 const TOTAL_DURATION = 3200; // 3.2s smooth assembly
+const REDUCED_DURATION = 300; // com "reduzir movimento": sem montagem, só o tempo de começar a baixar as imagens
 
 export default function Preloader({ onFinished }: { onFinished: () => void }) {
   const [progress, setProgress] = useState(0);
@@ -36,6 +37,10 @@ export default function Preloader({ onFinished }: { onFinished: () => void }) {
 
   useEffect(() => {
     startTime.current = Date.now();
+    const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+    const duration = reduceMotion ? REDUCED_DURATION : TOTAL_DURATION;
+    const holdMs = reduceMotion ? 0 : 400;
+    const fadeMs = reduceMotion ? 0 : 600;
 
     // Start preloading critical images
     PRELOAD_IMAGES.forEach((src) => {
@@ -48,7 +53,7 @@ export default function Preloader({ onFinished }: { onFinished: () => void }) {
     // Animate progress from 0 to 100
     const interval = setInterval(() => {
       const elapsed = Date.now() - startTime.current;
-      const timeProgress = Math.min(elapsed / TOTAL_DURATION, 1);
+      const timeProgress = Math.min(elapsed / duration, 1);
       // Smooth ease-out curve
       const eased = 1 - Math.pow(1 - timeProgress, 2.5);
       const pct = Math.round(eased * 100);
@@ -58,8 +63,8 @@ export default function Preloader({ onFinished }: { onFinished: () => void }) {
         clearInterval(interval);
         setTimeout(() => {
           setFadeOut(true);
-          setTimeout(onFinished, 600);
-        }, 400);
+          setTimeout(onFinished, fadeMs);
+        }, holdMs);
       }
     }, 25);
 
@@ -74,42 +79,21 @@ export default function Preloader({ onFinished }: { onFinished: () => void }) {
 
   return (
     <div
-      className={`fixed inset-0 z-[9999] bg-[#1F0D1A] flex flex-col items-center justify-center transition-all duration-700 overflow-hidden ${
-        fadeOut ? 'opacity-0 scale-105 pointer-events-none' : 'opacity-100 scale-100'
+      className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center overflow-hidden bg-[#241220] lining-nums tabular-nums transition-opacity duration-500 ease-out motion-reduce:transition-none ${
+        fadeOut ? 'pointer-events-none opacity-0' : 'opacity-100'
       }`}
     >
-      {/* Ambient Pulsing Glow behind the Logo */}
-      <div 
-        className="absolute w-80 h-80 md:w-[480px] md:h-[480px] bg-primary/15 rounded-full blur-[100px] transition-all duration-500 pointer-events-none"
-        style={{ transform: `scale(${0.8 + (progress / 100) * 0.4})` }}
-      />
-      <div 
-        className="absolute w-64 h-64 bg-[#F58220]/15 rounded-full blur-[90px] transition-all duration-500 pointer-events-none"
-        style={{ transform: `scale(${0.6 + (sunProgress) * 0.5}) translate(20%, -20%)` }}
-      />
-
-      {/* SVG Animated Logo Assembly */}
+      {/* Montagem do logo em traço (chapada: sem brilho, sombra nem desfoque) */}
       <div className="relative w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 z-10 flex items-center justify-center">
         <svg
           viewBox="0 0 500 500"
-          className="w-full h-full drop-shadow-[0_10px_35px_rgba(0,0,0,0.6)]"
+          className="w-full h-full"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
         >
-          {/* Defs for Glows and Gradients */}
-          <defs>
-            <filter id="glow-orange" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="4" result="blur" />
-              <feComposite in="SourceGraphic" in2="blur" operator="over" />
-            </filter>
-            <filter id="glow-gold" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="3" result="blur" />
-              <feComposite in="SourceGraphic" in2="blur" operator="over" />
-            </filter>
-          </defs>
-
           {/* ================= 1. SUN & RAYS (Orange #F58220) ================= */}
-          <g filter={progress > 60 ? "url(#glow-orange)" : undefined}>
+          <g>
             {/* Top Wavy Ray */}
             <path
               d="M 345 35 Q 332 55 346 72 Q 332 90 344 108"
@@ -292,22 +276,28 @@ export default function Preloader({ onFinished }: { onFinished: () => void }) {
 
       {/* Progress Counter & Brand Status */}
       <div className="flex flex-col items-center gap-2 z-10 mt-4">
-        <div className="flex items-baseline gap-1">
-          <span className="font-heading text-4xl sm:text-5xl text-primary drop-shadow-[0_2px_15px_rgba(230,214,46,0.5)]">
+        <div className="flex items-baseline gap-1" aria-hidden="true">
+          <span className="font-heading text-4xl sm:text-5xl text-[#F0DF58]">
             {progress}
           </span>
-          <span className="font-heading text-xl text-primary/70">%</span>
+          <span className="font-heading text-xl text-[#F0DF58]/70">%</span>
         </div>
 
-        {/* Status Text */}
-        <span className="text-white/60 text-xs sm:text-sm tracking-[0.2em] uppercase font-sans font-medium transition-all duration-300">
+        <span id="preloader-status" className="text-white/75 text-xs sm:text-sm tracking-[0.2em] uppercase font-sans font-semibold">
           Preparando seu Açaí...
         </span>
 
-        {/* Minimal Progress Line */}
-        <div className="w-36 sm:w-48 h-1 bg-white/10 rounded-full overflow-hidden mt-2">
-          <div 
-            className="h-full bg-gradient-to-r from-[#F58220] via-primary to-white rounded-full transition-all duration-150"
+        {/* Linha de progresso no mesmo traço dos segmentos da montagem */}
+        <div
+          role="progressbar"
+          aria-labelledby="preloader-status"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={progress}
+          className="mt-2 h-[5px] w-36 overflow-hidden rounded-full bg-white/15 sm:w-48"
+        >
+          <div
+            className="h-full rounded-full bg-[#F0DF58]"
             style={{ width: `${progress}%` }}
           />
         </div>
