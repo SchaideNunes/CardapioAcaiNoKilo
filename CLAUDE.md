@@ -24,11 +24,12 @@ Ambiente: Windows, caminho do projeto contém `ç` (`Cardapio Açai`) e assets c
 - [src/pages/](src/pages/) — cada página é um componente grande e autocontido (`AdminPage.tsx` ~1.900 linhas, `OrderPage.tsx` ~800). Não há camada de services/hooks no frontend ainda.
 - [src/lib/orders.ts](src/lib/orders.ts) — `saveOrder()`: persistência do pedido usada por `OrderPage` e `ReadyMadePage` (nunca lança; campo `origin`: `"custom"` | `"ready_made"`). Lógica compartilhada nova vai em `src/lib/`.
 - [src/types/](src/types/) — tipos de domínio compartilhados: `menu.ts` (`MenuItem`, `MenuItemRecord` = item do banco/admin, `MenuData`, `ReadyProduct`, `MENU_CATEGORIES`) e `order.ts` (`OrderPayload`, `OrderRecord`, `DeliveryMethod`, `PaymentMethod`). Não declare tipos de domínio dentro das páginas.
+- [src/lib/reports.ts](src/lib/reports.ts) — períodos dos relatórios (`periodStart`: hoje à meia-noite local, últimos 7 dias, mês corrente), `filterOrdersByPeriod` e `computeOrderMetrics` (cancelados ficam fora do faturamento). O admin busca pedidos a partir de `earliestReportStart`.
 - [src/lib/menuCache.ts](src/lib/menuCache.ts) — leitura tipada do cardápio salvo pelo admin no `localStorage` e agrupamento por etapa.
 - [src/data/menu.ts](src/data/menu.ts) — cardápio estático (`menuData`) e açaís prontos (`readyMadeProducts`) usados como fallback offline. [migration.js](migration.js) tem os mesmos dados para popular o Mongo; **mantenha os dois em sincronia** ao mudar itens/preços.
 - [server/app.js](server/app.js) — `createApp({ db, jwtSecret, menuCollection })`: todas as rotas, sem abrir porta nem conexão. [server/index.js](server/index.js) só lê o `.env`, cria o cliente Mongo e chama `listen`. Express 5 + driver `mongodb` nativo (sem Mongoose), CommonJS. Rotas:
   - Públicas: `GET /api/menu`, `POST /api/login`, `POST /api/orders`
-  - Protegidas (`verifyToken`): `GET|POST /api/admin/menu`, `PUT|DELETE /api/admin/menu/:id`, `GET /api/admin/orders`
+  - Protegidas (`verifyToken`): `GET|POST /api/admin/menu`, `PUT|DELETE /api/admin/menu/:id`, `GET /api/admin/orders?from=&to=` (datas ISO opcionais, teto de 2000), `PATCH /api/admin/orders/:id/status`
   - Coleção do cardápio vem de `process.env.COLLECTION_NAME`; pedidos em `pedidos`; usuários em `usuarios`.
 - [src/lib/api.ts](src/lib/api.ts) — `apiUrl("/api/...")` monta a URL do backend a partir de `VITE_API_URL` (padrão `http://localhost:3001`). Nunca escreva a URL do backend à mão.
 
@@ -63,9 +64,9 @@ Ambiente: Windows, caminho do projeto contém `ç` (`Cardapio Açai`) e assets c
 
 ### Design / UI
 - Mobile-first, de 320px a ultrawide, **zero scroll horizontal** (`w-full max-w-full overflow-x-hidden` nos contêineres raiz). Alvos de toque ≥ 44×44px.
-- Tema escuro roxo profundo + amarelo ouro. Na prática o código usa `#F0DF58` (ouro) e fundos `#170a18` / `#241220` / `#120714` hardcoded; o token `primary` do Tailwind (`#E6D62E`) quase não é usado. Ao criar UI nova, siga as cores já em uso na página e não invente novas.
+- **O sistema visual está em [DESIGN.md](DESIGN.md)** (2D chapado, gerado do código da montagem e da home) — siga-o em UI nova. Resumo: chão `#241220`, painéis `#2f1729`, ouro `#F0DF58` só para seleção/ação com contorno `#120714` de 2px, creme `#F8EEA6` nos aros das fotos, laranja `#F58220` só em detalhes pequenos, verde WhatsApp só no botão de enviar. O token `primary` do Tailwind (`#E6D62E`) é legado — não use.
 - Tipografia: `font-heading` (Bebas Neue) para títulos, preços e números; `font-sans` (Raleway) para o resto.
-- Estética sóbria: hovers sutis (borda `white/10 → white/25`, `-translate-y-0.5`, 150–250ms `ease-out`), nada de neon, gradientes caóticos ou blur decorativo sem propósito. Animações via GSAP / `tailwindcss-animate`, sempre com função clara.
+- **2D, sem profundidade** (regra do dono, ver PRODUCT.md): nada de sombra, vidro/desfoque, degradê ou elevação/escala no hover — o hover muda cor/borda. Números (preços, totais) em Bebas com `lining-nums tabular-nums`. Movimento: só o quique de 0,4s (`anim-seg-fill`, `anim-pop` em `src/index.css`), desligado em `prefers-reduced-motion`. Já migrados: `/`, `/montar`, `/admin`; `/prontos` e `/login` ainda no visual antigo.
 - Imagens em `public/assets/` sempre `.webp` otimizado (~15–30KB). Converter antes de usar.
 - Toda tela com dados precisa de estados de loading, vazio e erro.
 - Textos de interface em português do Brasil.
@@ -73,6 +74,7 @@ Ambiente: Windows, caminho do projeto contém `ç` (`Cardapio Açai`) e assets c
 ### Regras de negócio
 - O `POST /api/orders` (com `keepalive`) é **disparado antes** de abrir o WhatsApp, mas a abertura **não espera** a resposta: precisa acontecer no mesmo clique, senão o Safari/iOS bloqueia o pop-up. Use `saveOrder(...)` + `openWhatsApp(buildWhatsAppUrl(...))` (que cai para navegação na mesma aba se o pop-up for bloqueado). Falha ao salvar nunca impede o envio, e o botão fica desabilitado enquanto o salvamento está pendente.
 - WhatsApp da loja (`STORE_WHATSAPP_NUMBER`), taxa de entrega (`DELIVERY_FEE` = R$ 7) e o trecho de entrega/pagamento/troco/total da mensagem ficam em [src/lib/whatsapp.ts](src/lib/whatsapp.ts) — não repita essas regras nas páginas.
+- Status do pedido: `new` → `preparing` → `ready` (rótulo "Saiu para entrega" ou "Pronto para retirar") → `done`, ou `cancelled`. O servidor grava `status: "new"` na criação (o cliente não define) e só muda via `PATCH /api/admin/orders/:id/status`. Pedidos antigos sem status contam como `new` (`normalizeOrderStatus`). Use `nextOrderStatus` / `orderStatusLabel` de `src/lib/orders.ts`.
 - Pedidos são gravados com códigos (`deliveryMethod: "delivery"|"pickup"`, `paymentMethod: "pix"|"card"|"cash"`). Ao ler pedidos, sempre passe por `normalizeDeliveryMethod` / `normalizePaymentMethod` (aceitam também rótulos legados em português) e exiba com `DELIVERY_LABELS` / `PAYMENT_LABELS`.
 - `POST /api/orders` valida o payload em [server/validation.js](server/validation.js) e grava **só** os campos conhecidos (`origin`, `items`, `total`, `deliveryMethod`, `paymentMethod`, `address` se entrega, `changeFor` se dinheiro). Campo novo no pedido = atualizar o validador e os testes. Inválido → 422.
 - `POST|PUT /api/admin/menu` validam com `validateMenuItem` (categorias fixas: `sizes`, `flavors`, `toppings`, `addons`, `creams`, `fruits`, `fillings`, `ready_made`; `image` aceita `/assets/...`, `https://` ou data URL base64 de até ~200KB). Campos desconhecidos são ignorados.
@@ -89,6 +91,8 @@ Itens da análise de 14/10/2026 concluídos. Pendências e sugestões abertas:
 2. Validar em iPhone/Safari real o fluxo de envio (WhatsApp abre na hora; pedido aparece no admin).
 3. A interface mostra preços com ponto (`R$ 18.00`) enquanto a mensagem usa vírgula (`R$ 18,00`) — padronizar no formato brasileiro com `formatBRL` (os testes de página que procuram `18.00` precisam ser ajustados junto).
 4. O total do pedido vem do cliente; se um dia o pagamento deixar de ser confirmado no WhatsApp, recalcular no servidor a partir dos preços do banco (exige enviar ids em vez de nomes).
-5. O token do admin fica em `localStorage` (exposto a XSS); avaliar cookie `httpOnly` + `SameSite` quando houver domínio próprio.
+5. Levar `/prontos` e `/login` para o sistema 2D do DESIGN.md (inclui preço em `formatBRL`, item 3).
+6. Os segmentos da barra de progresso do `/montar` têm ~30×29px de área de toque no celular (navegação secundária; o voltar principal tem 56px).
+7. O token do admin fica em `localStorage` (exposto a XSS); avaliar cookie `httpOnly` + `SameSite` quando houver domínio próprio.
 
 Ao concluir um item, remova-o daqui no mesmo commit.
