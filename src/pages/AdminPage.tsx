@@ -526,7 +526,7 @@ export default function AdminPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0d0510] flex flex-col items-center justify-center">
+      <div className="min-h-screen bg-[#241220] flex flex-col items-center justify-center">
         <RefreshCw className="text-[#F0DF58] animate-spin mb-4" size={48} />
         <span className="font-heading text-xl text-white uppercase tracking-widest">Sincronizando Painel...</span>
       </div>
@@ -534,14 +534,14 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0e0711] text-white flex flex-col md:flex-row relative selection:bg-[#F0DF58] selection:text-[#0e0711] font-sans pb-24 md:pb-0 overflow-x-hidden w-full max-w-full">
+    <div className="min-h-screen bg-[#241220] text-white lining-nums tabular-nums flex flex-col md:flex-row relative selection:bg-[#F0DF58] selection:text-[#0e0711] font-sans pb-24 md:pb-0 overflow-x-hidden w-full max-w-full">
       {/* Toast Notification */}
       {toast && (
         <div className={cn(
-          "fixed bottom-20 md:bottom-6 right-6 z-[100] px-5 py-3.5 rounded-2xl shadow-2xl font-sans text-sm flex items-center gap-3 animate-in slide-in-from-bottom-5 duration-300 border",
-          toast.type === "success" && "bg-[#25D366]/20 border-[#25D366]/40 text-[#25D366] backdrop-blur-xl",
-          toast.type === "error" && "bg-rose-500/20 border-rose-500/40 text-rose-300 backdrop-blur-xl",
-          toast.type === "info" && "bg-[#F0DF58]/20 border-[#F0DF58]/40 text-[#F0DF58] backdrop-blur-xl"
+          "fixed bottom-20 md:bottom-6 right-6 z-[100] px-5 py-3.5 rounded-2xl font-sans text-sm flex items-center gap-3 animate-in slide-in-from-bottom-5 duration-300 border",
+          toast.type === "success" && "bg-[#25D366]/20 border-[#25D366]/40 text-[#25D366]",
+          toast.type === "error" && "bg-rose-500/20 border-rose-500/40 text-rose-300",
+          toast.type === "info" && "bg-[#F0DF58]/20 border-[#F0DF58]/40 text-[#F0DF58]"
         )}>
           {toast.type === "success" ? <Check size={18} /> : <AlertTriangle size={18} />}
           <span className="font-medium text-white">{toast.message}</span>
@@ -552,7 +552,7 @@ export default function AdminPage() {
       {mobileDrawerOpen && (
         <div 
           onClick={() => setMobileDrawerOpen(false)}
-          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[110] md:hidden animate-in fade-in duration-200"
+          className="fixed inset-0 bg-black/80 z-[110] md:hidden animate-in fade-in duration-200"
         />
       )}
 
@@ -560,12 +560,12 @@ export default function AdminPage() {
       <aside className={cn(
         "bg-[#120714] border-r border-white/[0.06] p-5 flex flex-col gap-6 flex-shrink-0 z-[120] transition-transform duration-300",
         "fixed md:static inset-y-0 left-0 w-72 md:w-64",
-        mobileDrawerOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full md:translate-x-0"
+        mobileDrawerOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
       )}>
         {/* Header da Sidebar */}
         <div className="flex items-center justify-between gap-3 pb-3 border-b border-white/[0.06]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-black/40 border border-white/10 p-1 flex items-center justify-center overflow-hidden flex-shrink-0 shadow-md">
+            <div className="w-10 h-10 rounded-full bg-black/40 border-2 border-white/10 p-1 flex items-center justify-center overflow-hidden flex-shrink-0">
               <img 
                 src="/assets/Logo açai.webp" 
                 alt="Logo Açaí no Kilo" 
@@ -584,7 +584,8 @@ export default function AdminPage() {
           <button 
             onClick={() => setMobileDrawerOpen(false)} 
             title="Fechar Menu"
-            className="p-1.5 text-white/40 hover:text-white transition-colors md:hidden"
+            aria-label="Fechar menu"
+            className="w-11 h-11 -mr-2 flex items-center justify-center text-white/40 hover:text-white transition-colors md:hidden"
           >
             <X size={20} />
           </button>
@@ -595,7 +596,7 @@ export default function AdminPage() {
           <button 
             onClick={() => { setActiveTab("overview"); setMobileDrawerOpen(false); }} 
             className={cn(
-              "flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all",
+              "flex items-center justify-between px-3.5 py-2.5 min-h-11 lg:min-h-0 rounded-xl text-xs font-semibold tracking-wide transition-all",
               activeTab === "overview"
                 ? "border border-[#F0DF58]/80 bg-[#F0DF58]/10 text-[#F0DF58]"
                 : "text-white/60 hover:text-white hover:bg-white/[0.04]"
@@ -610,7 +611,7 @@ export default function AdminPage() {
           <button 
             onClick={() => { setActiveTab("menu"); setMobileDrawerOpen(false); }} 
             className={cn(
-              "flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all",
+              "flex items-center justify-between px-3.5 py-2.5 min-h-11 lg:min-h-0 rounded-xl text-xs font-semibold tracking-wide transition-all",
               activeTab === "menu"
                 ? "border border-[#F0DF58]/80 bg-[#F0DF58]/10 text-[#F0DF58]"
                 : "text-white/60 hover:text-white hover:bg-white/[0.04]"
@@ -628,7 +629,7 @@ export default function AdminPage() {
           <button 
             onClick={() => { setActiveTab("orders"); setMobileDrawerOpen(false); }} 
             className={cn(
-              "flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all",
+              "flex items-center justify-between px-3.5 py-2.5 min-h-11 lg:min-h-0 rounded-xl text-xs font-semibold tracking-wide transition-all",
               activeTab === "orders"
                 ? "border border-[#F0DF58]/80 bg-[#F0DF58]/10 text-[#F0DF58]"
                 : "text-white/60 hover:text-white hover:bg-white/[0.04]"
@@ -646,7 +647,7 @@ export default function AdminPage() {
           <button 
             onClick={() => { setActiveTab("reports"); setMobileDrawerOpen(false); }} 
             className={cn(
-              "flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all",
+              "flex items-center justify-between px-3.5 py-2.5 min-h-11 lg:min-h-0 rounded-xl text-xs font-semibold tracking-wide transition-all",
               activeTab === "reports"
                 ? "border border-[#F0DF58]/80 bg-[#F0DF58]/10 text-[#F0DF58]"
                 : "text-white/60 hover:text-white hover:bg-white/[0.04]"
@@ -666,7 +667,7 @@ export default function AdminPage() {
           </p>
           <button 
             onClick={() => { setEditingItem(null); setModalOpen(true); setMobileDrawerOpen(false); }}
-            className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs font-medium text-white/60 hover:text-white hover:bg-white/[0.04] transition-all text-left"
+            className="flex items-center gap-2.5 px-3.5 py-2 min-h-11 lg:min-h-0 rounded-xl text-xs font-medium text-white/60 hover:text-white hover:bg-white/[0.04] transition-all text-left"
           >
             <PlusCircle size={16} className="text-[#F0DF58]" />
             <span>Adicionar Item</span>
@@ -675,9 +676,9 @@ export default function AdminPage() {
             onClick={() => { handleSyncData(); setMobileDrawerOpen(false); }}
             disabled={syncing}
             className={cn(
-              "flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs font-medium transition-all text-left group",
+              "flex items-center gap-2.5 px-3.5 py-2 min-h-11 lg:min-h-0 rounded-xl text-xs font-medium transition-all text-left group",
               syncing 
-                ? "bg-[#F0DF58]/15 text-[#F0DF58] border border-[#F0DF58]/30 shadow-[0_0_12px_rgba(240,223,88,0.15)]" 
+                ? "bg-[#F0DF58]/15 text-[#F0DF58] border border-[#F0DF58]/30" 
                 : "text-white/60 hover:text-white hover:bg-white/[0.04]"
             )}
           >
@@ -696,7 +697,7 @@ export default function AdminPage() {
         <div className="mt-auto pt-4 border-t border-white/[0.06]">
           <button 
             onClick={handleLogout} 
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/20 text-xs font-bold uppercase tracking-wider transition-all active:scale-95 shadow-sm"
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/20 text-xs font-bold uppercase tracking-wider transition-all active:scale-95"
           >
             <LogOut size={16} /> Sair do Painel
           </button>
@@ -710,13 +711,13 @@ export default function AdminPage() {
           <button 
             onClick={() => setMobileDrawerOpen(true)}
             title="Abrir Menu"
-            className="w-10 h-10 rounded-xl bg-white/[0.05] border border-white/10 flex items-center justify-center text-white/80 active:scale-95"
+            className="w-11 h-11 rounded-xl bg-white/[0.05] border-2 border-white/10 flex items-center justify-center text-white/80 active:scale-95"
           >
             <Menu size={20} />
           </button>
 
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-black/40 border border-white/10 p-0.5 flex items-center justify-center overflow-hidden">
+            <div className="w-8 h-8 rounded-full bg-black/40 border-2 border-white/10 p-0.5 flex items-center justify-center overflow-hidden">
               <img src="/assets/Logo açai.webp" alt="Logo" className="w-full h-full object-contain" />
             </div>
             <div>
@@ -728,7 +729,7 @@ export default function AdminPage() {
           <button 
             onClick={() => { setEditingItem(null); setModalOpen(true); }}
             title="Adicionar Novo Item"
-            className="w-10 h-10 rounded-xl bg-[#F0DF58] text-[#120714] flex items-center justify-center font-black active:scale-95 shadow-md"
+            className="w-11 h-11 rounded-xl bg-[#F0DF58] text-[#120714] flex items-center justify-center font-black active:scale-95"
           >
             <Plus size={20} strokeWidth={3} />
           </button>
@@ -754,7 +755,7 @@ export default function AdminPage() {
               <div className="hidden md:flex items-center gap-3">
                 <button 
                   onClick={() => { setEditingItem(null); setModalOpen(true); }}
-                  className="px-4 py-2 bg-[#F0DF58] hover:bg-[#e4d347] text-[#120714] font-heading font-black text-sm rounded-xl flex items-center gap-1.5 transition-all shadow-md active:scale-95 uppercase tracking-wide flex-shrink-0"
+                  className="px-4 py-2 bg-[#F0DF58] hover:bg-[#e4d347] text-[#120714] font-heading font-black text-sm rounded-xl flex items-center gap-1.5 transition-all active:scale-95 uppercase tracking-wide flex-shrink-0"
                 >
                   <Plus size={16} strokeWidth={3} />
                   <span>Novo Item</span>
@@ -765,7 +766,7 @@ export default function AdminPage() {
             {/* CARDS DE MÉTRICAS */}
             <div className="grid grid-cols-3 gap-2.5 sm:gap-4">
               {/* TOTAL DE ITENS */}
-              <div className="bg-[#170a18]/90 border border-purple-900/40 rounded-2xl sm:rounded-3xl p-3 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between shadow-lg relative overflow-hidden group">
+              <div className="bg-[#2f1729] border border-purple-900/40 rounded-2xl sm:rounded-3xl p-3 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between relative overflow-hidden group">
                 <div>
                   <p className="text-[9px] sm:text-xs font-bold text-purple-300 uppercase tracking-wider">
                     TOTAL DE ITENS
@@ -774,14 +775,14 @@ export default function AdminPage() {
                     {stats.total}
                   </p>
                 </div>
-                <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-300 shadow-inner mt-2 sm:mt-0 self-end sm:self-auto">
+                <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-300 mt-2 sm:mt-0 self-end sm:self-auto">
                   <Box size={16} className="sm:hidden" />
                   <Box size={22} className="hidden sm:block" />
                 </div>
               </div>
 
               {/* ATIVOS */}
-              <div className="bg-[#170a18]/90 border border-emerald-900/40 rounded-2xl sm:rounded-3xl p-3 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between shadow-lg relative overflow-hidden group">
+              <div className="bg-[#2f1729] border border-emerald-900/40 rounded-2xl sm:rounded-3xl p-3 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between relative overflow-hidden group">
                 <div>
                   <p className="text-[9px] sm:text-xs font-bold text-emerald-400 uppercase tracking-wider">
                     ATIVOS
@@ -790,14 +791,14 @@ export default function AdminPage() {
                     {stats.active}
                   </p>
                 </div>
-                <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-inner mt-2 sm:mt-0 self-end sm:self-auto">
+                <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mt-2 sm:mt-0 self-end sm:self-auto">
                   <CheckCircle2 size={16} className="sm:hidden" />
                   <CheckCircle2 size={22} className="hidden sm:block" />
                 </div>
               </div>
 
               {/* DESATIVADOS */}
-              <div className="bg-[#170a18]/90 border border-rose-900/40 rounded-2xl sm:rounded-3xl p-3 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between shadow-lg relative overflow-hidden group">
+              <div className="bg-[#2f1729] border border-rose-900/40 rounded-2xl sm:rounded-3xl p-3 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between relative overflow-hidden group">
                 <div>
                   <p className="text-[9px] sm:text-xs font-bold text-rose-400 uppercase tracking-wider">
                     DESATIVADOS
@@ -806,7 +807,7 @@ export default function AdminPage() {
                     {stats.inactive}
                   </p>
                 </div>
-                <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-rose-400 shadow-inner mt-2 sm:mt-0 self-end sm:self-auto">
+                <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-rose-400 mt-2 sm:mt-0 self-end sm:self-auto">
                   <XCircle size={16} className="sm:hidden" />
                   <XCircle size={22} className="hidden sm:block" />
                 </div>
@@ -814,7 +815,7 @@ export default function AdminPage() {
             </div>
 
             {/* CATEGORIAS (SLIDE CARROSSEL HORIZONTAL) */}
-            <div className="flex flex-col gap-2 bg-[#170a18]/60 border border-white/[0.06] rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-lg w-full max-w-full">
+            <div className="flex flex-col gap-2 bg-[#170a18]/60 border border-white/[0.06] rounded-2xl sm:rounded-3xl p-3 sm:p-5 w-full max-w-full">
               <div className="flex items-center justify-between px-1">
                 <p className="text-[11px] sm:text-xs font-bold text-white/70 uppercase tracking-widest flex items-center gap-1.5">
                   <Layers size={14} className="text-[#F0DF58]" />
@@ -822,7 +823,7 @@ export default function AdminPage() {
                 </p>
                 <button 
                   onClick={() => setSelectedCategory("all")}
-                  className="text-[11px] font-semibold text-white/40 hover:text-white transition-colors"
+                  className="text-[11px] font-semibold text-white/40 hover:text-white transition-colors inline-flex items-center min-h-11 px-2 -mr-2"
                 >
                   Ver todas
                 </button>
@@ -839,9 +840,9 @@ export default function AdminPage() {
                       key={cat.key}
                       onClick={() => setSelectedCategory(cat.key)}
                       className={cn(
-                        "flex flex-col items-center justify-center py-2.5 sm:py-3.5 px-3.5 sm:px-5 rounded-2xl border transition-all flex-shrink-0 min-w-[78px] sm:min-w-[95px] gap-1 group shadow-sm",
+                        "flex flex-col items-center justify-center py-2.5 sm:py-3.5 px-3.5 sm:px-5 rounded-2xl border transition-all flex-shrink-0 min-w-[78px] sm:min-w-[95px] gap-1 group",
                         isSelected 
-                          ? "border-[#F0DF58] bg-[#F0DF58]/15 text-[#F0DF58] shadow-[0_0_14px_rgba(240,223,88,0.2)] scale-[1.02]" 
+                          ? "border-[#F0DF58] bg-[#F0DF58]/15 text-[#F0DF58] scale-[1.02]" 
                           : "border-white/[0.08] bg-[#130716]/90 text-white/70 hover:border-white/25 hover:text-white"
                       )}
                     >
@@ -876,7 +877,7 @@ export default function AdminPage() {
                   placeholder="Buscar por nome ou categoria..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-[#170a18] border border-white/10 rounded-xl py-2.5 pl-9 pr-8 text-white text-xs font-sans focus:outline-none focus:border-[#F0DF58]/60 transition-all placeholder:text-white/30"
+                  className="w-full bg-[#2f1729] border-2 border-white/10 rounded-xl h-11 pl-9 pr-8 text-white text-xs font-sans focus:outline-none focus:border-[#F0DF58]/60 transition-all placeholder:text-white/30"
                 />
                 {searchQuery && (
                   <button 
@@ -894,7 +895,7 @@ export default function AdminPage() {
                   else setStatusFilter("all");
                 }}
                 title="Filtrar Status"
-                className="w-10 h-10 rounded-xl bg-[#170a18] border border-white/10 flex items-center justify-center text-white/70 active:scale-95 flex-shrink-0 md:hidden"
+                className="w-11 h-11 rounded-xl bg-[#2f1729] border-2 border-white/10 flex items-center justify-center text-white/70 active:scale-95 flex-shrink-0 md:hidden"
               >
                 <SlidersHorizontal size={17} />
               </button>
@@ -906,10 +907,10 @@ export default function AdminPage() {
                 <button
                   onClick={() => setStatusFilter("all")}
                   className={cn(
-                    "py-2 px-1 text-center rounded-xl sm:rounded-full text-[11px] sm:text-xs font-bold transition-all shadow-sm truncate",
+                    "min-h-11 lg:min-h-0 py-2 px-1 text-center rounded-xl sm:rounded-full text-[11px] sm:text-xs font-bold transition-all truncate",
                     statusFilter === "all"
-                      ? "bg-[#F0DF58] text-[#120714] shadow-md shadow-[#F0DF58]/10"
-                      : "bg-[#170a18] text-white/70 hover:text-white border border-white/[0.08]"
+                      ? "bg-[#F0DF58] text-[#120714]"
+                      : "bg-[#2f1729] text-white/70 hover:text-white border-2 border-white/10"
                   )}
                 >
                   Todos ({stats.total})
@@ -917,10 +918,10 @@ export default function AdminPage() {
                 <button
                   onClick={() => setStatusFilter("active")}
                   className={cn(
-                    "py-2 px-1 text-center rounded-xl sm:rounded-full text-[11px] sm:text-xs font-bold transition-all shadow-sm truncate",
+                    "min-h-11 lg:min-h-0 py-2 px-1 text-center rounded-xl sm:rounded-full text-[11px] sm:text-xs font-bold transition-all truncate",
                     statusFilter === "active"
                       ? "bg-emerald-500/25 text-emerald-400 border border-emerald-500/40 font-black"
-                      : "bg-[#170a18] text-white/70 hover:text-white border border-white/[0.08]"
+                      : "bg-[#2f1729] text-white/70 hover:text-white border-2 border-white/10"
                   )}
                 >
                   Ativos ({stats.active})
@@ -928,22 +929,22 @@ export default function AdminPage() {
                 <button
                   onClick={() => setStatusFilter("inactive")}
                   className={cn(
-                    "py-2 px-1 text-center rounded-xl sm:rounded-full text-[11px] sm:text-xs font-bold transition-all shadow-sm truncate",
+                    "min-h-11 lg:min-h-0 py-2 px-1 text-center rounded-xl sm:rounded-full text-[11px] sm:text-xs font-bold transition-all truncate",
                     statusFilter === "inactive"
                       ? "bg-rose-500/25 text-rose-300 border border-rose-500/40 font-black"
-                      : "bg-[#170a18] text-white/70 hover:text-white border border-white/[0.08]"
+                      : "bg-[#2f1729] text-white/70 hover:text-white border-2 border-white/10"
                   )}
                 >
                   Desativados ({stats.inactive})
                 </button>
               </div>
 
-              <div className="hidden md:flex items-center gap-1.5 bg-[#170a18] p-1.5 rounded-2xl border border-white/[0.08]">
+              <div className="hidden md:flex items-center gap-1.5 bg-[#2f1729] p-1.5 rounded-2xl border-2 border-white/10">
                 <button
                   onClick={() => setViewMode("grid")}
                   className={cn(
                     "p-2 rounded-xl transition-all",
-                    viewMode === "grid" ? "text-[#F0DF58] bg-[#F0DF58]/15 shadow-sm" : "text-white/40 hover:text-white"
+                    viewMode === "grid" ? "text-[#F0DF58] bg-[#F0DF58]/15" : "text-white/40 hover:text-white"
                   )}
                   title="Visualização em Grade"
                 >
@@ -953,7 +954,7 @@ export default function AdminPage() {
                   onClick={() => setViewMode("list")}
                   className={cn(
                     "p-2 rounded-xl transition-all",
-                    viewMode === "list" ? "text-[#F0DF58] bg-[#F0DF58]/15 shadow-sm" : "text-white/40 hover:text-white"
+                    viewMode === "list" ? "text-[#F0DF58] bg-[#F0DF58]/15" : "text-white/40 hover:text-white"
                   )}
                   title="Visualização em Lista"
                 >
@@ -968,7 +969,7 @@ export default function AdminPage() {
                 <p className="text-white/60 text-sm font-sans mb-4">Nenhum item encontrado com os filtros selecionados.</p>
                 <button 
                   onClick={() => { setSelectedCategory("all"); setStatusFilter("all"); setSearchQuery(""); }}
-                  className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-bold uppercase text-white transition-all border border-white/10"
+                  className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-bold uppercase text-white transition-all border-2 border-white/10"
                 >
                   Limpar Filtros
                 </button>
@@ -982,18 +983,18 @@ export default function AdminPage() {
                     <div 
                       key={item._id}
                       className={cn(
-                        "group relative bg-[#130716]/95 border border-white/[0.08] hover:border-[#F0DF58]/35 rounded-2xl sm:rounded-3xl p-2.5 sm:p-4 transition-all hover:bg-[#1a0c1e] shadow-xl flex items-center justify-between gap-2.5 sm:gap-3 w-full max-w-full overflow-hidden",
+                        "group relative bg-[#130716]/95 border-2 border-white/10 hover:border-[#F0DF58]/35 rounded-2xl sm:rounded-3xl p-2.5 sm:p-4 transition-all hover:bg-[#1a0c1e] flex items-center justify-between gap-2.5 sm:gap-3 w-full max-w-full overflow-hidden",
                         item.active === false && "opacity-55 grayscale bg-black/40 border-white/5"
                       )}
                     >
                       {/* Foto do Produto (Esquerda) */}
-                      <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-2xl bg-black/40 border border-white/10 overflow-hidden flex items-center justify-center p-1 flex-shrink-0 shadow-inner group-hover:border-[#F0DF58]/20 transition-all">
+                      <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-2xl bg-black/40 border-2 border-white/10 overflow-hidden flex items-center justify-center p-1 flex-shrink-0 group-hover:border-[#F0DF58]/20 transition-all">
                         {itemImg ? (
                           <img 
                             src={itemImg} 
                             alt={item.name} 
                             className={cn(
-                              "w-full h-full rounded-xl transition-transform duration-300 group-hover:scale-110",
+                              "w-full h-full rounded-xl transition-transform duration-300",
                               (item.original_category === 'sizes' || item.original_category === 'ready_made')
                                 ? "object-contain p-0.5"
                                 : "object-cover scale-105"
@@ -1028,7 +1029,7 @@ export default function AdminPage() {
                           onClick={() => updateItemQuick(item._id, { active: item.active === false ? true : false })}
                           title={item.active === false ? "Clique para ativar" : "Clique para desativar"}
                           className={cn(
-                            "px-1.5 sm:px-2 py-0.5 rounded-full text-[8px] sm:text-[9px] font-bold uppercase tracking-wider border flex items-center gap-1 transition-all active:scale-95",
+                            "relative after:absolute after:-inset-3 after:content-[''] px-1.5 sm:px-2 py-0.5 rounded-full text-[8px] sm:text-[9px] font-bold uppercase tracking-wider border flex items-center gap-1 transition-all active:scale-95",
                             item.active !== false 
                               ? "bg-[#0c2417] border-[#166534]/60 text-[#4ade80] hover:bg-[#113522]" 
                               : "bg-[#281119] border-rose-900/50 text-rose-400 hover:bg-[#381522]"
@@ -1045,14 +1046,14 @@ export default function AdminPage() {
                           <button 
                             onClick={() => { setEditingItem(item); setModalOpen(true); }}
                             title="Editar"
-                            className="w-7 h-7 sm:w-9 sm:h-9 rounded-xl bg-[#1d1222] hover:bg-white/10 text-white/70 hover:text-white border border-white/10 flex items-center justify-center transition-all active:scale-95 shadow-sm"
+                            className="w-11 h-11 sm:w-9 sm:h-9 rounded-xl bg-[#1d1222] hover:bg-white/10 text-white/70 hover:text-white border-2 border-white/10 flex items-center justify-center transition-all active:scale-95"
                           >
                             <Edit3 size={13} />
                           </button>
                           <button 
                             onClick={() => setItemToDelete(item)}
                             title="Excluir"
-                            className="w-7 h-7 sm:w-9 sm:h-9 rounded-xl bg-[#281119] hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/20 flex items-center justify-center transition-all active:scale-95 shadow-sm"
+                            className="w-11 h-11 sm:w-9 sm:h-9 rounded-xl bg-[#281119] hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/20 flex items-center justify-center transition-all active:scale-95"
                           >
                             <Trash2 size={13} />
                           </button>
@@ -1088,9 +1089,9 @@ export default function AdminPage() {
                   onClick={handleSyncData}
                   disabled={syncing}
                   className={cn(
-                    "px-3.5 py-2 rounded-xl text-xs font-bold uppercase transition-all flex items-center gap-2 border shadow-sm",
+                    "px-3.5 py-2 min-h-11 lg:min-h-0 rounded-xl text-xs font-bold uppercase transition-all flex items-center gap-2 border",
                     syncing 
-                      ? "bg-[#F0DF58]/20 text-[#F0DF58] border-[#F0DF58]/40 shadow-[0_0_15px_rgba(240,223,88,0.2)]" 
+                      ? "bg-[#F0DF58]/20 text-[#F0DF58] border-[#F0DF58]/40" 
                       : "bg-white/10 hover:bg-white/20 text-white border-white/10 active:scale-95"
                   )}
                 >
@@ -1102,21 +1103,21 @@ export default function AdminPage() {
 
             {/* Métricas dos Pedidos */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-              <div className="bg-[#170a18] border border-white/[0.08] p-4 rounded-2xl">
+              <div className="bg-[#2f1729] border-2 border-white/10 p-4 rounded-2xl">
                 <p className="text-[10px] uppercase font-bold text-white/50">Total de Pedidos</p>
                 <p className="font-heading text-3xl font-bold text-white mt-1">{todayOrders.length}</p>
               </div>
-              <div className="bg-[#170a18] border border-white/[0.08] p-4 rounded-2xl">
+              <div className="bg-[#2f1729] border-2 border-white/10 p-4 rounded-2xl">
                 <p className="text-[10px] uppercase font-bold text-emerald-400">Faturamento Hoje</p>
                 <p className="font-heading text-3xl font-bold text-emerald-400 mt-1">
                   R$ {todayMetrics.totalRevenue.toFixed(2).replace('.', ',')}
                 </p>
               </div>
-              <div className="bg-[#170a18] border border-white/[0.08] p-4 rounded-2xl">
+              <div className="bg-[#2f1729] border-2 border-white/10 p-4 rounded-2xl">
                 <p className="text-[10px] uppercase font-bold text-cyan-300">Para Entrega</p>
                 <p className="font-heading text-3xl font-bold text-cyan-300 mt-1">{todayMetrics.deliveryCount}</p>
               </div>
-              <div className="bg-[#170a18] border border-white/[0.08] p-4 rounded-2xl">
+              <div className="bg-[#2f1729] border-2 border-white/10 p-4 rounded-2xl">
                 <p className="text-[10px] uppercase font-bold text-amber-300">Retirada no Balcão</p>
                 <p className="font-heading text-3xl font-bold text-amber-300 mt-1">{todayMetrics.pickupCount}</p>
               </div>
@@ -1137,10 +1138,10 @@ export default function AdminPage() {
                   key={f.key}
                   onClick={() => setOrderFilter(f.key)}
                   className={cn(
-                    "px-3.5 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap",
+                    "px-3.5 py-1.5 min-h-11 lg:min-h-0 rounded-full text-xs font-bold transition-all whitespace-nowrap",
                     orderFilter === f.key 
-                      ? "bg-[#F0DF58] text-[#120714] shadow-md"
-                      : "bg-[#170a18] text-white/70 hover:text-white border border-white/10"
+                      ? "bg-[#F0DF58] text-[#120714]"
+                      : "bg-[#2f1729] text-white/70 hover:text-white border-2 border-white/10"
                   )}
                 >
                   {f.label}
@@ -1168,7 +1169,7 @@ export default function AdminPage() {
                   return (
                     <div 
                       key={order._id}
-                      className="bg-[#140816]/95 border border-white/[0.08] rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg hover:border-white/20 transition-all"
+                      className="bg-[#2f1729] border-2 border-white/10 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-white/20 transition-all"
                     >
                       <div className="space-y-2 flex-1">
                         <div className="flex items-center gap-2.5 flex-wrap">
@@ -1287,11 +1288,11 @@ export default function AdminPage() {
               </div>
 
               {/* Período */}
-              <div className="flex items-center gap-1 bg-[#170a18] p-1 rounded-2xl border border-white/10">
+              <div className="flex items-center gap-1 bg-[#2f1729] p-1 rounded-2xl border-2 border-white/10">
                 <button
                   onClick={() => setReportPeriod("today")}
                   className={cn(
-                    "px-3 py-1.5 rounded-xl text-xs font-bold transition-all",
+                    "px-4 py-1.5 min-h-11 lg:min-h-0 rounded-xl text-xs font-bold transition-all",
                     reportPeriod === "today" ? "bg-[#F0DF58] text-[#120714]" : "text-white/60 hover:text-white"
                   )}
                 >
@@ -1300,7 +1301,7 @@ export default function AdminPage() {
                 <button
                   onClick={() => setReportPeriod("week")}
                   className={cn(
-                    "px-3 py-1.5 rounded-xl text-xs font-bold transition-all",
+                    "px-4 py-1.5 min-h-11 lg:min-h-0 rounded-xl text-xs font-bold transition-all",
                     reportPeriod === "week" ? "bg-[#F0DF58] text-[#120714]" : "text-white/60 hover:text-white"
                   )}
                 >
@@ -1309,7 +1310,7 @@ export default function AdminPage() {
                 <button
                   onClick={() => setReportPeriod("month")}
                   className={cn(
-                    "px-3 py-1.5 rounded-xl text-xs font-bold transition-all",
+                    "px-4 py-1.5 min-h-11 lg:min-h-0 rounded-xl text-xs font-bold transition-all",
                     reportPeriod === "month" ? "bg-[#F0DF58] text-[#120714]" : "text-white/60 hover:text-white"
                   )}
                 >
@@ -1321,7 +1322,7 @@ export default function AdminPage() {
             {/* 4 Cards de Métricas Principais */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Faturamento */}
-              <div className="bg-[#170a18] border border-white/[0.08] p-5 rounded-3xl relative overflow-hidden shadow-lg">
+              <div className="bg-[#2f1729] border-2 border-white/10 p-5 rounded-3xl relative overflow-hidden">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold uppercase text-white/50">Faturamento Bruto</span>
                   <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
@@ -1335,7 +1336,7 @@ export default function AdminPage() {
               </div>
 
               {/* Ticket Médio */}
-              <div className="bg-[#170a18] border border-white/[0.08] p-5 rounded-3xl relative overflow-hidden shadow-lg">
+              <div className="bg-[#2f1729] border-2 border-white/10 p-5 rounded-3xl relative overflow-hidden">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold uppercase text-white/50">Ticket Médio</span>
                   <div className="p-2 rounded-xl bg-purple-500/10 text-purple-300">
@@ -1349,7 +1350,7 @@ export default function AdminPage() {
               </div>
 
               {/* Volume de Pedidos */}
-              <div className="bg-[#170a18] border border-white/[0.08] p-5 rounded-3xl relative overflow-hidden shadow-lg">
+              <div className="bg-[#2f1729] border-2 border-white/10 p-5 rounded-3xl relative overflow-hidden">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold uppercase text-white/50">Total de Pedidos</span>
                   <div className="p-2 rounded-xl bg-amber-500/10 text-amber-300">
@@ -1363,7 +1364,7 @@ export default function AdminPage() {
               </div>
 
               {/* Taxa de Entrega */}
-              <div className="bg-[#170a18] border border-white/[0.08] p-5 rounded-3xl relative overflow-hidden shadow-lg">
+              <div className="bg-[#2f1729] border-2 border-white/10 p-5 rounded-3xl relative overflow-hidden">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold uppercase text-white/50">Taxa Delivery</span>
                   <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-300">
@@ -1382,7 +1383,7 @@ export default function AdminPage() {
             {/* Painéis Gráficos e Distribuição */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
               {/* Ranking de Itens Mais Vendidos */}
-              <div className="bg-[#170a18] border border-white/[0.08] p-5 rounded-3xl shadow-lg space-y-4">
+              <div className="bg-[#2f1729] border-2 border-white/10 p-5 rounded-3xl space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-bold uppercase text-white/90 flex items-center gap-2">
                     <Award size={18} className="text-[#F0DF58]" />
@@ -1410,7 +1411,7 @@ export default function AdminPage() {
                           </div>
                           <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
                             <div 
-                              className="h-full bg-gradient-to-r from-[#F0DF58] to-amber-500 rounded-full transition-all duration-500" 
+                              className="h-full bg-[#F0DF58] rounded-full transition-all duration-500" 
                               style={{ width: `${pct}%` }}
                             />
                           </div>
@@ -1422,7 +1423,7 @@ export default function AdminPage() {
               </div>
 
               {/* Formas de Pagamento e Entregas */}
-              <div className="bg-[#170a18] border border-white/[0.08] p-5 rounded-3xl shadow-lg space-y-5">
+              <div className="bg-[#2f1729] border-2 border-white/10 p-5 rounded-3xl space-y-5">
                 <div>
                   <h3 className="text-sm font-bold uppercase text-white/90 mb-3 flex items-center gap-2">
                     <CreditCard size={18} className="text-emerald-400" />
@@ -1503,9 +1504,9 @@ export default function AdminPage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <button
                 onClick={() => setActiveTab("menu")}
-                className="bg-[#170a18] border border-white/[0.08] hover:border-[#F0DF58]/40 p-6 rounded-3xl text-left transition-all group shadow-xl"
+                className="bg-[#2f1729] border-2 border-white/10 hover:border-[#F0DF58]/40 p-6 rounded-3xl text-left transition-all group"
               >
-                <div className="w-12 h-12 rounded-2xl bg-[#F0DF58]/10 text-[#F0DF58] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 rounded-2xl bg-[#F0DF58]/10 text-[#F0DF58] flex items-center justify-center mb-4 transition-transform">
                   <Box size={24} />
                 </div>
                 <h3 className="font-heading text-xl uppercase text-white">Gestão do Cardápio</h3>
@@ -1514,9 +1515,9 @@ export default function AdminPage() {
 
               <button
                 onClick={() => setActiveTab("orders")}
-                className="bg-[#170a18] border border-white/[0.08] hover:border-emerald-500/40 p-6 rounded-3xl text-left transition-all group shadow-xl"
+                className="bg-[#2f1729] border-2 border-white/10 hover:border-emerald-500/40 p-6 rounded-3xl text-left transition-all group"
               >
-                <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-4 transition-transform">
                   <LayoutDashboard size={24} />
                 </div>
                 <h3 className="font-heading text-xl uppercase text-white">Pedidos do Dia</h3>
@@ -1525,9 +1526,9 @@ export default function AdminPage() {
 
               <button
                 onClick={() => setActiveTab("reports")}
-                className="bg-[#170a18] border border-white/[0.08] hover:border-cyan-500/40 p-6 rounded-3xl text-left transition-all group shadow-xl"
+                className="bg-[#2f1729] border-2 border-white/10 hover:border-cyan-500/40 p-6 rounded-3xl text-left transition-all group"
               >
-                <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 text-cyan-300 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 text-cyan-300 flex items-center justify-center mb-4 transition-transform">
                   <BarChart3 size={24} />
                 </div>
                 <h3 className="font-heading text-xl uppercase text-white">Relatórios & Vendas</h3>
@@ -1539,12 +1540,12 @@ export default function AdminPage() {
       </main>
 
       {/* ================= BOTTOM NAVIGATION BAR (FIXA NO MOBILE) ================= */}
-      <nav className="md:hidden fixed bottom-0 inset-x-0 bg-[#120714]/95 border-t border-white/[0.08] backdrop-blur-xl px-4 py-2 flex items-center justify-around z-[100] shadow-[0_-4px_20px_rgba(0,0,0,0.5)]">
+      <nav className="md:hidden fixed bottom-0 inset-x-0 bg-[#120714] border-t border-white/[0.08] px-4 py-2 flex items-center justify-around z-[100]">
         {/* Tab 1: Cardápio */}
         <button
           onClick={() => setActiveTab("menu")}
           className={cn(
-            "flex flex-col items-center gap-1 text-[10px] font-bold uppercase transition-colors",
+            "flex flex-col items-center justify-center gap-1 min-h-11 min-w-11 text-[10px] font-bold uppercase transition-colors",
             activeTab === "menu" ? "text-[#F0DF58]" : "text-white/40 hover:text-white"
           )}
         >
@@ -1556,7 +1557,7 @@ export default function AdminPage() {
         <button
           onClick={() => setActiveTab("orders")}
           className={cn(
-            "flex flex-col items-center gap-1 text-[10px] font-bold uppercase transition-colors relative",
+            "flex flex-col items-center justify-center gap-1 min-h-11 min-w-11 text-[10px] font-bold uppercase transition-colors relative",
             activeTab === "orders" ? "text-[#F0DF58]" : "text-white/40 hover:text-white"
           )}
         >
@@ -1573,7 +1574,7 @@ export default function AdminPage() {
         <button
           onClick={() => { setEditingItem(null); setModalOpen(true); }}
           title="Adicionar Item"
-          className="w-12 h-12 rounded-2xl bg-[#F0DF58] text-[#120714] flex items-center justify-center shadow-lg shadow-[#F0DF58]/30 -translate-y-3 active:scale-95 transition-transform"
+          className="w-12 h-12 rounded-2xl bg-[#F0DF58] text-[#120714] flex items-center justify-center -translate-y-3 active:scale-95 transition-transform"
         >
           <Plus size={24} strokeWidth={3} />
         </button>
@@ -1582,7 +1583,7 @@ export default function AdminPage() {
         <button
           onClick={() => setActiveTab("reports")}
           className={cn(
-            "flex flex-col items-center gap-1 text-[10px] font-bold uppercase transition-colors",
+            "flex flex-col items-center justify-center gap-1 min-h-11 min-w-11 text-[10px] font-bold uppercase transition-colors",
             activeTab === "reports" ? "text-[#F0DF58]" : "text-white/40 hover:text-white"
           )}
         >
@@ -1593,7 +1594,7 @@ export default function AdminPage() {
         {/* Tab 5: Mais */}
         <button
           onClick={() => setMobileDrawerOpen(true)}
-          className="flex flex-col items-center gap-1 text-[10px] font-bold uppercase text-white/40 hover:text-white transition-colors"
+          className="flex flex-col items-center justify-center gap-1 min-h-11 min-w-11 text-[10px] font-bold uppercase text-white/40 hover:text-white transition-colors"
         >
           <MoreHorizontal size={18} />
           <span>Mais</span>
@@ -1612,8 +1613,8 @@ export default function AdminPage() {
 
       {/* ================= MODAL DE CONFIRMAÇÃO DE EXCLUSÃO ================= */}
       {itemToDelete && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="bg-[#170a18] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-6">
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 animate-in fade-in duration-200">
+          <div className="bg-[#2f1729] border-2 border-white/10 rounded-3xl p-6 sm:p-8 max-w-md w-full space-y-6">
             <div className="flex items-center gap-4 text-rose-400">
               <div className="p-3 bg-rose-500/10 rounded-2xl border border-rose-500/20">
                 <Trash2 size={28} />
@@ -1624,20 +1625,20 @@ export default function AdminPage() {
               </div>
             </div>
 
-            <p className="text-white/90 text-sm font-sans bg-white/5 p-4 rounded-2xl border border-white/10">
+            <p className="text-white/90 text-sm font-sans bg-white/5 p-4 rounded-2xl border-2 border-white/10">
               Tem certeza que deseja excluir <strong>"{itemToDelete.name}"</strong>?
             </p>
 
             <div className="flex gap-3">
               <button 
                 onClick={() => setItemToDelete(null)}
-                className="flex-1 py-3 bg-white/10 hover:bg-white/20 text-white font-heading text-base rounded-xl transition-all uppercase border border-white/10"
+                className="flex-1 py-3 bg-white/10 hover:bg-white/20 text-white font-heading text-base rounded-xl transition-all uppercase border-2 border-white/10"
               >
                 Cancelar
               </button>
               <button 
                 onClick={handleDeleteConfirm}
-                className="flex-1 py-3 bg-rose-500 text-white font-heading text-base rounded-xl hover:bg-rose-600 transition-all shadow-lg active:scale-95 uppercase font-bold"
+                className="flex-1 py-3 bg-rose-500 text-white font-heading text-base rounded-xl hover:bg-rose-600 transition-all active:scale-95 uppercase font-bold"
               >
                 Excluir Definitivamente
               </button>
@@ -1696,8 +1697,8 @@ function ItemModal({ item, onClose, onSave, loading }: ItemModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-[130] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200">
-      <div className="bg-[#170a18] border border-white/15 rounded-3xl p-6 sm:p-8 max-w-xl w-full shadow-2xl space-y-6 my-8 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-[130] flex items-center justify-center p-4 bg-black/80 overflow-y-auto animate-in fade-in duration-200">
+      <div className="bg-[#2f1729] border-2 border-white/15 rounded-3xl p-6 sm:p-8 max-w-xl w-full space-y-6 my-8 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between pb-4 border-b border-white/10">
           <div>
             <h3 className="font-heading text-2xl uppercase text-[#F0DF58]">
@@ -1727,7 +1728,7 @@ function ItemModal({ item, onClose, onSave, loading }: ItemModalProps) {
 
             <div className="flex items-center gap-4">
               {/* Preview */}
-              <div className="w-20 h-20 rounded-2xl bg-black/50 border border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0 relative shadow-inner">
+              <div className="w-20 h-20 rounded-2xl bg-black/50 border-2 border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0 relative">
                 {image ? (
                   <img 
                     src={image} 
@@ -1751,10 +1752,10 @@ function ItemModal({ item, onClose, onSave, loading }: ItemModalProps) {
                   placeholder="URL ou Caminho (ex: /assets/items/fr_morango.webp)"
                   value={image}
                   onChange={(e) => setImage(e.target.value)}
-                  className="w-full bg-white/[0.06] border border-white/15 rounded-xl py-2 px-3 text-white text-xs font-sans focus:outline-none focus:border-[#F0DF58]/60 transition-all placeholder:text-white/40"
+                  className="w-full bg-white/[0.06] border-2 border-white/15 rounded-xl py-2 px-3 text-white text-xs font-sans focus:outline-none focus:border-[#F0DF58]/60 transition-all placeholder:text-white/40"
                 />
                 
-                <label className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white/90 text-xs font-bold uppercase cursor-pointer transition-all border border-white/15">
+                <label className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white/90 text-xs font-bold uppercase cursor-pointer transition-all border-2 border-white/15">
                   <Upload size={14} /> Selecionar Arquivo
                   <input 
                     type="file" 
@@ -1778,7 +1779,7 @@ function ItemModal({ item, onClose, onSave, loading }: ItemModalProps) {
               placeholder="Ex: Açaí c/ Morango Especial"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-white/[0.06] border border-white/15 rounded-xl py-3 px-4 text-white text-sm font-sans focus:outline-none focus:border-[#F0DF58]/60 transition-all placeholder:text-white/40"
+              className="w-full bg-white/[0.06] border-2 border-white/15 rounded-xl py-3 px-4 text-white text-sm font-sans focus:outline-none focus:border-[#F0DF58]/60 transition-all placeholder:text-white/40"
             />
           </div>
 
@@ -1797,7 +1798,7 @@ function ItemModal({ item, onClose, onSave, loading }: ItemModalProps) {
                     setCategory(selectedCat.label);
                   }
                 }}
-                className="w-full bg-[#120714] border border-white/15 rounded-xl py-3 px-3 text-white text-sm font-sans focus:outline-none focus:border-[#F0DF58]/60 transition-all"
+                className="w-full bg-[#120714] border-2 border-white/15 rounded-xl py-3 px-3 text-white text-sm font-sans focus:outline-none focus:border-[#F0DF58]/60 transition-all"
               >
                 <option value="sizes">🥣 Tamanho de Pote (sizes)</option>
                 <option value="flavors">🍇 Sabor de Açaí (flavors)</option>
@@ -1819,7 +1820,7 @@ function ItemModal({ item, onClose, onSave, loading }: ItemModalProps) {
                 placeholder="Ex: Adicional, Cobertura, Fruta"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full bg-white/[0.06] border border-white/15 rounded-xl py-3 px-4 text-white text-sm font-sans focus:outline-none focus:border-[#F0DF58]/60 transition-all placeholder:text-white/40"
+                className="w-full bg-white/[0.06] border-2 border-white/15 rounded-xl py-3 px-4 text-white text-sm font-sans focus:outline-none focus:border-[#F0DF58]/60 transition-all placeholder:text-white/40"
               />
             </div>
           </div>
@@ -1839,7 +1840,7 @@ function ItemModal({ item, onClose, onSave, loading }: ItemModalProps) {
                   placeholder="0.00"
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
-                  className="w-full bg-white/[0.06] border border-white/15 rounded-xl py-3 pl-10 pr-4 text-white text-sm font-sans focus:outline-none focus:border-[#F0DF58]/60 transition-all"
+                  className="w-full bg-white/[0.06] border-2 border-white/15 rounded-xl py-3 pl-10 pr-4 text-white text-sm font-sans focus:outline-none focus:border-[#F0DF58]/60 transition-all"
                 />
               </div>
             </div>
@@ -1853,7 +1854,7 @@ function ItemModal({ item, onClose, onSave, loading }: ItemModalProps) {
                 placeholder="Ex: 50ml, 100ml, Pote"
                 value={type}
                 onChange={(e) => setType(e.target.value)}
-                className="w-full bg-white/[0.06] border border-white/15 rounded-xl py-3 px-4 text-white text-sm font-sans focus:outline-none focus:border-[#F0DF58]/60 transition-all placeholder:text-white/40"
+                className="w-full bg-white/[0.06] border-2 border-white/15 rounded-xl py-3 px-4 text-white text-sm font-sans focus:outline-none focus:border-[#F0DF58]/60 transition-all placeholder:text-white/40"
               />
             </div>
           </div>
@@ -1868,12 +1869,12 @@ function ItemModal({ item, onClose, onSave, loading }: ItemModalProps) {
               placeholder="Ex: Açaí puro batido sem conservantes"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full bg-white/[0.06] border border-white/15 rounded-xl py-3 px-4 text-white text-sm font-sans focus:outline-none focus:border-[#F0DF58]/60 transition-all placeholder:text-white/40"
+              className="w-full bg-white/[0.06] border-2 border-white/15 rounded-xl py-3 px-4 text-white text-sm font-sans focus:outline-none focus:border-[#F0DF58]/60 transition-all placeholder:text-white/40"
             />
           </div>
 
           {/* Status Ativo / Em Estoque */}
-          <div className="flex items-center justify-between p-4 bg-white/[0.04] border border-white/10 rounded-2xl">
+          <div className="flex items-center justify-between p-4 bg-white/[0.04] border-2 border-white/10 rounded-2xl">
             <div>
               <p className="font-heading text-lg uppercase text-white">Disponível no Cardápio</p>
               <p className="text-white/70 text-xs font-sans">Se desativado, o item ficará oculto para os clientes</p>
@@ -1887,7 +1888,7 @@ function ItemModal({ item, onClose, onSave, loading }: ItemModalProps) {
               )}
             >
               <div className={cn(
-                "w-6 h-6 rounded-full bg-white shadow-md transition-transform",
+                "w-6 h-6 rounded-full bg-white transition-transform",
                 active ? "translate-x-6" : "translate-x-0"
               )} />
             </button>
@@ -1898,14 +1899,14 @@ function ItemModal({ item, onClose, onSave, loading }: ItemModalProps) {
             <button 
               type="button"
               onClick={onClose}
-              className="flex-1 py-3.5 bg-white/10 hover:bg-white/20 text-white font-heading text-base rounded-xl transition-all uppercase border border-white/10"
+              className="flex-1 py-3.5 bg-white/10 hover:bg-white/20 text-white font-heading text-base rounded-xl transition-all uppercase border-2 border-white/10"
             >
               Cancelar
             </button>
             <button 
               type="submit"
               disabled={loading}
-              className="flex-1 py-3.5 bg-[#F0DF58] hover:bg-[#e4d347] text-[#120714] font-heading text-lg rounded-xl transition-all shadow-lg active:scale-95 uppercase font-black flex items-center justify-center gap-2"
+              className="flex-1 py-3.5 bg-[#F0DF58] hover:bg-[#e4d347] text-[#120714] font-heading text-lg rounded-xl transition-all active:scale-95 uppercase font-black flex items-center justify-center gap-2"
             >
               {loading ? <RefreshCw className="animate-spin" size={20} /> : <Check size={20} />}
               Salvar Item
