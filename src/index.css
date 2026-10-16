@@ -23,6 +23,11 @@ body {
   overflow-x: hidden;
 }
 
+/* Controles de formulário não herdam o estilo de algarismos por padrão (o UA redefine a fonte deles) */
+button, input, select, textarea {
+  font-variant-numeric: inherit;
+}
+
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-bebas-neue);
   letter-spacing: -0.02em;
@@ -99,3 +104,33 @@ h1, h2, h3, h4, h5, h6 {
   animation: floatDrift 9s ease-in-out infinite;
 }
 
+
+/* Montagem em stories: o segmento da etapa atual enche com um leve quique,
+   e o adesivo escolhido "pula" com o mesmo tempo (0,4s). */
+@keyframes segFill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+/* O "pulo" sobe e volta: a ida já carrega a ênfase, então a curva é um ease-out exponencial */
+@keyframes stickerPop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+.anim-seg-fill {
+  transform-origin: left center;
+  animation: segFill 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.anim-pop {
+  animation: stickerPop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-seg-fill,
+  .anim-pop {
+    animation: none;
+  }
+}

@@ -6,17 +6,23 @@ import { groupBuilderMenu, normalizeMenuData, readCachedMenuItems } from "@/lib/
 import {
   ArrowLeft,
   ArrowRight,
+  Banknote,
+  Bike,
   Check,
-  Plus,
-  ShoppingCart,
+  CreditCard,
+  QrCode,
+  Search,
   Send,
+  ShoppingBag,
+  Store,
   Trash2,
+  X,
 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import SmoothScrollProvider from "@/components/SmoothScrollProvider";
 import { saveOrder, PAYMENT_LABELS } from "@/lib/orders";
-import { buildCheckoutSection, buildWhatsAppUrl, deliveryFee, openWhatsApp } from "@/lib/whatsapp";
+import { buildCheckoutSection, buildWhatsAppUrl, deliveryFee, formatBRL, openWhatsApp, DELIVERY_FEE } from "@/lib/whatsapp";
 import { apiUrl } from "@/lib/api";
 
 function cn(...inputs: ClassValue[]) {
@@ -41,12 +47,52 @@ type OrderState = {
   changeFor: string;
 };
 
+// Nome curto de cada etapa, usado no botão "Próximo: …"
+const SHORT_TITLES: Record<string, string> = {
+  size: "Tamanho",
+  flavor: "Sabor",
+  toppings: "Coberturas",
+  addons: "Adicionais",
+  creams: "Cremes",
+  fruits: "Frutas",
+  fillings: "Recheios",
+  delivery: "Entrega",
+  payment: "Pagamento",
+  summary: "Resumo",
+};
+
+// Fotos dos potes: os arquivos pot_*.webp estão vazios, então os tamanhos usam as fotos dos copos
+const SIZE_IMAGES: Record<string, string> = {
+  pot_360: "/assets/items/Açai_350ml.webp",
+  pot_500: "/assets/items/Açai_500ml.webp",
+  pot_750: "/assets/items/Açai_750ml.webp",
+  pot_1l: "/assets/items/POTE_LITRO.webp",
+};
+
+const sizeImage = (item: MenuItem | null) => (item && SIZE_IMAGES[item.id]) || "/assets/Acai_montar.webp";
+
+const fallbackAvatar = (name: string) =>
+  `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=2f1729&color=F0DF58&font-size=0.33&bold=true`;
+
+// Separa a porção do fim do nome ("Calda 50ml" → "Calda" + "50ml") só para exibição
+const splitPortion = (fullName: string) => {
+  const match = fullName.match(/^(.*\S)\s+(\d+\s?ml)$/i);
+  return match ? { name: match[1], portion: match[2] } : { name: fullName, portion: "" };
+};
+
+const normalizeSearch = (s: string) => s.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
+
+// Contorno, cápsula e foco compartilhados pelos controles chapados
+const focusRing = "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F0DF58]";
+const tileBase = "border-2 transition-colors duration-200 ease-out";
+const tileIdle = "bg-[#2f1729] border-white/10 hover:border-white/30";
+const tileOn = "bg-[#F0DF58] border-[#120714] text-[#120714]";
+
 export default function OrderPage() {
   const [apiData, setApiData] = useState<MenuData | null>(() => {
     const cached = readCachedMenuItems();
     return cached.length > 0 ? groupBuilderMenu(cached) : localFallbackData;
   });
-  const loading = false; // Em modo demo, inicia carregado
   const [showCart, setShowCart] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
@@ -211,565 +257,508 @@ export default function OrderPage() {
     return true;
   };
 
-  const renderStepContent = () => {
-    const step = STEPS[currentStep];
-    if (step.id === "payment") {
-      return (
-        <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
-          <div className="grid grid-cols-3 gap-2 sm:gap-4">
-            <button onClick={() => setOrder(p => ({ ...p, paymentMethod: "pix" }))} className={cn("relative flex flex-col items-center justify-center p-4 sm:p-6 rounded-2xl transition-all border-0", order.paymentMethod === "pix" ? "bg-primary text-secondary shadow-lg" : "bg-white/5 text-white hover:bg-white/10")}>
-              <div className="mb-2 w-10 h-10 flex items-center justify-center">
-                <img src="/assets/pix.png" alt="Pix" className="w-full h-full object-contain" />
-              </div>
-              <span className="font-heading text-sm sm:text-xl uppercase">Pix</span>
-              {order.paymentMethod === "pix" && <div className="absolute top-2 right-2 bg-secondary text-primary w-4 h-4 rounded-full flex items-center justify-center shadow-lg"><Check size={10} strokeWidth={4} /></div>}
-            </button>
-            <button onClick={() => setOrder(p => ({ ...p, paymentMethod: "card" }))} className={cn("relative flex flex-col items-center justify-center p-4 sm:p-6 rounded-2xl transition-all border-0", order.paymentMethod === "card" ? "bg-primary text-secondary shadow-lg" : "bg-white/5 text-white hover:bg-white/10")}>
-              <div className="mb-2 w-10 h-10 flex items-center justify-center">
-                <img src="/assets/card.png" alt="Cartão" className="w-8 h-8 object-contain" />
-              </div>
-              <span className="font-heading text-sm sm:text-xl uppercase">Cartão</span>
-              {order.paymentMethod === "card" && <div className="absolute top-2 right-2 bg-secondary text-primary w-4 h-4 rounded-full flex items-center justify-center shadow-lg"><Check size={10} strokeWidth={4} /></div>}
-            </button>
-            <button onClick={() => setOrder(p => ({ ...p, paymentMethod: "cash" }))} className={cn("relative flex flex-col items-center justify-center p-4 sm:p-6 rounded-2xl transition-all border-0", order.paymentMethod === "cash" ? "bg-primary text-secondary shadow-lg" : "bg-white/5 text-white hover:bg-white/10")}>
-              <div className="mb-2 w-10 h-10 flex items-center justify-center">
-                <img src="/assets/Dinheiro.webp" alt="Dinheiro" className="w-8 h-8 object-contain" />
-              </div>
-              <span className="font-heading text-sm sm:text-xl uppercase">Dinheiro</span>
-              {order.paymentMethod === "cash" && <div className="absolute top-2 right-2 bg-secondary text-primary w-4 h-4 rounded-full flex items-center justify-center shadow-lg"><Check size={10} strokeWidth={4} /></div>}
-            </button>
-          </div>
-          {order.paymentMethod === "cash" && (
-            <div className="animate-in fade-in zoom-in-95 duration-500 space-y-4 flex flex-col items-center">
-              <h3 className="font-heading text-lg uppercase text-white/90">Precisa de troco?</h3>
-              <div className="flex flex-col gap-3 w-full max-w-[240px]">
-                <div className="relative">
-                  <input type="number" placeholder="Valor para troco" value={order.changeFor === "Não preciso" ? "" : order.changeFor} onChange={(e) => setOrder(prev => ({ ...prev, changeFor: e.target.value }))} disabled={order.changeFor === "Não preciso"} className={cn("w-full bg-white/5 border border-white/10 rounded-xl p-3 font-sans text-white focus:outline-none focus:border-primary transition-all text-center text-lg font-bold placeholder:text-white/20", order.changeFor === "Não preciso" && "opacity-20 grayscale")} />
-                  {order.changeFor && order.changeFor !== "Não preciso" && <span className="absolute left-4 top-1/2 -translate-y-1/2 text-primary font-bold text-sm">R$</span>}
-                </div>
-                <button onClick={() => setOrder(p => ({ ...p, changeFor: p.changeFor === "Não preciso" ? "" : "Não preciso" }))} className="flex items-center justify-center gap-2 py-1">
-                  <div className={cn("w-4 h-4 rounded-full border-2 flex items-center justify-center", order.changeFor === "Não preciso" ? "bg-primary border-primary" : "border-white/20")}>{order.changeFor === "Não preciso" && <Check size={10} className="text-secondary" strokeWidth={4} />}</div>
-                  <span className={cn("text-[10px] font-bold uppercase tracking-widest", order.changeFor === "Não preciso" ? "text-primary" : "text-white/40")}>Não preciso de troco</span>
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      );
-    }
-    if (step.id === "delivery") {
-      return (
-        <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
-          <div className="grid grid-cols-2 gap-3 sm:gap-4">
-            <button onClick={() => setOrder(p => ({ ...p, deliveryMethod: "pickup" }))} className={cn("relative flex flex-col items-center justify-center p-6 sm:p-10 rounded-3xl transition-all border-0", order.deliveryMethod === "pickup" ? "bg-primary text-secondary shadow-lg" : "bg-white/5 text-white hover:bg-white/10")}>
-              <div className="mb-3 p-3 rounded-2xl bg-white/10"><ShoppingCart size={28} /></div>
-              <span className="font-heading text-xl sm:text-2xl uppercase leading-none">Retirar na Loja</span>
-              <span className={cn("text-xs font-bold font-sans uppercase tracking-widest mt-2", order.deliveryMethod === "pickup" ? "text-secondary/60" : "text-white")}>Grátis</span>
-              {order.deliveryMethod === "pickup" && <div className="absolute top-4 right-4 bg-secondary text-primary w-6 h-6 rounded-full flex items-center justify-center shadow-lg"><Check size={14} strokeWidth={4} /></div>}
-            </button>
-            <button onClick={() => setOrder(p => ({ ...p, deliveryMethod: "delivery" }))} className={cn("relative flex flex-col items-center justify-center p-6 sm:p-10 rounded-3xl transition-all border-0", order.deliveryMethod === "delivery" ? "bg-primary text-secondary shadow-lg" : "bg-white/5 text-white hover:bg-white/10")}>
-              <div className="mb-3 p-3 rounded-2xl bg-white/10"><Send size={28} /></div>
-              <span className="font-heading text-xl sm:text-2xl uppercase leading-none">Receber em Casa</span>
-              <span className={cn("text-sm font-bold font-sans uppercase tracking-widest mt-2 flex items-center justify-center gap-1", order.deliveryMethod === "delivery" ? "text-secondary" : "text-white")}>+ R$ 7,00</span>
-              {order.deliveryMethod === "delivery" && <div className="absolute top-4 right-4 bg-secondary text-primary w-6 h-6 rounded-full flex items-center justify-center shadow-lg"><Check size={14} strokeWidth={4} /></div>}
-            </button>
-          </div>
-          {order.deliveryMethod === "delivery" && (
-            <div className="animate-in fade-in zoom-in-95 duration-500 space-y-4">
-              <h3 className="font-heading text-xl uppercase text-white/90">Endereço de Entrega</h3>
-              <div className="flex flex-col gap-3">
-                <input type="text" placeholder="Rua" value={order.address.street} onChange={(e) => setOrder(p => ({ ...p, address: { ...p.address, street: e.target.value } }))} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-primary" />
-                <div className="grid grid-cols-3 gap-3">
-                  <input type="text" placeholder="Número" value={order.address.number} onChange={(e) => setOrder(p => ({ ...p, address: { ...p.address, number: e.target.value } }))} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-primary col-span-1" />
-                  <input type="text" placeholder="Bairro / Complemento" value={order.address.neighborhood} onChange={(e) => setOrder(p => ({ ...p, address: { ...p.address, neighborhood: e.target.value } }))} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-primary col-span-2" />
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      );
-    }
-    if (step.id === "summary") {
-      return (
-        <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="bg-white/5 border border-white/10 rounded-3xl p-6 sm:p-8 backdrop-blur-md shadow-2xl">
-            <h3 className="font-heading text-3xl text-primary mb-6 uppercase tracking-wide border-b border-primary/20 pb-4">Resumo do Pedido</h3>
-            <div className="space-y-6">
-              <div className="flex flex-col gap-2">
-                <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">Tamanho escolhido</p>
-                <div className="flex justify-between items-end gap-4">
-                  <span className="text-xl font-heading text-white uppercase">{order.size?.name} + {order.flavor?.name}</span>
-                  <div className="flex-1 border-b border-dashed border-white/10 mb-1.5" />
-                  <span className="text-xl font-heading text-primary whitespace-nowrap">R$ {order.size?.price.toFixed(2)}</span>
-                </div>
-              </div>
+  const step = STEPS[currentStep];
+  const isLastStep = currentStep === STEPS.length - 1;
+  const nextIndex = step.id === "delivery" && order.deliveryMethod === "pickup" ? currentStep + 2 : currentStep + 1;
+  const nextTitle = SHORT_TITLES[STEPS[nextIndex]?.id] ?? "";
+  const stepValid = isStepValid();
+  const itemCount = allSelectedItems.length + (order.size ? 1 : 0);
 
-              {(allSelectedItems.length > 0) && (
-                <div className="flex flex-col gap-3">
-                  <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">Complementos</p>
-                  <ul className="flex flex-col gap-3">
-                    {allSelectedItems.map((i) => (
-                      <li key={i.id} className="flex justify-between items-end gap-4 group">
-                        <span className="text-white/80 text-sm font-medium">{i.name}</span>
-                        <div className="flex-1 border-b border-dotted border-white/5 mb-1 opacity-50" />
-                        <span className="text-white font-heading text-sm whitespace-nowrap">R$ {i.price.toFixed(2)}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+  const categoryOf = (item: MenuItem) =>
+    (Object.keys(order) as (keyof OrderState)[]).find(k =>
+      Array.isArray(order[k]) && (order[k] as MenuItem[]).some(i => i.id === item.id)
+    ) as keyof OrderState;
 
-              <div className="pt-4 border-t border-white/10 flex flex-col gap-2">
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-white/50 uppercase font-bold tracking-wider">Método</span>
-                  <span className="text-white font-bold">{order.deliveryMethod === "delivery" ? "🚀 Entrega" : "🛍️ Retirada"}</span>
-                </div>
-                {order.deliveryMethod === "delivery" && (
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-white/50 uppercase font-bold tracking-wider">Frete</span>
-                    <span className="text-primary font-bold">+ R$ 7,00</span>
-                  </div>
-                )}
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-white/50 uppercase font-bold tracking-wider">Pagamento</span>
-                  <span className="text-white font-bold uppercase">
-                    {order.paymentMethod ? PAYMENT_LABELS[order.paymentMethod] : 'Não definido'}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      );
+  const goToStep = (idx: number) => {
+    if (idx < currentStep) {
+      setCurrentStep(idx);
+      setSearchQuery("");
+      window.scrollTo(0, 0);
     }
-    const normalize = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-    const filteredData = step.data?.filter(i => normalize(i.name).includes(normalize(searchQuery)));
+  };
+
+  const stepHint = () => {
+    if (step.id === "size") return "Toque no pote que você quer.";
+    if (step.id === "flavor") return order.size ? `Para o seu ${order.size.name}.` : "Toque para escolher um.";
+    if (step.multiple) return "Escolha quantos quiser — ou pule esta etapa.";
+    if (step.id === "delivery") return "Como o açaí chega até você?";
+    if (step.id === "payment") return "Você paga na entrega.";
+    return "Confira tudo antes de enviar para a loja.";
+  };
+
+  // ---------- Etapas de escolha (tamanho, sabor e complementos) ----------
+  const renderChoices = () => {
+    const filtered = step.data?.filter(i => normalizeSearch(i.name).includes(normalizeSearch(searchQuery))) ?? [];
+    const cat = step.id as keyof OrderState;
+    const isSelected = (item: MenuItem) => {
+      const val = order[cat];
+      return Array.isArray(val) ? (val as MenuItem[]).some(i => i.id === item.id) : (val as MenuItem | null)?.id === item.id;
+    };
+
     return (
-      <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
+      <div className="flex flex-col gap-5">
         {step.data && step.data.length > 6 && (
-          <div className="relative"><input type="text" placeholder={`Buscar...`} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-3 text-white focus:outline-none focus:border-primary" /></div>
+          <label className="relative block">
+            <span className="sr-only">Buscar em {step.title}</span>
+            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50" aria-hidden />
+            <input
+              type="text"
+              placeholder="Buscar..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full h-12 rounded-full bg-[#2f1729] border-2 border-white/10 pl-11 pr-5 text-[15px] text-white placeholder:text-white/40 caret-[#F0DF58] focus:outline-none focus:border-[#F0DF58] transition-colors"
+            />
+          </label>
         )}
-        <div className={cn(
-          "grid gap-3.5 sm:gap-4 lg:gap-4 xl:gap-5",
-          step.id === 'size'
-            ? "grid-cols-2 lg:grid-cols-4"
-            : "grid-cols-1 sm:grid-cols-2"
-        )}>
-          {filteredData?.map((item) => {
-            const cat = step.id as keyof OrderState;
-            const val = order[cat];
-            const sel = Array.isArray(val)
-              ? (val as MenuItem[]).some(i => i.id === item.id)
-              : (val as MenuItem)?.id === item.id;
 
-            // Size Step: Bento Box Vertical Card (Same portrait ratio as ReadyMade)
-            if (step.id === 'size') {
-              const sizeMatch = item.name.match(/(360|500|750|1L)/i);
-              const sizeBadge = sizeMatch ? `${sizeMatch[0]}${sizeMatch[0].toUpperCase() === '1L' ? '' : 'ML'}` : 'Açaí';
+        {filtered.length === 0 && (
+          <p className="py-10 text-center text-white/60">Nada encontrado para “{searchQuery}”.</p>
+        )}
 
+        {step.id === "size" ? (
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+            {filtered.map(item => {
+              const sel = isSelected(item);
               return (
                 <button
                   key={item.id}
                   onClick={() => toggleItem(cat, item, step.multiple)}
-                  className={cn(
-                    "group relative flex flex-col justify-between h-full rounded-2xl transition-all duration-300 text-left border-0 overflow-hidden cursor-pointer",
-                    sel
-                      ? "bg-primary/10 ring-1 ring-primary shadow-lg shadow-primary/20 scale-[1.02]"
-                      : "bg-black/20 hover:bg-black/40 hover:-translate-y-1 hover:shadow-xl"
-                  )}
+                  aria-pressed={sel}
+                  className={cn("flex flex-col rounded-[28px] overflow-hidden text-left", tileBase, sel ? tileOn : tileIdle, focusRing)}
                 >
-                  {/* Floating Size Badge (Top-Left) */}
-                  <div className="absolute top-3 left-3 z-10 bg-black/50 backdrop-blur-md border border-white/10 text-white/90 text-[10px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-full shadow-lg">
-                    {sizeBadge}
-                  </div>
-
-                  {/* Action Icon Top Right */}
-                  <div className={cn(
-                    "absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-lg",
-                    sel ? "bg-primary text-secondary opacity-100" : "bg-white text-secondary opacity-100 group-hover:scale-110"
-                  )}>
-                    {sel ? <Check size={16} strokeWidth={4} /> : <Plus size={18} strokeWidth={3} />}
-                  </div>
-
-                  {/* Image Block with Full Portrait Aspect Ratio */}
-                  <div className="w-full aspect-[4/5] flex flex-col items-center justify-center relative bg-black/40 overflow-hidden">
+                  <span className={cn("block aspect-square w-full overflow-hidden", sel ? "bg-[#F8EEA6]" : "bg-[#3a1d33]")}>
                     <img
-                      src={
-                        item.id === "pot_360" ? "/assets/items/Açai_350ml.webp" :
-                          item.id === "pot_500" ? "/assets/items/Açai_500ml.webp" :
-                            item.id === "pot_750" ? "/assets/items/Açai_750ml.webp" :
-                              item.id === "pot_1l" ? "/assets/items/POTE_LITRO.webp" :
-                                `/assets/items/${item.id}.webp`
-                      }
-                      alt={item.name}
+                      src={sizeImage(item)}
+                      alt=""
                       loading="lazy"
                       decoding="async"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                      className={cn("h-full w-full object-cover", sel && "anim-pop")}
                     />
-                  </div>
-
-                  {/* Info Block */}
-                  <div className="w-full p-3 sm:p-3.5 flex flex-col gap-1 bg-white/[0.02]">
-                    <h3 className={cn(
-                      "font-sans font-bold text-[13px] sm:text-[14px] leading-tight truncate w-full text-white transition-colors",
-                      sel && "text-primary"
-                    )} title={item.name}>
-                      {item.name}
-                    </h3>
-                    <span className="font-heading text-xl sm:text-2xl text-primary tracking-wide leading-none">
-                      R$ {item.price.toFixed(0)}
-                    </span>
-                  </div>
-                </button>
-              );
-            }
-
-            // Other Steps: Sleek Horizontal Row Cards
-            return (
-              <button
-                key={item.id}
-                onClick={() => toggleItem(cat, item, step.multiple)}
-                className={cn(
-                  "group relative flex items-center justify-between transition-all duration-300 text-left border overflow-hidden cursor-pointer rounded-2xl p-3.5 sm:p-4",
-                  sel
-                    ? "bg-primary/[0.08] border-primary/80 shadow-md shadow-primary/5"
-                    : "bg-white/[0.03] border-white/10 hover:bg-white/[0.06] hover:border-white/20 hover:-translate-y-0.5"
-                )}
-              >
-                <div className="flex items-center gap-3.5 sm:gap-4 w-full">
-                  {/* Miniatura circular: o zoom enquadra a tigela e esconde o fundo da foto */}
-                  <div className={cn(
-                    "w-14 h-14 sm:w-16 sm:h-16 relative flex-shrink-0 rounded-full overflow-hidden ring-1 transition-all duration-300 shadow-lg shadow-black/40",
-                    sel ? "ring-2 ring-primary ring-offset-2 ring-offset-[#241220]" : "ring-white/10 group-hover:ring-white/25"
-                  )}>
-                    <img
-                      src={`/assets/items/${item.id}.webp`}
-                      alt={item.name}
-                      loading="lazy"
-                      decoding="async"
-                      onError={(e) => {
-                        e.currentTarget.onerror = null;
-                        e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&background=3d1b34&color=D8AC4F&font-size=0.33&bold=true`;
-                      }}
-                      className="w-full h-full object-cover scale-[1.4] group-hover:scale-[1.5] transition-transform duration-500 ease-out"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                    <span className={cn(
-                      "truncate transition-colors font-sans font-normal text-sm sm:text-[15px] text-white/90",
-                      sel && "text-white"
-                    )}>
-                      {item.name}
-                    </span>
-                    {item.price > 0 && (
-                      <span className="font-heading text-xs sm:text-sm text-primary tracking-wide">
-                        + R$ {item.price.toFixed(2)}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <div className={cn(
-                  "rounded-full border flex items-center justify-center flex-shrink-0 ml-2 transition-all duration-300 w-5 h-5",
-                  sel
-                    ? "bg-primary border-primary text-secondary shadow-sm"
-                    : "border-white/20 text-transparent group-hover:border-white/40"
-                )}>
-                  <Check size={11} strokeWidth={3} />
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    );
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#241220] flex items-center justify-center">
-        <div className="text-primary font-heading text-2xl animate-pulse uppercase">Carregando Menu...</div>
-      </div>
-    );
-  }
-
-  return (
-    <SmoothScrollProvider isDisabled={showCart}>
-      <main className="min-h-screen bg-[#241220] flex flex-col relative text-white">
-        <header className="sticky top-0 z-40 bg-[#241220]/80 backdrop-blur-xl border-b border-white/5 px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            {currentStep > 0 ? <button onClick={handlePrev} className="p-2 text-white/70 hover:text-primary transition-colors"><ArrowLeft size={24} /></button> : <Link to="/" className="p-2 text-white/70 hover:text-primary transition-colors"><ArrowLeft size={24} /></Link>}
-            <div className="flex items-center gap-3">
-              <img src="/assets/Logo açai.webp" alt="Logo" className="w-10 h-10 object-contain mix-blend-screen" />
-              <div className="hidden xs:block"><h1 className="font-heading text-xl text-primary uppercase">Monte seu Açaí</h1><p className="text-[10px] text-white/50 font-bold uppercase">Passo {currentStep + 1} de {STEPS.length}</p></div>
-            </div>
-          </div>
-          <button onClick={() => setShowCart(true)} className="relative p-2"><ShoppingCart size={24} className="text-primary" /><div className="absolute -top-1 -right-1 bg-white text-secondary text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-lg">{allSelectedItems.length + (order.size ? 1 : 0)}</div></button>
-        </header>
-        <div className={cn("fixed inset-0 z-[100] transition-all duration-500", showCart ? "visible" : "invisible pointer-events-none")}>
-          <div className={cn("absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-500", showCart ? "opacity-100" : "opacity-0")} onClick={() => setShowCart(false)} />
-          <div className={cn("absolute right-0 top-0 h-full w-[85%] max-w-[400px] bg-[#241220] shadow-2xl flex flex-col transition-transform duration-500", showCart ? "translate-x-0" : "translate-x-full")}>
-            <div className="p-6 border-b border-white/10 flex items-center justify-between"><h3 className="font-heading text-2xl text-primary uppercase">Seu Pedido</h3><button onClick={() => setShowCart(false)} className="text-white/50"><ArrowRight size={24} /></button></div>
-            <div className="flex-1 overflow-y-auto p-6 space-y-6" data-lenis-prevent>
-
-              <div className="space-y-3">
-                <p className="text-[10px] font-bold text-white/30 uppercase">Tamanho</p>
-                {order.size ? <div className="flex justify-between items-center bg-white/5 p-3 rounded-lg"><span>{order.size.name}</span><span className="text-primary font-bold">R$ {order.size.price.toFixed(2)}</span></div> : <p className="text-sm text-white/20">Não selecionado</p>}
-              </div>
-              <div className="space-y-3 pt-4 border-t border-white/5">
-                <p className="text-[10px] font-bold text-white/30 uppercase">Recheios</p>
-                {allSelectedItems.map(i => {
-                  const cat = Object.keys(order).find(k => Array.isArray(order[k as keyof OrderState]) && (order[k as keyof OrderState] as MenuItem[]).some(item => item.id === i.id)) as keyof OrderState;
-                  return (
-                    <div key={i.id} className={cn("relative flex justify-between items-center p-3 rounded-xl overflow-hidden border transition-all", deletingId === i.id ? "bg-red-500/10 border-red-500/30" : "bg-white/5 border-white/5")}>
-                      <span className={cn("text-sm z-10 flex-1 transition-all", deletingId === i.id ? "text-red-300" : "text-white")}>
-                        {deletingId === i.id ? "Confirmar exclusão?" : i.name}
-                      </span>
-                      <div className="flex items-center gap-3 z-10">
-                        {deletingId !== i.id && <span className="text-xs text-white/40 italic">R$ {i.price.toFixed(2)}</span>}
-                        <button
-                          onClick={() => handleDeleteClick(cat, i.id)}
-                          className={cn(
-                            "p-2 rounded-lg transition-all font-bold text-xs flex items-center gap-2",
-                            deletingId === i.id ? "bg-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.4)] px-4" : "bg-red-500/10 text-red-400"
-                          )}
-                        >
-                          {deletingId === i.id ? "SIM" : <Trash2 size={16} />}
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-            <div className="p-6 bg-black/20 border-t border-white/10"><div className="flex justify-between items-end mb-6"><span className="text-xs font-bold text-white/50 uppercase">Total Atual</span><span className="font-heading text-4xl text-primary">R$ {totalPrice.toFixed(2)}</span></div><button onClick={() => setShowCart(false)} className="w-full bg-primary text-secondary font-heading text-xl py-4 rounded-xl">CONTINUAR</button></div>
-          </div>
-        </div>
-        {/* Desktop Step Trail / Horizontal Stepper */}
-        <div className="w-full bg-[#241220]/90 backdrop-blur-md border-b border-white/5 sticky top-[73px] z-30 hidden lg:block">
-          <div className="max-w-[1440px] mx-auto px-6 py-3 flex items-center justify-between gap-2 overflow-x-auto no-scrollbar">
-            {STEPS.map((s, idx) => {
-              const isPast = idx < currentStep;
-              const isCurrent = idx === currentStep;
-              return (
-                <button
-                  key={s.id}
-                  onClick={() => {
-                    // Only allow jumping back or to reachable steps if valid
-                    if (idx < currentStep) {
-                      setCurrentStep(idx);
-                      window.scrollTo(0, 0);
-                    }
-                  }}
-                  disabled={idx > currentStep}
-                  className={cn(
-                    "flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-sans font-normal transition-all whitespace-nowrap border-0",
-                    isCurrent ? "bg-primary text-secondary font-semibold shadow-sm scale-105" :
-                    isPast ? "bg-white/10 text-white/80 hover:bg-white/15 cursor-pointer" :
-                    "bg-white/[0.02] text-white/30 cursor-not-allowed"
-                  )}
-                >
-                  <span className={cn(
-                    "w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-sans font-bold",
-                    isCurrent ? "bg-secondary text-primary" :
-                    isPast ? "bg-primary text-secondary" :
-                    "bg-white/10 text-white/40"
-                  )}>
-                    {isPast ? <Check size={8} strokeWidth={3} /> : idx + 1}
                   </span>
-                  <span>{s.title.replace('Escolha o ', '')}</span>
+                  <span className="flex flex-col gap-1 px-3.5 pb-3.5 pt-3">
+                    <span className="font-heading text-[26px] leading-[0.95]">{item.name}</span>
+                    <span className={cn("font-heading text-[22px] leading-none", sel ? "text-[#120714]" : "text-[#F0DF58]")}>{formatBRL(item.price)}</span>
+                  </span>
                 </button>
               );
             })}
           </div>
-        </div>
-
-        {/* Mobile Progress Line */}
-        <div className="w-full h-1 bg-white/5 sticky top-[73px] z-40 lg:hidden"><div className="h-full bg-primary shadow-lg shadow-black/40" style={{ width: `${((currentStep + 1) / STEPS.length) * 100}%` }} /></div>
-
-        {/* Responsive Main Layout: 2 Columns on Desktop (lg+), 1 Column on Mobile */}
-        <div className="max-w-[1440px] mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 pb-32 lg:pb-12 flex-1 flex flex-col lg:flex-row gap-8 items-start relative z-10">
-          
-          {/* Left Column: Interactive Selection Area */}
-          <div className="flex-1 w-full min-w-0">
-            <div key={currentStep} className="animate-in fade-in slide-in-from-right-4 duration-300 ease-out">
-              <div className="flex flex-col mb-6 lg:mb-8">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-3xl sm:text-4xl lg:text-5xl font-heading text-white uppercase">{STEPS[currentStep].title}</h2>
-                  <span className="text-xs font-normal text-white/40 uppercase tracking-widest hidden sm:inline-block">
-                    Passo {currentStep + 1} de {STEPS.length}
-                  </span>
-                </div>
-                {STEPS[currentStep].multiple && (
-                  <p className="text-xs sm:text-sm text-white/60 font-sans mt-1">
-                    Você pode escolher múltiplos itens nesta etapa.
-                  </p>
-                )}
-              </div>
-              {renderStepContent()}
-            </div>
-          </div>
-
-          {/* Right Column: Permanent Sticky Desktop Summary Sidebar */}
-          <aside className="hidden lg:flex w-[380px] xl:w-[420px] sticky top-36 shrink-0 flex-col gap-4">
-            <div className="bg-white/[0.03] border border-white/10 rounded-3xl p-6 shadow-2xl backdrop-blur-md flex flex-col">
-              
-              {/* Sidebar Header */}
-              <div className="flex items-center justify-between pb-4 border-b border-white/10">
-                <h3 className="font-heading text-2xl text-primary uppercase tracking-wide">Seu Açaí</h3>
-                <span className="text-xs font-normal font-sans px-2.5 py-1 rounded-full bg-white/10 text-white/80">
-                  {allSelectedItems.length + (order.size ? 1 : 0)} {allSelectedItems.length + (order.size ? 1 : 0) === 1 ? 'item' : 'itens'}
-                </span>
-              </div>
-
-              {/* Cup Visual Preview & Base Info */}
-              <div className="py-4 border-b border-white/10 flex items-center gap-4">
-                <div className="w-16 h-16 flex items-center justify-center p-1 shrink-0">
-                  <img
-                    src={
-                      order.size?.id === "pot_360" ? "/assets/items/Açai_350ml.webp" :
-                      order.size?.id === "pot_500" ? "/assets/items/Açai_500ml.webp" :
-                      order.size?.id === "pot_750" ? "/assets/items/Açai_750ml.webp" :
-                      order.size?.id === "pot_1l" ? "/assets/items/POTE_LITRO.webp" :
-                      "/assets/Acai_montar.webp"
-                    }
-                    alt="Preview Açaí"
-                    className="w-full h-full object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
-                  />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-base font-heading text-white uppercase truncate">
-                    {order.size ? order.size.name : "Tamanho não escolhido"}
-                  </p>
-                  <p className="text-xs font-sans text-primary font-normal truncate mt-0.5">
-                    {order.flavor ? `Sabor: ${order.flavor.name}` : "Selecione o sabor"}
-                  </p>
-                  {order.size && (
-                    <p className="text-xs font-sans text-white/40 mt-0.5">Base: R$ {order.size.price.toFixed(2)}</p>
-                  )}
-                </div>
-              </div>
-
-              {/* Selected Complements Scrollable List */}
-              <div className="py-4 max-h-[260px] overflow-y-auto space-y-2 no-scrollbar" data-lenis-prevent>
-                <p className="text-[10px] font-normal text-white/40 uppercase tracking-[0.15em] mb-2">Complementos Escolhidos</p>
-                {allSelectedItems.length === 0 ? (
-                  <p className="text-xs text-white/30 italic py-2">Nenhum complemento adicionado ainda</p>
-                ) : (
-                  allSelectedItems.map(i => {
-                    const cat = Object.keys(order).find(k => Array.isArray(order[k as keyof OrderState]) && (order[k as keyof OrderState] as MenuItem[]).some(item => item.id === i.id)) as keyof OrderState;
-                    return (
-                      <div
-                        key={i.id}
-                        className={cn(
-                          "relative flex justify-between items-center p-2.5 rounded-xl border transition-all overflow-hidden",
-                          deletingId === i.id
-                            ? "bg-red-500/10 border-red-500/30"
-                            : "bg-white/[0.02] hover:bg-white/[0.05] border-white/5"
-                        )}
-                      >
-                        <span className={cn(
-                          "text-xs font-normal truncate flex-1 pr-2 transition-all",
-                          deletingId === i.id ? "text-red-300" : "text-white/90"
-                        )}>
-                          {deletingId === i.id ? "Confirmar exclusão?" : i.name}
-                        </span>
-                        <div className="flex items-center gap-2 shrink-0 z-10">
-                          {deletingId !== i.id && (
-                            <span className="text-xs font-heading text-primary font-normal">
-                              {i.price > 0 ? `+ R$ ${i.price.toFixed(2)}` : 'Grátis'}
-                            </span>
-                          )}
-                          <button
-                            onClick={() => handleDeleteClick(cat, i.id)}
-                            className={cn(
-                              "p-1.5 rounded-lg transition-all font-bold text-xs flex items-center gap-1",
-                              deletingId === i.id
-                                ? "bg-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.4)] px-3 py-1"
-                                : "text-white/30 hover:text-red-400 hover:bg-red-500/10"
-                            )}
-                            title={deletingId === i.id ? "Confirmar exclusão" : "Remover item"}
-                          >
-                            {deletingId === i.id ? "SIM" : <Trash2 size={13} />}
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })
-                )}
-              </div>
-
-              {/* Subtotal & Total */}
-              <div className="pt-4 border-t border-white/10 flex flex-col gap-2">
-                {order.deliveryMethod === "delivery" && (
-                  <div className="flex justify-between items-center text-xs text-white/60">
-                    <span>Taxa de Entrega</span>
-                    <span className="text-primary font-normal">+ R$ 7,00</span>
-                  </div>
-                )}
-                <div className="flex justify-between items-baseline pt-1">
-                  <span className="text-xs font-bold text-white/50 uppercase tracking-widest">Total Geral</span>
-                  <span className="font-heading text-3xl xl:text-4xl text-primary leading-none">
-                    R$ {totalPrice.toFixed(2)}
-                  </span>
-                </div>
-
-                {/* Main Action Button */}
-                <div className="mt-3">
-                  {currentStep < STEPS.length - 1 ? (
-                    <button
-                      onClick={handleNext}
-                      disabled={!isStepValid()}
+        ) : (
+          <div className={cn("grid gap-x-3 gap-y-6", step.multiple ? "grid-cols-3 sm:grid-cols-4" : "grid-cols-2 sm:grid-cols-3")}>
+            {filtered.map(item => {
+              const sel = isSelected(item);
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => toggleItem(cat, item, step.multiple)}
+                  aria-pressed={sel}
+                  className={cn("group flex h-full flex-col items-center gap-2 rounded-3xl p-1 text-center", focusRing)}
+                >
+                  <span className="relative">
+                    <span
                       className={cn(
-                        "w-full py-4 rounded-2xl font-heading text-xl flex items-center justify-center gap-2 transition-all uppercase shadow-lg active:scale-98",
-                        isStepValid() ? "bg-primary text-secondary hover:bg-[#ebd936] cursor-pointer" : "bg-white/5 text-white/20 cursor-not-allowed"
+                        "block aspect-square overflow-hidden rounded-full border-[3px] transition-colors duration-200",
+                        step.multiple ? "w-[88px] sm:w-[104px] lg:w-[116px]" : "w-[136px] sm:w-[150px]",
+                        sel ? "border-[#F0DF58] outline outline-2 outline-[#120714] anim-pop" : "border-[#F8EEA6]"
                       )}
                     >
-                      PRÓXIMO PASSO <ArrowRight size={18} />
-                    </button>
-                  ) : (
-                    <button
-                      onClick={sendWhatsApp}
-                      disabled={isSending}
-                      className="w-full py-4 bg-[#25D366] disabled:opacity-50 text-[#241220] font-heading text-xl rounded-2xl flex items-center justify-center gap-2 hover:bg-[#22c35e] transition-all shadow-lg active:scale-98 uppercase"
-                    >
-                      <Send size={18} /> FINALIZAR NO WHATSAPP
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-          </aside>
+                      <img
+                        src={`/assets/items/${item.id}.webp`}
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = fallbackAvatar(item.name);
+                        }}
+                        className="h-full w-full scale-[1.4] object-cover"
+                      />
+                    </span>
+                    {sel && (
+                      <span className="absolute -right-1 top-0 grid h-8 w-8 place-items-center rounded-full border-2 border-[#120714] bg-[#F0DF58] text-[#120714]">
+                        <Check size={16} strokeWidth={3.5} />
+                      </span>
+                    )}
+                  </span>
+                  {(() => {
+                    // A porção ("50ml") sai do nome e vai para a linha do preço, para o nome caber inteiro
+                    const { name, portion } = splitPortion(item.name);
+                    return (
+                      <>
+                        {/* Nome em texto simples; ocupa a sobra da linha da grade para os preços ficarem alinhados */}
+                        <span
+                          className={cn(
+                            "flex w-full flex-1 items-start justify-center px-1 font-sans font-bold leading-tight text-balance transition-colors duration-200",
+                            step.multiple ? "text-[13px]" : "text-[16px]",
+                            sel ? "text-[#F0DF58]" : "text-white"
+                          )}
+                        >
+                          {name}
+                          {portion && <span className="sr-only"> {portion}</span>}
+                        </span>
+                        {(item.price > 0 || portion || step.multiple) && (
+                          <span className="flex flex-wrap justify-center gap-x-1.5 font-heading text-lg leading-none text-[#F0DF58]" aria-hidden={!item.price}>
+                            {item.price > 0 && <span className="whitespace-nowrap">+ {formatBRL(item.price)}</span>}
+                            {portion && <span className="text-white/60" aria-hidden>{portion}</span>}
+                          </span>
+                        )}
+                      </>
+                    );
+                  })()}
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // ---------- Entrega ou retirada ----------
+  const renderDelivery = () => (
+    <div className="flex flex-col gap-6">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4">
+        {([
+          { id: "pickup", label: "Retirar na Loja", sub: "Grátis", Icon: Store },
+          { id: "delivery", label: "Receber em Casa", sub: `+ ${formatBRL(DELIVERY_FEE)}`, Icon: Bike },
+        ] as const).map(({ id, label, sub, Icon }) => {
+          const sel = order.deliveryMethod === id;
+          return (
+            <button
+              key={id}
+              onClick={() => setOrder(p => ({ ...p, deliveryMethod: id }))}
+              aria-pressed={sel}
+              className={cn("flex flex-col items-start gap-5 rounded-[28px] p-5 text-left", tileBase, sel ? tileOn : tileIdle, focusRing)}
+            >
+              <span className={cn("grid h-12 w-12 place-items-center rounded-full border-2", sel ? "border-[#120714]" : "border-white/20 text-[#F0DF58]")}>
+                <Icon size={24} strokeWidth={2.25} />
+              </span>
+              <span className="flex flex-col gap-1">
+                <span className="font-heading text-[28px] leading-[0.95]">{label}</span>
+                <span className={cn("text-sm font-bold", sel ? "text-[#120714]/75" : "text-[#F58220]")}>{sub}</span>
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {order.deliveryMethod === "delivery" && (
+        <fieldset className="flex flex-col gap-3 animate-in fade-in duration-300">
+          <legend className="mb-3 font-heading text-[28px] leading-none">Endereço de entrega</legend>
+          {([
+            { key: "street", label: "Rua", placeholder: "Rua", className: "" },
+            { key: "number", label: "Número", placeholder: "Número", className: "" },
+            { key: "neighborhood", label: "Bairro / Complemento", placeholder: "Bairro / Complemento", className: "" },
+          ] as const).map(field => (
+            <label key={field.key} className="flex flex-col gap-1.5">
+              <span className="text-sm font-bold text-white/80">{field.label}</span>
+              <input
+                type="text"
+                placeholder={field.placeholder}
+                value={order.address[field.key]}
+                onChange={(e) => setOrder(p => ({ ...p, address: { ...p.address, [field.key]: e.target.value } }))}
+                className="h-12 w-full rounded-2xl border-2 border-white/10 bg-[#2f1729] px-4 text-[16px] text-white placeholder:text-white/35 caret-[#F0DF58] transition-colors focus:border-[#F0DF58] focus:outline-none"
+              />
+            </label>
+          ))}
+        </fieldset>
+      )}
+    </div>
+  );
+
+  // ---------- Forma de pagamento ----------
+  const renderPayment = () => (
+    <div className="flex flex-col gap-6">
+      <div className="grid grid-cols-3 gap-2.5 sm:gap-4">
+        {([
+          { id: "pix", label: "Pix", Icon: QrCode },
+          { id: "card", label: "Cartão", Icon: CreditCard },
+          { id: "cash", label: "Dinheiro", Icon: Banknote },
+        ] as const).map(opt => {
+          const sel = order.paymentMethod === opt.id;
+          return (
+            <button
+              key={opt.id}
+              onClick={() => setOrder(p => ({ ...p, paymentMethod: opt.id }))}
+              aria-pressed={sel}
+              className={cn("flex flex-col items-center gap-3 rounded-[24px] px-2 py-5", tileBase, sel ? tileOn : tileIdle, focusRing)}
+            >
+              <span className={cn("grid h-12 w-12 place-items-center rounded-full border-2", sel ? "border-[#120714]" : "border-white/20 text-[#F0DF58]")}>
+                <opt.Icon size={24} strokeWidth={2.25} />
+              </span>
+              <span className="font-heading text-2xl leading-none">{opt.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {order.paymentMethod === "cash" && (
+        <div className="flex flex-col gap-3 animate-in fade-in duration-300">
+          <h3 className="font-heading text-[28px] leading-none">Precisa de troco?</h3>
+          <label className="flex flex-col gap-1.5">
+            <span className="text-sm font-bold text-white/80">Troco para quanto?</span>
+            <span className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-[#F0DF58]">R$</span>
+              <input
+                type="number"
+                inputMode="decimal"
+                placeholder="Valor para troco"
+                value={order.changeFor === "Não preciso" ? "" : order.changeFor}
+                onChange={(e) => setOrder(prev => ({ ...prev, changeFor: e.target.value }))}
+                disabled={order.changeFor === "Não preciso"}
+                className="h-12 w-full rounded-2xl border-2 border-white/10 bg-[#2f1729] pl-12 pr-4 text-[16px] font-bold text-white placeholder:font-normal placeholder:text-white/35 caret-[#F0DF58] transition-colors focus:border-[#F0DF58] focus:outline-none disabled:opacity-40"
+              />
+            </span>
+          </label>
+          {order.changeFor && order.changeFor !== "Não preciso" && parseFloat(order.changeFor) < totalPrice && (
+            <p className="text-sm font-bold text-[#F58220]">O valor precisa ser maior que o total de {formatBRL(totalPrice)}.</p>
+          )}
+          <button
+            onClick={() => setOrder(p => ({ ...p, changeFor: p.changeFor === "Não preciso" ? "" : "Não preciso" }))}
+            aria-pressed={order.changeFor === "Não preciso"}
+            className={cn(
+              "flex h-12 items-center justify-center gap-2 self-start rounded-full border-2 px-5 text-sm font-bold",
+              order.changeFor === "Não preciso" ? "border-[#120714] bg-[#F0DF58] text-[#120714]" : "border-white/20 text-white hover:border-white/40",
+              focusRing
+            )}
+          >
+            {order.changeFor === "Não preciso" && <Check size={16} strokeWidth={3} />}
+            Não preciso de troco
+          </button>
+        </div>
+      )}
+    </div>
+  );
+
+  // ---------- Resumo ----------
+  const renderSummary = () => (
+    <div className="flex flex-col gap-4">
+      <section className="rounded-[28px] border-2 border-white/10 bg-[#2f1729] p-5">
+        <div className="flex items-center gap-4">
+          <img src={sizeImage(order.size)} alt="" className="h-20 w-16 rounded-2xl object-cover bg-[#3a1d33]" />
+          <div className="min-w-0 flex-1">
+            <p className="font-heading text-[28px] leading-[0.95]">{order.size?.name}</p>
+            <p className="mt-1 text-sm font-bold text-[#F0DF58]">{order.flavor?.name}</p>
+          </div>
+          <span className="font-heading text-2xl">{order.size && formatBRL(order.size.price)}</span>
         </div>
 
-        {/* Mobile Sticky Footer (Hidden on Desktop) */}
-        <footer className="fixed bottom-0 left-0 w-full z-50 bg-[#241220] border-t border-white/5 p-4 sm:p-6 flex items-center justify-between shadow-[0_-10px_30px_rgba(0,0,0,0.5)] lg:hidden">
-          <div className="flex flex-col">
-            <span className="text-[10px] text-white/50 uppercase font-bold">Total</span>
-            <span className="font-heading text-2xl sm:text-3xl text-white">R$ {totalPrice.toFixed(2)}</span>
+        {allSelectedItems.length > 0 && (
+          <ul className="mt-5 flex flex-col gap-2.5 border-t-2 border-white/10 pt-4">
+            {allSelectedItems.map(i => (
+              <li key={i.id} className="flex items-baseline justify-between gap-3 text-[15px]">
+                <span className="text-white/85">{i.name}</span>
+                <span className="font-heading text-lg text-white/85">{i.price > 0 ? formatBRL(i.price) : "Grátis"}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <dl className="mt-5 flex flex-col gap-2 border-t-2 border-white/10 pt-4 text-[15px]">
+          <div className="flex justify-between gap-3">
+            <dt className="text-white/70">Entrega</dt>
+            <dd className="font-bold">{order.deliveryMethod === "delivery" ? `Receber em casa (+ ${formatBRL(DELIVERY_FEE)})` : "Retirar na loja"}</dd>
           </div>
-          <div className="flex gap-4">
-            {currentStep < STEPS.length - 1 ? (
-              <button
-                onClick={handleNext}
-                disabled={!isStepValid()}
-                className={cn(
-                  "px-6 sm:px-8 py-3.5 sm:py-4 rounded-2xl font-heading text-lg sm:text-xl flex items-center gap-2 transition-all uppercase",
-                  isStepValid() ? "bg-primary text-secondary" : "bg-white/5 text-white/20 cursor-not-allowed"
-                )}
-              >
-                PRÓXIMO <ArrowRight size={18} />
-              </button>
-            ) : (
-              <button
-                onClick={sendWhatsApp}
-                disabled={isSending}
-                className="disabled:opacity-50 px-6 sm:px-8 py-3.5 sm:py-4 bg-[#25D366] text-[#241220] font-heading text-lg sm:text-xl rounded-2xl flex items-center gap-2 hover:bg-[#22c35e] transition-all shadow-lg active:scale-95 uppercase"
-              >
-                <Send size={18} /> Finalizar
-              </button>
+          {order.deliveryMethod === "delivery" && (
+            <div className="flex justify-between gap-3">
+              <dt className="text-white/70">Endereço</dt>
+              <dd className="text-right font-bold">{order.address.street}, {order.address.number} — {order.address.neighborhood}</dd>
+            </div>
+          )}
+          <div className="flex justify-between gap-3">
+            <dt className="text-white/70">Pagamento</dt>
+            <dd className="font-bold">{order.paymentMethod ? PAYMENT_LABELS[order.paymentMethod] : "No balcão"}</dd>
+          </div>
+        </dl>
+      </section>
+
+      <div className="flex items-center justify-between rounded-[28px] border-2 border-[#120714] bg-[#F0DF58] px-5 py-4 text-[#120714]">
+        <span className="font-heading text-[28px] leading-none">Total</span>
+        <span className="font-heading text-5xl leading-none">{formatBRL(totalPrice)}</span>
+      </div>
+    </div>
+  );
+
+  const renderStepContent = () => {
+    if (step.id === "delivery") return renderDelivery();
+    if (step.id === "payment") return renderPayment();
+    if (step.id === "summary") return renderSummary();
+    return renderChoices();
+  };
+
+  // ---------- Lista do que já entrou (folha "Seu açaí") ----------
+  const renderChosenList = () => (
+    <ul className="flex flex-col gap-2">
+      {allSelectedItems.map(i => (
+        <li
+          key={i.id}
+          className={cn(
+            "flex items-center gap-3 rounded-2xl border-2 px-3 py-2",
+            deletingId === i.id ? "border-[#F58220] bg-[#F58220]/10" : "border-white/10 bg-white/[0.03]"
+          )}
+        >
+          <img
+            src={`/assets/items/${i.id}.webp`}
+            alt=""
+            onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = fallbackAvatar(i.name); }}
+            className="h-9 w-9 shrink-0 rounded-full object-cover"
+          />
+          <span className="min-w-0 flex-1 truncate text-[15px]">
+            {deletingId === i.id ? "Remover do açaí?" : i.name}
+          </span>
+          {deletingId !== i.id && (
+            <span className="font-heading text-lg text-[#F0DF58]">{i.price > 0 ? `+ ${formatBRL(i.price)}` : "Grátis"}</span>
+          )}
+          <button
+            onClick={() => handleDeleteClick(categoryOf(i), i.id)}
+            title={deletingId === i.id ? "Confirmar remoção" : "Remover item"}
+            aria-label={deletingId === i.id ? `Confirmar remoção de ${i.name}` : `Remover ${i.name}`}
+            className={cn(
+              "grid h-11 min-w-11 place-items-center rounded-full text-sm font-bold",
+              deletingId === i.id ? "bg-[#F58220] px-4 text-[#120714]" : "text-white/50 hover:text-[#F58220]",
+              focusRing
             )}
+          >
+            {deletingId === i.id ? "Sim" : <Trash2 size={17} />}
+          </button>
+        </li>
+      ))}
+    </ul>
+  );
+
+  return (
+    <SmoothScrollProvider isDisabled={showCart}>
+      <main className="relative flex min-h-[100dvh] flex-col bg-[#241220] text-white lining-nums tabular-nums selection:bg-[#F0DF58] selection:text-[#120714]">
+        <h1 className="sr-only">Monte seu Açaí</h1>
+
+        {/* Topo fixo: progresso em segmentos + voltar, logo e total */}
+        <header className="sticky top-0 z-40 border-b-2 border-[#120714] bg-[#241220]">
+          <div className="mx-auto w-full max-w-[680px] px-4 pt-3 sm:px-6">
+            <nav aria-label="Etapas da montagem" className="flex gap-1.5">
+              {STEPS.map((s, idx) => {
+                const done = idx < currentStep;
+                const current = idx === currentStep;
+                const skipped = s.id === "payment" && order.deliveryMethod === "pickup" && currentStep > idx;
+                return (
+                  <button
+                    key={s.id}
+                    onClick={() => goToStep(idx)}
+                    disabled={idx >= currentStep || skipped}
+                    aria-label={`${SHORT_TITLES[s.id]}${current ? " (etapa atual)" : done ? " (concluída)" : ""}`}
+                    aria-current={current ? "step" : undefined}
+                    className="group flex-1 py-3 disabled:cursor-default"
+                  >
+                    <span className="block h-[5px] overflow-hidden rounded-full bg-white/15">
+                      {(done || current) && !skipped && (
+                        <span key={`${s.id}-${current}`} className={cn("block h-full rounded-full bg-[#F0DF58]", current && "anim-seg-fill", done && "group-hover:bg-[#F8EEA6]")} />
+                      )}
+                    </span>
+                  </button>
+                );
+              })}
+            </nav>
+
+            <div className="flex items-center gap-3 pb-3 pt-1">
+              <Link to="/" aria-label="Sair da montagem e voltar para o início" className={cn("grid h-11 w-11 place-items-center rounded-full border-2 border-white/20 text-white hover:border-white/40", focusRing)}>
+                <X size={20} />
+              </Link>
+              <img src="/assets/Logo açai.webp" alt="Açaí no Kilo" className="h-12 w-auto object-contain" />
+              <button
+                onClick={() => setShowCart(true)}
+                aria-label={`Ver seu açaí: ${itemCount} ${itemCount === 1 ? "item" : "itens"}, total ${formatBRL(totalPrice)}`}
+                className={cn("ml-auto flex h-11 items-center gap-2 rounded-full border-2 border-[#120714] bg-[#F0DF58] pl-1.5 pr-4 text-[#120714]", focusRing)}
+              >
+                <span className="flex h-7 items-center gap-1 rounded-full bg-[#120714] px-2 text-[#F0DF58]">
+                  <ShoppingBag size={14} strokeWidth={2.5} />
+                  <span className="text-xs font-bold">{itemCount}</span>
+                </span>
+                <span key={totalPrice} className="anim-pop font-heading text-2xl leading-none">{formatBRL(totalPrice)}</span>
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <div className="mx-auto w-full max-w-[680px] flex-1 px-4 pb-36 pt-6 sm:px-6">
+          {/* Coluna da etapa */}
+          <section key={currentStep} className="w-full min-w-0 animate-in fade-in slide-in-from-right-4 duration-300 ease-out">
+            <h2 className="font-heading text-[clamp(3rem,12vw,4.75rem)] leading-[0.9] text-balance">{step.title}</h2>
+            <p className="mb-6 mt-3 text-[15px] text-white/75">{stepHint()}</p>
+            {renderStepContent()}
+          </section>
+        </div>
+
+        {/* Rodapé fixo: voltar + próximo / finalizar */}
+        <footer className="fixed inset-x-0 bottom-0 z-40 border-t-2 border-[#120714] bg-[#2f1729] pb-[max(env(safe-area-inset-bottom),12px)] pt-3">
+          <div className="mx-auto flex w-full max-w-[680px] items-center gap-3 px-4 sm:px-6">
+              {currentStep > 0 && (
+                <button
+                  onClick={handlePrev}
+                  aria-label="Voltar uma etapa"
+                  className={cn("grid h-14 w-14 shrink-0 place-items-center rounded-full border-2 border-white/25 text-white hover:border-white/50", focusRing)}
+                >
+                  <ArrowLeft size={22} strokeWidth={2.5} />
+                </button>
+              )}
+              {isLastStep ? (
+                <button
+                  onClick={sendWhatsApp}
+                  disabled={isSending}
+                  className={cn("flex h-14 flex-1 items-center justify-center gap-2 rounded-full border-2 border-[#120714] bg-[#25D366] font-heading text-[26px] text-[#120714] transition-opacity disabled:opacity-50", focusRing)}
+                >
+                  <Send size={20} strokeWidth={2.5} /> Finalizar no WhatsApp
+                </button>
+              ) : (
+                <button
+                  onClick={handleNext}
+                  disabled={!stepValid}
+                  className={cn(
+                    "flex h-14 flex-1 items-center justify-center gap-2 rounded-full border-2 font-heading text-[26px] transition-colors",
+                    stepValid ? "border-[#120714] bg-[#F0DF58] text-[#120714] hover:bg-[#F8EEA6]" : "cursor-not-allowed border-white/10 bg-white/[0.06] text-white/40",
+                    focusRing
+                  )}
+                >
+                  Próximo: {nextTitle} <ArrowRight size={22} strokeWidth={2.5} />
+                </button>
+              )}
           </div>
         </footer>
+
+        {/* Folha "Seu açaí" (celular) */}
+        {showCart && (
+          <div className="fixed inset-0 z-[100]" role="dialog" aria-modal="true" aria-labelledby="cart-title">
+            <button className="absolute inset-0 bg-[#120714]/75" aria-label="Fechar" onClick={() => setShowCart(false)} />
+            <div className="absolute inset-x-0 bottom-0 mx-auto flex max-h-[85dvh] w-full max-w-[680px] flex-col rounded-t-[32px] bg-[#241220] animate-in slide-in-from-bottom duration-300 ease-out">
+              <div className="flex items-center justify-between px-5 pb-3 pt-5">
+                <h3 id="cart-title" className="font-heading text-[34px] leading-none text-[#F0DF58]">Seu açaí</h3>
+                <button autoFocus onClick={() => setShowCart(false)} aria-label="Fechar" className={cn("grid h-11 w-11 place-items-center rounded-full border-2 border-white/20", focusRing)}>
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto px-5 pb-4" data-lenis-prevent>
+                <div className="mb-4 flex items-center gap-3 rounded-2xl border-2 border-white/10 bg-[#2f1729] p-3">
+                  <img src={sizeImage(order.size)} alt="" className="h-14 w-12 rounded-xl object-cover bg-[#3a1d33]" />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-heading text-2xl leading-none">{order.size ? order.size.name : "Tamanho a escolher"}</p>
+                    <p className="mt-1 text-sm font-bold text-[#F0DF58]">{order.flavor ? order.flavor.name : "Sabor a escolher"}</p>
+                    {order.size && <p className="mt-0.5 text-sm text-white/60">Base: {formatBRL(order.size.price)}</p>}
+                  </div>
+                </div>
+                {allSelectedItems.length === 0
+                  ? <p className="py-4 text-sm text-white/60">Nenhum complemento ainda.</p>
+                  : renderChosenList()}
+              </div>
+              <div className="border-t-2 border-[#120714] bg-[#2f1729] px-5 pb-[max(env(safe-area-inset-bottom),16px)] pt-4">
+                <div className="mb-3 flex items-baseline justify-between">
+                  <span className="font-heading text-2xl">Total</span>
+                  <span className="font-heading text-4xl text-[#F0DF58]">{formatBRL(totalPrice)}</span>
+                </div>
+                <button onClick={() => setShowCart(false)} className={cn("h-14 w-full rounded-full border-2 border-[#120714] bg-[#F0DF58] font-heading text-[26px] text-[#120714]", focusRing)}>
+                  Continuar montando
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </SmoothScrollProvider>
   );
