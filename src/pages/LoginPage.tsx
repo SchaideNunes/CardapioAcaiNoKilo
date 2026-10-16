@@ -46,76 +46,68 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#180a15] flex items-center justify-center p-6 selection:bg-[#F0DF58] selection:text-[#180a15]">
-      <div className="w-full max-w-md bg-[#1f0d1b]/90 border border-white/10 rounded-3xl p-8 backdrop-blur-xl shadow-2xl animate-in fade-in zoom-in-95 duration-500">
-        {/* Logo e Cabeçalho */}
-        <div className="flex flex-col items-center mb-8">
-          <div className="w-20 h-20 bg-white/[0.04] border border-white/10 rounded-3xl flex items-center justify-center p-2.5 mb-4 shadow-xl overflow-hidden">
-            <img 
-              src="/assets/Logo açai.webp" 
-              alt="Logo Açaí no Kilo" 
-              className="w-full h-full object-contain"
-            />
-          </div>
-          <h1 className="font-heading text-3xl text-white uppercase tracking-wider">Acesso Restrito</h1>
-          <p className="text-[#F0DF58] text-xs font-bold uppercase tracking-widest mt-1 flex items-center gap-1.5">
-            <ShieldCheck size={14} /> Painel Administrativo
+    <main className="flex min-h-[100dvh] items-center justify-center bg-[#241220] p-4 text-white selection:bg-[#F0DF58] selection:text-[#120714] sm:p-6">
+      <div className="w-full max-w-md rounded-[32px] border-2 border-white/10 bg-[#2f1729] p-6 animate-in fade-in duration-300 sm:p-8">
+        {/* Logo e cabeçalho */}
+        <div className="mb-8 flex flex-col items-center text-center">
+          <img src="/assets/Logo açai.webp" alt="Logo Açaí no Kilo" className="mb-4 h-24 w-auto object-contain" />
+          <h1 className="font-heading text-[44px] leading-[0.9]">Acesso Restrito</h1>
+          <p className="mt-2 flex items-center gap-1.5 text-sm font-bold text-[#F0DF58]">
+            <ShieldCheck size={16} aria-hidden /> Painel administrativo
           </p>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-5">
-          {/* E-mail / Usuário */}
-          <div className="space-y-1.5">
-            <label htmlFor="login-username" className="text-xs font-bold text-white/80 uppercase ml-1">E-mail / Usuário</label>
+        <form onSubmit={handleLogin} className="flex flex-col gap-5">
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="login-username" className="text-sm font-bold text-white/80">E-mail / Usuário</label>
             <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={18} />
-              <input 
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50" size={18} aria-hidden />
+              <input
                 id="login-username"
-                type="text" 
+                type="text"
                 autoComplete="username"
-                value={username} 
-                onChange={(e) => setUsername(e.target.value)} 
-                className="w-full bg-white/[0.05] border border-white/15 rounded-2xl py-3.5 pl-12 pr-4 text-white text-sm font-sans focus:outline-none focus:border-[#F0DF58]/70 transition-all placeholder:text-white/30" 
-                placeholder="seu@email.com" 
-                required 
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="h-12 w-full rounded-2xl border-2 border-white/10 bg-[#241220] pl-11 pr-4 text-[16px] text-white placeholder:text-white/35 caret-[#F0DF58] transition-colors focus:border-[#F0DF58] focus:outline-none"
+                placeholder="seu@email.com"
+                required
               />
             </div>
           </div>
 
-          {/* Senha */}
-          <div className="space-y-1.5">
-            <label htmlFor="login-password" className="text-xs font-bold text-white/80 uppercase ml-1">Senha de Acesso</label>
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="login-password" className="text-sm font-bold text-white/80">Senha de Acesso</label>
             <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={18} />
-              <input 
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50" size={18} aria-hidden />
+              <input
                 id="login-password"
-                type="password" 
+                type="password"
                 autoComplete="current-password"
-                value={password} 
-                onChange={(e) => setPassword(e.target.value)} 
-                className="w-full bg-white/[0.05] border border-white/15 rounded-2xl py-3.5 pl-12 pr-4 text-white text-sm font-sans focus:outline-none focus:border-[#F0DF58]/70 transition-all placeholder:text-white/30" 
-                placeholder="••••••••" 
-                required 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="h-12 w-full rounded-2xl border-2 border-white/10 bg-[#241220] pl-11 pr-4 text-[16px] text-white placeholder:text-white/35 caret-[#F0DF58] transition-colors focus:border-[#F0DF58] focus:outline-none"
+                placeholder="••••••••"
+                required
               />
             </div>
           </div>
 
           {error && (
-            <div className="p-3 bg-red-500/15 border border-red-500/30 rounded-2xl text-red-300 text-xs font-bold text-center animate-shake">
+            <p role="alert" className="rounded-2xl border-2 border-[#F58220]/40 bg-[#F58220]/10 px-4 py-3 text-center text-sm font-bold text-[#F58220]">
               {error}
-            </div>
+            </p>
           )}
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-[#F0DF58] to-[#E5CF38] hover:from-[#f6e66b] hover:to-[#ebdb4a] text-[#180a15] font-heading text-xl py-4 rounded-2xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-[#F0DF58]/10 active:scale-95 group font-black uppercase tracking-wide disabled:opacity-50 mt-2"
+            className="mt-1 flex h-14 w-full items-center justify-center gap-2 rounded-full border-2 border-[#120714] bg-[#F0DF58] font-heading text-[26px] text-[#120714] transition-colors hover:bg-[#F8EEA6] disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F0DF58]"
           >
-            {loading ? "Entrando..." : "Entrar no Painel"} 
-            <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+            {loading ? "Entrando..." : "Entrar no Painel"}
+            <ArrowRight size={22} strokeWidth={2.5} aria-hidden />
           </button>
         </form>
       </div>
-    </div>
+    </main>
   );
 }
