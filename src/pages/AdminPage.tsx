@@ -776,7 +776,7 @@ export default function AdminPage() {
             <div
               role="group"
               aria-label="Categorias"
-              className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6 md:mx-0 md:flex-wrap md:overflow-visible md:px-0 md:pb-0"
+              className="no-scrollbar relative -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6 md:mx-0 md:flex-wrap md:overflow-visible md:px-0 md:pb-0"
             >
               {CATEGORIES_CONFIG.map(cat => {
                 const on = selectedCategory === cat.key;
@@ -962,7 +962,7 @@ export default function AdminPage() {
             <div
               role="group"
               aria-label="Filtrar pedidos"
-              className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6 md:mx-0 md:flex-wrap md:overflow-visible md:px-0 md:pb-0"
+              className="no-scrollbar relative -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6 md:mx-0 md:flex-wrap md:overflow-visible md:px-0 md:pb-0"
             >
               {([
                 { key: "all", label: `Todos (${todayOrders.length})` },
