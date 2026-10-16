@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-15T12:00:00Z",
+  "title": "Design System: Açaí no Kilo",
+  "extensions": {
+    "colorMeta": {
+      "gold": { "role": "primary", "displayName": "Ouro Adesivo", "canonical": "#F0DF58", "tonalRamp": ["#2e2a05", "#58500e", "#837819", "#ada027", "#d4c63c", "#f0df58", "#f6eb95", "#fbf6d2"] },
+      "cream": { "role": "secondary", "displayName": "Creme de Tampa", "canonical": "#F8EEA6", "tonalRamp": ["#2f2c12", "#575224", "#807838", "#a9a04f", "#d0c66c", "#f8eea6", "#fbf4c8", "#fdfae6"] },
+      "orange": { "role": "tertiary", "displayName": "Laranja de Etiqueta", "canonical": "#F58220", "tonalRamp": ["#341503", "#5f2a08", "#8b400e", "#b85814", "#e0701b", "#f58220", "#f9b57a", "#fde3cc"] },
+      "whatsapp-green": { "role": "tertiary", "displayName": "Verde WhatsApp (exceção citada)", "canonical": "#25D366", "tonalRamp": ["#05301a", "#0a5a30", "#0f8446", "#16ad5b", "#25d366", "#6ee39a", "#a9eec3", "#def9e8"] },
+      "ink": { "role": "neutral", "displayName": "Tinta", "canonical": "#120714", "tonalRamp": ["#120714", "#241220", "#2f1729", "#3a1d33", "#5a3a52", "#8a6f84", "#bdaab8", "#ece4ea"] },
+      "ground": { "role": "neutral", "displayName": "Chão Roxo", "canonical": "#241220", "tonalRamp": ["#120714", "#241220", "#2f1729", "#3a1d33", "#5a3a52", "#8a6f84", "#bdaab8", "#ece4ea"] },
+      "panel": { "role": "neutral", "displayName": "Painel", "canonical": "#2f1729", "tonalRamp": ["#120714", "#241220", "#2f1729", "#3a1d33", "#5a3a52", "#8a6f84", "#bdaab8", "#ece4ea"] },
+      "panel-deep": { "role": "neutral", "displayName": "Painel Fundo", "canonical": "#3a1d33", "tonalRamp": ["#120714", "#241220", "#2f1729", "#3a1d33", "#5a3a52", "#8a6f84", "#bdaab8", "#ece4ea"] },
+      "text": { "role": "neutral", "displayName": "Branco (com transparências 85/75/60/40/15/10%)", "canonical": "#FFFFFF", "tonalRamp": ["rgba(255,255,255,0.1)", "rgba(255,255,255,0.15)", "rgba(255,255,255,0.25)", "rgba(255,255,255,0.4)", "rgba(255,255,255,0.6)", "rgba(255,255,255,0.75)", "rgba(255,255,255,0.85)", "#FFFFFF"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Título de cada etapa da montagem; títulos dos cards da home." },
+      "headline": { "displayName": "Headline", "purpose": "Nomes em tiles grandes, legendas de grupo, linha do Total." },
+      "title": { "displayName": "Title", "purpose": "Rótulo dos botões cápsula grandes e nome do tamanho." },
+      "price": { "displayName": "Price", "purpose": "Preços em Bebas com algarismos tabulares (18–48px conforme o contexto)." },
+      "body": { "displayName": "Body", "purpose": "Dicas de etapa e linhas de lista." },
+      "label": { "displayName": "Label", "purpose": "Rótulos de campo, subtítulos de tile, sabor escolhido." },
+      "label-sm": { "displayName": "Label pequeno", "purpose": "Nome do ingrediente nas grades de múltipla escolha." }
+    },
+    "shadows": [],
+    "motion": [
+      { "name": "seg-fill", "value": "segFill 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both", "purpose": "Segmento de progresso da etapa atual enche da esquerda com leve quique." },
+      { "name": "sticker-pop", "value": "stickerPop 0.4s cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Adesivo escolhido e total do cabeçalho pulam (scale 1 → 1.08 → 1)." },
+      { "name": "state-color", "value": "colors 200ms ease-out", "purpose": "Troca de borda/fundo em hover e seleção; nunca deslocamento." },
+      { "name": "enter", "value": "fade-in + slide-in 300ms ease-out", "purpose": "Entrada de cada etapa (da direita) e da folha inferior (de baixo)." },
+      { "name": "reduced-motion", "value": "animation: none", "purpose": "seg-fill e sticker-pop desligados em prefers-reduced-motion." }
+    ],
+    "breakpoints": [
+      { "name": "xs", "value": "475px" },
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" },
+      { "name": "2xl", "value": "1536px" },
+      { "name": "3xl", "value": "1600px" },
+      { "name": "4xl", "value": "1920px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Botão Primário",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Cápsula ouro com contorno de tinta; avança a etapa ou confirma.",
+      "html": "<button class=\"ds-btn-primary\">Próximo: Sabor <svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5 12h14\"/><path d=\"m12 5 7 7-7 7\"/></svg></button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 56px; padding: 0 28px; border-radius: 9999px; border: 2px solid #120714; background: #F0DF58; color: #120714; font-family: 'Bebas Neue', sans-serif; font-size: 26px; cursor: pointer; transition: background-color 200ms ease-out; } .ds-btn-primary:hover { background: #F8EEA6; } .ds-btn-primary:focus-visible { outline: 2px solid #F0DF58; outline-offset: 2px; } .ds-btn-primary:disabled { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); color: rgba(255,255,255,0.4); cursor: not-allowed; }"
+    },
+    {
+      "name": "Botão WhatsApp",
+      "kind": "button",
+      "refersTo": "button-whatsapp",
+      "description": "Exceção citada: única cápsula verde, envia o pedido ao WhatsApp.",
+      "html": "<button class=\"ds-btn-whatsapp\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m22 2-7 20-4-9-9-4Z\"/><path d=\"M22 2 11 13\"/></svg> Finalizar no WhatsApp</button>",
+      "css": ".ds-btn-whatsapp { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 56px; padding: 0 28px; border-radius: 9999px; border: 2px solid #120714; background: #25D366; color: #120714; font-family: 'Bebas Neue', sans-serif; font-size: 26px; cursor: pointer; transition: opacity 200ms ease-out; } .ds-btn-whatsapp:focus-visible { outline: 2px solid #F0DF58; outline-offset: 2px; } .ds-btn-whatsapp:disabled { opacity: 0.5; }"
+    },
+    {
+      "name": "Botão Redondo Fantasma",
+      "kind": "button",
+      "refersTo": "button-round-ghost",
+      "description": "Voltar/fechar: círculo com borda branca translúcida.",
+      "html": "<button class=\"ds-btn-round\" aria-label=\"Voltar\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m12 19-7-7 7-7\"/><path d=\"M19 12H5\"/></svg></button>",
+      "css": ".ds-btn-round { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 9999px; border: 2px solid rgba(255,255,255,0.25); background: transparent; color: #fff; cursor: pointer; transition: border-color 200ms ease-out; } .ds-btn-round:hover { border-color: rgba(255,255,255,0.5); } .ds-btn-round:focus-visible { outline: 2px solid #F0DF58; outline-offset: 2px; }"
+    },
+    {
+      "name": "Cápsula do Total",
+      "kind": "custom",
+      "refersTo": "total-capsule",
+      "description": "Total sempre à vista no cabeçalho, com contador de itens em miolo de tinta.",
+      "html": "<button class=\"ds-total\"><span class=\"ds-total-count\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z\"/><path d=\"M3 6h18\"/><path d=\"M16 10a4 4 0 0 1-8 0\"/></svg>3</span><span class=\"ds-total-value\">R$ 24,50</span></button>",
+      "css": ".ds-total { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 16px 0 6px; border-radius: 9999px; border: 2px solid #120714; background: #F0DF58; color: #120714; cursor: pointer; font-variant-numeric: lining-nums tabular-nums; } .ds-total:focus-visible { outline: 2px solid #F0DF58; outline-offset: 2px; } .ds-total-count { display: inline-flex; align-items: center; gap: 4px; height: 28px; padding: 0 8px; border-radius: 9999px; background: #120714; color: #F0DF58; font-family: Raleway, sans-serif; font-size: 12px; font-weight: 700; } .ds-total-value { font-family: 'Bebas Neue', sans-serif; font-size: 24px; line-height: 1; }"
+    },
+    {
+      "name": "Tile de Escolha",
+      "kind": "card",
+      "refersTo": "tile",
+      "description": "Opção grande (entrega, pagamento, tamanho); selecionada vira campo ouro.",
+      "html": "<div style=\"display:flex;gap:12px\"><button class=\"ds-tile\" aria-pressed=\"false\"><span class=\"ds-tile-name\">Retirar na Loja</span><span class=\"ds-tile-sub\">Grátis</span></button><button class=\"ds-tile ds-tile-on\" aria-pressed=\"true\"><span class=\"ds-tile-name\">Receber em Casa</span><span class=\"ds-tile-sub\">+ R$ 7,00</span></button></div>",
+      "css": ".ds-tile { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 20px; border-radius: 28px; border: 2px solid rgba(255,255,255,0.1); background: #2f1729; color: #fff; text-align: left; cursor: pointer; transition: border-color 200ms ease-out, background-color 200ms ease-out; } .ds-tile:hover { border-color: rgba(255,255,255,0.3); } .ds-tile:focus-visible { outline: 2px solid #F0DF58; outline-offset: 2px; } .ds-tile-name { font-family: 'Bebas Neue', sans-serif; font-size: 28px; line-height: 0.95; } .ds-tile-sub { font-family: Raleway, sans-serif; font-size: 14px; font-weight: 700; color: #F58220; } .ds-tile-on, .ds-tile-on:hover { background: #F0DF58; border-color: #120714; color: #120714; } .ds-tile-on .ds-tile-sub { color: rgba(18,7,20,0.75); }"
+    },
+    {
+      "name": "Adesivo de Ingrediente",
+      "kind": "custom",
+      "refersTo": "sticker",
+      "description": "Foto circular com aro creme; selecionado ganha aro ouro, contorno de tinta e selo de check.",
+      "html": "<div style=\"display:flex;gap:16px\"><button class=\"ds-sticker\"><span class=\"ds-sticker-ring\"></span><span class=\"ds-sticker-name\">Granola</span><span class=\"ds-sticker-price\">+ R$ 2,00</span></button><button class=\"ds-sticker ds-sticker-on\"><span class=\"ds-sticker-wrap\"><span class=\"ds-sticker-ring\"></span><span class=\"ds-sticker-check\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 6 9 17l-5-5\"/></svg></span></span><span class=\"ds-sticker-name\">Leite Ninho</span><span class=\"ds-sticker-price\">+ R$ 3,00</span></button></div>",
+      "css": ".ds-sticker { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 4px; border: 0; border-radius: 24px; background: transparent; color: #fff; cursor: pointer; } .ds-sticker:focus-visible { outline: 2px solid #F0DF58; outline-offset: 2px; } .ds-sticker-wrap { position: relative; display: block; } .ds-sticker-ring { display: block; width: 104px; aspect-ratio: 1; border-radius: 9999px; border: 3px solid #F8EEA6; background: #3a1d33; transition: border-color 200ms ease-out; } .ds-sticker-on .ds-sticker-ring { border-color: #F0DF58; outline: 2px solid #120714; animation: ds-pop 0.4s cubic-bezier(0.16, 1, 0.3, 1); } .ds-sticker-check { position: absolute; right: -4px; top: 0; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 9999px; border: 2px solid #120714; background: #F0DF58; color: #120714; } .ds-sticker-name { font-family: Raleway, sans-serif; font-size: 13px; font-weight: 700; line-height: 1.25; } .ds-sticker-on .ds-sticker-name { color: #F0DF58; } .ds-sticker-price { font-family: 'Bebas Neue', sans-serif; font-size: 18px; line-height: 1; color: #F0DF58; } @keyframes ds-pop { 0% { transform: scale(1); } 40% { transform: scale(1.08); } 100% { transform: scale(1); } } @media (prefers-reduced-motion: reduce) { .ds-sticker-on .ds-sticker-ring { animation: none; } }"
+    },
+    {
+      "name": "Campo de Texto",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Campo chapado em painel; foco troca a borda para ouro.",
+      "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">Rua</span><input class=\"ds-input\" type=\"text\" placeholder=\"Rua\"></label>",
+      "css": ".ds-field { display: flex; flex-direction: column; gap: 6px; } .ds-field-label { font-family: Raleway, sans-serif; font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.8); } .ds-input { height: 48px; width: 100%; padding: 0 16px; border-radius: 16px; border: 2px solid rgba(255,255,255,0.1); background: #2f1729; color: #fff; font-family: Raleway, sans-serif; font-size: 16px; caret-color: #F0DF58; transition: border-color 200ms ease-out; } .ds-input::placeholder { color: rgba(255,255,255,0.35); } .ds-input:focus { outline: none; border-color: #F0DF58; } .ds-input:disabled { opacity: 0.4; }"
+    },
+    {
+      "name": "Progresso em Segmentos",
+      "kind": "nav",
+      "refersTo": "progress-segments",
+      "description": "Uma barra por etapa; a atual enche em ouro com quique.",
+      "html": "<nav class=\"ds-progress\" aria-label=\"Etapas\"><span class=\"ds-seg\"><span class=\"ds-seg-fill\"></span></span><span class=\"ds-seg\"><span class=\"ds-seg-fill\"></span></span><span class=\"ds-seg\"><span class=\"ds-seg-fill ds-seg-current\"></span></span><span class=\"ds-seg\"></span><span class=\"ds-seg\"></span></nav>",
+      "css": ".ds-progress { display: flex; gap: 6px; padding: 12px 0; background: #241220; } .ds-seg { flex: 1; display: block; height: 5px; overflow: hidden; border-radius: 9999px; background: rgba(255,255,255,0.15); } .ds-seg-fill { display: block; height: 100%; border-radius: 9999px; background: #F0DF58; } .ds-seg-current { transform-origin: left center; animation: ds-seg 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both; } @keyframes ds-seg { from { transform: scaleX(0); } to { transform: scaleX(1); } } @media (prefers-reduced-motion: reduce) { .ds-seg-current { animation: none; } }"
+    }
+  ],
+  "narrative": {
+    "northStar": "O Adesivo na Tampa",
+    "overview": "Um mundo chapado, recortado como adesivo: fundo roxo-profundo liso, painéis um tom acima, e tudo o que importa (seleção, ação principal, total) em campos sólidos de ouro contornados por uma linha de tinta quase preta. Nada flutua por sombra, nada é vidro: a profundidade é só troca de cor e contorno, para conversar com o logo e o mascote, que são ilustrações 2D (compromisso de marca do dono, 14/10/2026).\n\nA densidade é de celular na mão: uma decisão por tela, controles grandes, títulos enormes em Bebas Neue e texto corrido curto em Raleway. As fotos dos ingredientes viram adesivos circulares com borda creme; escolher é ver o adesivo \"pular\" e ganhar borda de ouro. Toda forma interativa é cápsula ou círculo.\n\nRejeições confirmadas: o \"card 3D\" do visual anterior (sombras de profundidade, vidro/desfoque, gradientes, elevação no hover).",
+    "keyCharacteristics": [
+      "Chapado: cor e contorno de 2px fazem todo o trabalho de hierarquia; zero `box-shadow`.",
+      "Ouro é estado: selecionado, ação primária e total. Não é decoração.",
+      "Cápsulas e círculos para tudo o que se toca; cantos de 28px para blocos.",
+      "Bebas Neue para títulos, preços e números; Raleway para o resto.",
+      "Movimento curto e com função: preenchimento do progresso e \"pulo\" do adesivo, 0,4s."
+    ],
+    "rules": [
+      { "name": "The Ouro É Estado Rule", "body": "Ouro sólido marca o que está escolhido ou é a próxima ação. Um elemento ouro sem contorno de tinta de 2px não existe neste mundo.", "section": "colors" },
+      { "name": "The Uma Saída Verde Rule", "body": "O verde WhatsApp aparece uma única vez, no botão que envia o pedido. Nenhum outro elemento usa verde.", "section": "colors" },
+      { "name": "The Laranja Pequeno Rule", "body": "Laranja só em texto ou controle pequeno de fato secundário (taxa, aviso, remoção); nunca em campo grande nem em ação primária.", "section": "colors" },
+      { "name": "The Número É Cartaz Rule", "body": "Todo preço, total e contagem usa Bebas Neue com algarismos alinhados e tabulares (`lining-nums tabular-nums` na raiz; controles de formulário herdam via `font-variant-numeric: inherit`).", "section": "typography" },
+      { "name": "The Títulos Apertados Rule", "body": "Cabeçalhos h1–h6 usam Bebas com `letter-spacing: -0.02em` e entrelinha curta (0.9–1.1).", "section": "typography" },
+      { "name": "The Sem Sombra Rule", "body": "Nenhuma superfície ganha sombra, vidro ou desfoque, em repouso ou em hover. Se algo precisa se destacar, troque a cor de fundo ou da borda.", "section": "elevation" },
+      { "name": "The Hover Sem Elevação Rule", "body": "Hover muda cor de borda (branco 10% → 30%, 20–25% → 40–50%) ou de fundo (ouro → creme); nunca desloca nem eleva o bloco. Na home, só a ilustração dentro do card cresce 5%.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do contornar todo campo ouro ou verde com 2px de tinta (#120714) e usar texto de tinta sobre ele.",
+      "Do usar cápsula ou círculo para qualquer controle tocável, com alvo mínimo de 44×44px.",
+      "Do mostrar preços e totais em Bebas Neue com algarismos tabulares.",
+      "Do sinalizar seleção trocando o fundo para ouro (tiles) ou o aro para ouro (adesivos), com `aria-pressed`.",
+      "Do limitar o movimento a 0,4s com função clara: `segFill` (cubic-bezier(0.34, 1.56, 0.64, 1)) e `stickerPop` (cubic-bezier(0.16, 1, 0.3, 1)); entradas de etapa e folha com fade/slide de 300ms ease-out; tudo desligado em `prefers-reduced-motion`.",
+      "Do dar a cada etapa um título em display e uma dica em Raleway 15px a 75% de branco."
+    ],
+    "donts": [
+      "Don't usar `box-shadow`, vidro, `backdrop-blur`, gradientes ou elevação/deslocamento no hover em superfícies.",
+      "Don't usar o verde WhatsApp fora do botão final de envio.",
+      "Don't usar laranja em campos grandes ou ações primárias.",
+      "Don't usar o token `primary` do Tailwind (#E6D62E) nem inventar outro amarelo; o ouro deste mundo é #F0DF58.",
+      "Don't trocar ou recolorir o logo e o mascote; eles são a referência 2D do sistema."
+    ]
+  }
+}
