@@ -50,6 +50,7 @@ import type { OrderRecord } from "@/types/order";
 import { normalizeDeliveryMethod, normalizePaymentMethod, DELIVERY_LABELS, PAYMENT_LABELS } from "@/lib/orders";
 import { DEMO_TOKEN } from "@/lib/demo";
 import { MENU_CACHE_KEY, readCachedMenuItems } from "@/lib/menuCache";
+import { computeOrderMetrics, earliestReportStart, filterOrdersByPeriod, type ReportPeriod } from "@/lib/reports";
 import { apiUrl } from "@/lib/api";
 
 function cn(...inputs: ClassValue[]) {
@@ -194,7 +195,7 @@ async function fetchAdminData(token: string): Promise<AdminData | "unauthorized"
   const headers = { Authorization: `Bearer ${token}` };
   const [menuRes, ordersRes] = await Promise.all([
     fetch(apiUrl("/api/admin/menu"), { headers }),
-    fetch(apiUrl("/api/admin/orders"), { headers })
+    fetch(`${apiUrl("/api/admin/orders")}?from=${encodeURIComponent(earliestReportStart(new Date()).toISOString())}`, { headers })
   ]);
 
   if (menuRes.status === 401 || ordersRes.status === 401) return "unauthorized";
@@ -217,7 +218,9 @@ export default function AdminPage() {
   // Filtros da aba de pedidos
   const [orderFilter, setOrderFilter] = useState<OrderFilter>("all");
   // Filtro de período da aba de relatórios
-  const [reportPeriod, setReportPeriod] = useState<"today" | "week" | "month">("today");
+  const [reportPeriod, setReportPeriod] = useState<ReportPeriod>("today");
+  // Momento de referência para "hoje" e para os períodos; renovado ao sincronizar
+  const [now, setNow] = useState(() => new Date());
 
   const token = localStorage.getItem("adminToken");
   const isDemo = token === DEMO_TOKEN;
@@ -331,6 +334,7 @@ export default function AdminPage() {
   // Ação manual com feedback visual interativo
   const handleSyncData = async () => {
     setSyncing(true);
+    setNow(new Date());
     try {
       if (token === DEMO_TOKEN) {
         await new Promise(res => setTimeout(res, 600)); // Delay para sensação tátil de sincronização
@@ -457,16 +461,24 @@ export default function AdminPage() {
     });
   }, [menuItems, selectedCategory, statusFilter, searchQuery]);
 
-  // Filtragem dos Pedidos
+  // Pedidos de hoje (aba "Pedidos do Dia") e do período escolhido nos relatórios
+  const todayOrders = useMemo(() => filterOrdersByPeriod(orders, "today", now), [orders, now]);
+  const todayMetrics = useMemo(() => computeOrderMetrics(todayOrders), [todayOrders]);
+  const reportMetrics = useMemo(
+    () => computeOrderMetrics(filterOrdersByPeriod(orders, reportPeriod, now)),
+    [orders, reportPeriod, now]
+  );
+
+  // Filtragem dos Pedidos do Dia
   const filteredOrders = useMemo(() => {
-    return orders.filter(order => {
+    return todayOrders.filter(order => {
       if (orderFilter === "all") return true;
       if (orderFilter === "delivery" || orderFilter === "pickup") {
         return normalizeDeliveryMethod(order.deliveryMethod) === orderFilter;
       }
       return normalizePaymentMethod(order.paymentMethod) === orderFilter;
     });
-  }, [orders, orderFilter]);
+  }, [todayOrders, orderFilter]);
 
   // Contadores de estatísticas gerais do cardápio
   const stats = useMemo(() => {
@@ -486,55 +498,6 @@ export default function AdminPage() {
     });
     return counts;
   }, [menuItems]);
-
-  // Métricas calculadas para Relatórios e Pedidos
-  const reportMetrics = useMemo(() => {
-    const totalOrdersCount = orders.length;
-    const totalRevenue = orders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
-    const avgTicket = totalOrdersCount > 0 ? totalRevenue / totalOrdersCount : 0;
-
-    const deliveryCount = orders.filter(o => normalizeDeliveryMethod(o.deliveryMethod) === "delivery").length;
-    const pickupCount = totalOrdersCount - deliveryCount;
-
-    // Formas de pagamento
-    const pixOrders = orders.filter(o => normalizePaymentMethod(o.paymentMethod) === "pix");
-    const cardOrders = orders.filter(o => normalizePaymentMethod(o.paymentMethod) === "card");
-    const cashOrders = orders.filter(o => normalizePaymentMethod(o.paymentMethod) === "cash");
-
-    const pixRevenue = pixOrders.reduce((sum, o) => sum + o.total, 0);
-    const cardRevenue = cardOrders.reduce((sum, o) => sum + o.total, 0);
-    const cashRevenue = cashOrders.reduce((sum, o) => sum + o.total, 0);
-
-    // Itens mais pedidos (ranking de frequência)
-    const itemFrequency: Record<string, number> = {};
-    orders.forEach(order => {
-      if (Array.isArray(order.items)) {
-        order.items.forEach(it => {
-          const trimmed = it.trim();
-          if (trimmed) {
-            itemFrequency[trimmed] = (itemFrequency[trimmed] || 0) + 1;
-          }
-        });
-      }
-    });
-
-    const topItems = Object.entries(itemFrequency)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 6)
-      .map(([name, count]) => ({ name, count }));
-
-    return {
-      totalOrdersCount,
-      totalRevenue,
-      avgTicket,
-      deliveryCount,
-      pickupCount,
-      pix: { count: pixOrders.length, revenue: pixRevenue },
-      card: { count: cardOrders.length, revenue: cardRevenue },
-      cash: { count: cashOrders.length, revenue: cashRevenue },
-      topItems
-    };
-  }, [orders]);
 
   if (loading) {
     return (
@@ -651,7 +614,7 @@ export default function AdminPage() {
               <span>Pedidos do Dia</span>
             </div>
             <span className="bg-white/10 text-white/70 text-[10px] font-bold px-2 py-0.5 rounded-full">
-              {orders.length}
+              {todayOrders.length}
             </span>
           </button>
 
@@ -1116,30 +1079,30 @@ export default function AdminPage() {
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
               <div className="bg-[#170a18] border border-white/[0.08] p-4 rounded-2xl">
                 <p className="text-[10px] uppercase font-bold text-white/50">Total de Pedidos</p>
-                <p className="font-heading text-3xl font-bold text-white mt-1">{orders.length}</p>
+                <p className="font-heading text-3xl font-bold text-white mt-1">{todayOrders.length}</p>
               </div>
               <div className="bg-[#170a18] border border-white/[0.08] p-4 rounded-2xl">
                 <p className="text-[10px] uppercase font-bold text-emerald-400">Faturamento Hoje</p>
                 <p className="font-heading text-3xl font-bold text-emerald-400 mt-1">
-                  R$ {reportMetrics.totalRevenue.toFixed(2).replace('.', ',')}
+                  R$ {todayMetrics.totalRevenue.toFixed(2).replace('.', ',')}
                 </p>
               </div>
               <div className="bg-[#170a18] border border-white/[0.08] p-4 rounded-2xl">
                 <p className="text-[10px] uppercase font-bold text-cyan-300">Para Entrega</p>
-                <p className="font-heading text-3xl font-bold text-cyan-300 mt-1">{reportMetrics.deliveryCount}</p>
+                <p className="font-heading text-3xl font-bold text-cyan-300 mt-1">{todayMetrics.deliveryCount}</p>
               </div>
               <div className="bg-[#170a18] border border-white/[0.08] p-4 rounded-2xl">
                 <p className="text-[10px] uppercase font-bold text-amber-300">Retirada no Balcão</p>
-                <p className="font-heading text-3xl font-bold text-amber-300 mt-1">{reportMetrics.pickupCount}</p>
+                <p className="font-heading text-3xl font-bold text-amber-300 mt-1">{todayMetrics.pickupCount}</p>
               </div>
             </div>
 
             {/* Filtros de Pedidos */}
             <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
               {([
-                { key: "all", label: `Todos (${orders.length})` },
-                { key: "delivery", label: `🛵 Entrega (${reportMetrics.deliveryCount})` },
-                { key: "pickup", label: `🛍️ Retirada (${reportMetrics.pickupCount})` },
+                { key: "all", label: `Todos (${todayOrders.length})` },
+                { key: "delivery", label: `🛵 Entrega (${todayMetrics.deliveryCount})` },
+                { key: "pickup", label: `🛍️ Retirada (${todayMetrics.pickupCount})` },
                 { key: "pix", label: "Pix" },
                 { key: "card", label: "Cartão" },
                 { key: "cash", label: "Dinheiro" },
@@ -1484,7 +1447,7 @@ export default function AdminPage() {
                   <LayoutDashboard size={24} />
                 </div>
                 <h3 className="font-heading text-xl uppercase text-white">Pedidos do Dia</h3>
-                <p className="text-white/50 text-xs mt-1">Monitore {orders.length} pedidos em tempo real com total e endereços.</p>
+                <p className="text-white/50 text-xs mt-1">Monitore {todayOrders.length} pedidos em tempo real com total e endereços.</p>
               </button>
 
               <button
@@ -1527,7 +1490,7 @@ export default function AdminPage() {
           <div className="relative">
             <LayoutDashboard size={18} />
             <span className="absolute -top-1.5 -right-2 bg-[#F0DF58] text-[#120714] text-[8px] font-black px-1 rounded-full">
-              {orders.length}
+              {todayOrders.length}
             </span>
           </div>
           <span>Pedidos</span>

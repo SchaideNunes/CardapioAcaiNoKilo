@@ -142,7 +142,7 @@ describe("AdminPage - Painel Administrativo", () => {
     beforeEach(() => {
       localStorage.setItem("adminToken", "real-jwt-token");
       vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
-        const body = String(input).endsWith("/api/admin/orders") ? apiOrders : [];
+        const body = String(input).includes("/api/admin/orders") ? apiOrders : [];
         return Promise.resolve(new Response(JSON.stringify(body), { status: 200 }));
       });
     });
@@ -172,7 +172,7 @@ describe("AdminPage - Painel Administrativo", () => {
 
     it("mostra pagamento no balcão para retirada sem forma de pagamento", async () => {
       vi.mocked(globalThis.fetch).mockImplementation((input) => {
-        const body = String(input).endsWith("/api/admin/orders")
+        const body = String(input).includes("/api/admin/orders")
           ? [{ ...apiOrders[1], paymentMethod: null }]
           : [];
         return Promise.resolve(new Response(JSON.stringify(body), { status: 200 }));
@@ -193,6 +193,65 @@ describe("AdminPage - Painel Administrativo", () => {
       fireEvent.click(screen.getByRole("button", { name: "Dinheiro" }));
       expect(screen.getByText("Pote de 750")).toBeInTheDocument();
       expect(screen.queryByText("2x Açaí Natural 500ml")).not.toBeInTheDocument();
+    });
+  });
+
+  describe("períodos reais em pedidos e relatórios", () => {
+    const now = Date.now();
+    const periodOrders = [
+      {
+        _id: "6710cc000000000000000001", total: 25, deliveryMethod: "pickup", paymentMethod: "pix",
+        items: ["Pedido de hoje"], createdAt: new Date(now).toISOString(),
+      },
+      {
+        _id: "6710cc000000000000000002", total: 40, deliveryMethod: "pickup", paymentMethod: "card",
+        items: ["Pedido de 3 dias atrás"], createdAt: new Date(now - 3 * 24 * 60 * 60 * 1000).toISOString(),
+      },
+    ];
+    let fetchSpy: MockInstance<typeof fetch>;
+
+    beforeEach(() => {
+      localStorage.setItem("adminToken", "real-jwt-token");
+      fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
+        const body = String(input).includes("/api/admin/orders") ? periodOrders : [];
+        return Promise.resolve(new Response(JSON.stringify(body), { status: 200 }));
+      });
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    function renderAdmin() {
+      render(
+        <BrowserRouter>
+          <AdminPage />
+        </BrowserRouter>
+      );
+    }
+
+    it("busca no servidor só os pedidos do período dos relatórios", async () => {
+      renderAdmin();
+      await waitFor(() => expect(fetchSpy.mock.calls.some(([url]) => String(url).includes("/api/admin/orders?from="))).toBe(true));
+    });
+
+    it("'Pedidos do Dia' mostra só os pedidos de hoje", async () => {
+      renderAdmin();
+      fireEvent.click((await screen.findAllByText(/pedidos do dia/i))[0]);
+      await screen.findByText(/faturamento hoje/i);
+
+      expect(screen.getByText("Pedido de hoje")).toBeInTheDocument();
+      expect(screen.queryByText("Pedido de 3 dias atrás")).not.toBeInTheDocument();
+    });
+
+    it("os filtros Hoje / 7 Dias mudam os números do relatório", async () => {
+      renderAdmin();
+      fireEvent.click((await screen.findAllByText(/relatórios/i))[0]);
+      await screen.findByText(/faturamento bruto/i);
+
+      expect(screen.getByText(/Baseado em 1 pedidos/i)).toBeInTheDocument();
+      fireEvent.click(screen.getByRole("button", { name: /7 dias/i }));
+      expect(screen.getByText(/Baseado em 2 pedidos/i)).toBeInTheDocument();
     });
   });
 
