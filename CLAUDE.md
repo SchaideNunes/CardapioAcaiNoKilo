@@ -66,7 +66,7 @@ Ambiente: Windows, caminho do projeto contém `ç` (`Cardapio Açai`) e assets c
 - Mobile-first, de 320px a ultrawide, **zero scroll horizontal** (`w-full max-w-full overflow-x-hidden` nos contêineres raiz). Alvos de toque ≥ 44×44px.
 - **O sistema visual está em [DESIGN.md](DESIGN.md)** (2D chapado, gerado do código da montagem e da home) — siga-o em UI nova. Resumo: chão `#241220`, painéis `#2f1729`, ouro `#F0DF58` só para seleção/ação com contorno `#120714` de 2px, creme `#F8EEA6` nos aros das fotos, laranja `#F58220` só em detalhes pequenos, verde WhatsApp só no botão de enviar. O token `primary` do Tailwind (`#E6D62E`) é legado — não use.
 - Tipografia: `font-heading` (Bebas Neue) para títulos, preços e números; `font-sans` (Raleway) para o resto.
-- **2D, sem profundidade** (regra do dono, ver PRODUCT.md): nada de sombra, vidro/desfoque, degradê ou elevação/escala no hover — o hover muda cor/borda. Números (preços, totais) em Bebas com `lining-nums tabular-nums`. Movimento: só o quique de 0,4s (`anim-seg-fill`, `anim-pop` em `src/index.css`), desligado em `prefers-reduced-motion`. Já migrados: `/`, `/montar`, `/admin`; `/prontos` e `/login` ainda no visual antigo.
+- **2D, sem profundidade** (regra do dono, ver PRODUCT.md): nada de sombra, vidro/desfoque, degradê ou elevação/escala no hover — o hover muda cor/borda. Números (preços, totais) em Bebas com `lining-nums tabular-nums`. Movimento: só o quique de 0,4s (`anim-seg-fill`, `anim-pop` em `src/index.css`), desligado em `prefers-reduced-motion`. Todas as telas (`/`, `/montar`, `/prontos`, `/login`, `/admin`) já seguem esse sistema; preços na interface sempre com `formatBRL` (`R$ 18,00`).
 - Imagens em `public/assets/` sempre `.webp` otimizado (~15–30KB). Converter antes de usar.
 - Toda tela com dados precisa de estados de loading, vazio e erro.
 - Textos de interface em português do Brasil.
@@ -89,10 +89,8 @@ Itens da análise de 14/10/2026 concluídos. Pendências e sugestões abertas:
 
 1. **Antes da hospedagem própria (produção):** criar o admin com senha nova via `create-admin.js` e definir um `JWT_SECRET` forte. A senha antiga ficou no histórico público do git (commits anteriores a `6bcbe49`) e não deve ser reutilizada em produção. O deploy atual na Vercel é só demonstração para o cliente (roda em modo demo, sem backend).
 2. Validar em iPhone/Safari real o fluxo de envio (WhatsApp abre na hora; pedido aparece no admin).
-3. A interface mostra preços com ponto (`R$ 18.00`) enquanto a mensagem usa vírgula (`R$ 18,00`) — padronizar no formato brasileiro com `formatBRL` (os testes de página que procuram `18.00` precisam ser ajustados junto).
-4. O total do pedido vem do cliente; se um dia o pagamento deixar de ser confirmado no WhatsApp, recalcular no servidor a partir dos preços do banco (exige enviar ids em vez de nomes).
-5. Levar `/prontos` e `/login` para o sistema 2D do DESIGN.md (inclui preço em `formatBRL`, item 3).
-6. Os segmentos da barra de progresso do `/montar` têm ~30×29px de área de toque no celular (navegação secundária; o voltar principal tem 56px).
-7. O token do admin fica em `localStorage` (exposto a XSS); avaliar cookie `httpOnly` + `SameSite` quando houver domínio próprio.
+3. O total do pedido vem do cliente; se um dia o pagamento deixar de ser confirmado no WhatsApp, recalcular no servidor a partir dos preços do banco (exige enviar ids em vez de nomes).
+4. Os segmentos da barra de progresso do `/montar` têm ~30×29px de área de toque no celular (navegação secundária; o voltar principal tem 56px).
+5. O token do admin fica em `localStorage` (exposto a XSS); avaliar cookie `httpOnly` + `SameSite` quando houver domínio próprio.
 
 Ao concluir um item, remova-o daqui no mesmo commit.
