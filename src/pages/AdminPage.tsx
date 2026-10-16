@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { 
   Home,
   Box, 
-  LayoutDashboard,
   PlusCircle,
   Layers,
   BarChart3,
@@ -26,16 +25,15 @@ import {
   LogOut,
   RefreshCw,
   MoreHorizontal,
-  DollarSign,
-  TrendingUp,
   CreditCard,
   Wallet,
   QrCode,
   MapPin,
   Clock,
-  Award,
-  ArrowUpRight,
   ArrowRight,
+  Bike,
+  Store,
+  Banknote,
   Receipt
 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
@@ -102,10 +100,10 @@ type OrderFilter = "all" | "open" | "delivery" | "pickup" | "pix" | "card" | "ca
 // Cor da etiqueta de cada status (chapada, sem sombra)
 const ORDER_STATUS_STYLES: Record<OrderStatus, string> = {
   new: "bg-[#F0DF58] text-[#120714] border-[#120714]",
-  preparing: "bg-[#F58220]/15 text-[#F58220] border-[#F58220]/40",
-  ready: "bg-cyan-400/15 text-cyan-300 border-cyan-400/40",
-  done: "bg-emerald-400/15 text-emerald-300 border-emerald-400/40",
-  cancelled: "bg-white/[0.06] text-white/50 border-white/15 line-through",
+  preparing: "bg-[#F58220]/10 text-[#F58220] border-[#F58220]/60",
+  ready: "bg-[#F8EEA6]/10 text-[#F8EEA6] border-[#F8EEA6]/60",
+  done: "bg-white/[0.06] text-white/75 border-white/20",
+  cancelled: "bg-transparent text-white/45 border-white/10 line-through",
 };
 
 // Classes do sistema 2D (DESIGN.md), as mesmas da montagem e da /prontos
@@ -136,6 +134,46 @@ function PageHeader({ title, hint, children }: { title: string; hint: string; ch
       </div>
       {children && <div className="flex shrink-0 items-center gap-2">{children}</div>}
     </div>
+  );
+}
+
+const orderChip = "inline-flex items-center gap-1.5 rounded-full border-2 border-white/10 px-3 py-1 text-[13px] font-bold text-white/80";
+
+function plural(count: number, one: string, many: string): string {
+  return `${count} ${count === 1 ? one : many}`;
+}
+
+// Número de resumo (pedidos e relatórios); o rótulo nomeia o grupo para leitores de tela
+function StatCard({ label, value, note, gold, className }: { label: string; value: string; note?: string; gold?: boolean; className?: string }) {
+  return (
+    <div role="group" aria-label={label} className={cn("rounded-[24px] border-2 border-white/10 bg-[#2f1729] p-3 xs:p-4 sm:p-5", className)}>
+      <p className="text-[13px] font-bold leading-tight text-white/75">{label}</p>
+      <p className={cn("mt-1.5 whitespace-nowrap font-heading text-[clamp(1.5rem,7vw,2.5rem)] leading-none", gold ? "text-[#F0DF58]" : "text-white")}>
+        {value}
+      </p>
+      {note && <p className="mt-1.5 text-[13px] leading-snug text-white/60">{note}</p>}
+    </div>
+  );
+}
+
+// Atalho da visão geral: número grande e o caminho para a aba que resolve
+function OverviewTile({ label, value, hint, highlight, onClick }: { label: string; value: string; hint: string; highlight?: boolean; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "flex flex-col items-start gap-2 rounded-[28px] border-2 p-5 text-left transition-colors duration-200 ease-out",
+        focusRing,
+        highlight ? "border-[#120714] bg-[#F0DF58] text-[#120714] hover:bg-[#F8EEA6]" : "border-white/10 bg-[#2f1729] text-white hover:border-white/30"
+      )}
+    >
+      <span className="flex w-full items-center justify-between gap-3 text-sm font-bold">
+        {label}
+        <ArrowRight size={18} aria-hidden="true" />
+      </span>
+      <span className="whitespace-nowrap font-heading text-[clamp(2.5rem,10vw,3.5rem)] leading-none">{value}</span>
+      <span className={cn("text-[13px]", highlight ? "text-[#120714]/75" : "text-white/60")}>{hint}</span>
+    </button>
   );
 }
 
@@ -884,92 +922,63 @@ export default function AdminPage() {
         {/* ======================= ABA: PEDIDOS DO DIA ============================= */}
         {/* ========================================================================= */}
         {activeTab === "orders" && (
-          <div className="space-y-5 animate-in fade-in duration-200">
-            {/* Cabeçalho de Pedidos */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div>
-                <h2 className="font-sans text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight flex items-center gap-2.5">
-                  <LayoutDashboard className="text-[#F0DF58]" size={26} />
-                  Pedidos do Dia
-                </h2>
-                <p className="text-white/50 text-xs sm:text-sm font-sans mt-0.5">
-                  Histórico e pedidos em tempo real gravados no sistema
-                </p>
-              </div>
+          <div className="space-y-5">
+            <PageHeader title="Pedidos do dia" hint="Pedidos feitos hoje pelo site. Avance cada um até concluir.">
+              <button
+                onClick={handleSyncData}
+                disabled={syncing}
+                aria-label="Sincronizar pedidos"
+                className={cn(pillBase, pillIdle, focusRing, "px-3 disabled:opacity-60 sm:px-4")}
+              >
+                <RefreshCw size={16} className={cn(syncing && "animate-spin text-[#F0DF58] motion-reduce:animate-none")} aria-hidden="true" />
+                <span className="hidden sm:inline">{syncing ? "Sincronizando..." : "Sincronizar"}</span>
+              </button>
+            </PageHeader>
 
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={handleSyncData}
-                  disabled={syncing}
-                  className={cn(
-                    "px-3.5 py-2 min-h-11 lg:min-h-0 rounded-xl text-xs font-bold uppercase transition-all flex items-center gap-2 border",
-                    syncing 
-                      ? "bg-[#F0DF58]/20 text-[#F0DF58] border-[#F0DF58]/40" 
-                      : "bg-white/10 hover:bg-white/20 text-white border-white/10 active:scale-95"
-                  )}
-                >
-                  <RefreshCw size={14} className={syncing ? "animate-spin text-[#F0DF58]" : ""} />
-                  <span>{syncing ? "Sincronizando..." : "Sincronizar"}</span>
-                </button>
-              </div>
+            <div className="grid grid-cols-6 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <StatCard label="Faturamento hoje" value={formatBRL(todayMetrics.totalRevenue)} gold className="col-span-6 sm:col-span-1" />
+              <StatCard label="Total de pedidos" value={String(todayOrders.length)} className="col-span-2 sm:col-span-1" />
+              <StatCard label="Para entrega" value={String(todayMetrics.deliveryCount)} className="col-span-2 sm:col-span-1" />
+              <StatCard label="Retirada no balcão" value={String(todayMetrics.pickupCount)} className="col-span-2 sm:col-span-1" />
             </div>
 
-            {/* Métricas dos Pedidos */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-              <div className="bg-[#2f1729] border-2 border-white/10 p-4 rounded-2xl">
-                <p className="text-[10px] uppercase font-bold text-white/50">Total de Pedidos</p>
-                <p className="font-heading text-3xl font-bold text-white mt-1">{todayOrders.length}</p>
-              </div>
-              <div className="bg-[#2f1729] border-2 border-white/10 p-4 rounded-2xl">
-                <p className="text-[10px] uppercase font-bold text-emerald-400">Faturamento Hoje</p>
-                <p className="font-heading text-3xl font-bold text-emerald-400 mt-1">
-                  R$ {todayMetrics.totalRevenue.toFixed(2).replace('.', ',')}
-                </p>
-              </div>
-              <div className="bg-[#2f1729] border-2 border-white/10 p-4 rounded-2xl">
-                <p className="text-[10px] uppercase font-bold text-cyan-300">Para Entrega</p>
-                <p className="font-heading text-3xl font-bold text-cyan-300 mt-1">{todayMetrics.deliveryCount}</p>
-              </div>
-              <div className="bg-[#2f1729] border-2 border-white/10 p-4 rounded-2xl">
-                <p className="text-[10px] uppercase font-bold text-amber-300">Retirada no Balcão</p>
-                <p className="font-heading text-3xl font-bold text-amber-300 mt-1">{todayMetrics.pickupCount}</p>
-              </div>
-            </div>
-
-            {/* Filtros de Pedidos */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+            {/* Filtros: faixa rolável no celular */}
+            <div
+              role="group"
+              aria-label="Filtrar pedidos"
+              className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6 md:mx-0 md:flex-wrap md:overflow-visible md:px-0 md:pb-0"
+            >
               {([
                 { key: "all", label: `Todos (${todayOrders.length})` },
-                { key: "open", label: `Em aberto (${todayOrders.filter(o => ["new", "preparing", "ready"].includes(normalizeOrderStatus(o.status))).length})` },
-                { key: "delivery", label: `🛵 Entrega (${todayMetrics.deliveryCount})` },
-                { key: "pickup", label: `🛍️ Retirada (${todayMetrics.pickupCount})` },
-                { key: "pix", label: "Pix" },
-                { key: "card", label: "Cartão" },
-                { key: "cash", label: "Dinheiro" },
-              ] satisfies { key: OrderFilter; label: string }[]).map(f => (
+                { key: "open", label: `Em aberto (${openOrdersCount})` },
+                { key: "delivery", label: `Entrega (${todayMetrics.deliveryCount})`, Icon: Bike },
+                { key: "pickup", label: `Retirada (${todayMetrics.pickupCount})`, Icon: Store },
+                { key: "pix", label: "Pix", Icon: QrCode },
+                { key: "card", label: "Cartão", Icon: CreditCard },
+                { key: "cash", label: "Dinheiro", Icon: Banknote },
+              ] satisfies { key: OrderFilter; label: string; Icon?: typeof Bike }[]).map(({ key, label, Icon }) => (
                 <button
-                  key={f.key}
-                  onClick={() => setOrderFilter(f.key)}
-                  className={cn(
-                    "px-3.5 py-1.5 min-h-11 lg:min-h-0 rounded-full text-xs font-bold transition-all whitespace-nowrap",
-                    orderFilter === f.key 
-                      ? "bg-[#F0DF58] text-[#120714]"
-                      : "bg-[#2f1729] text-white/70 hover:text-white border-2 border-white/10"
-                  )}
+                  key={key}
+                  onClick={() => setOrderFilter(key)}
+                  aria-pressed={orderFilter === key}
+                  className={cn(pillBase, focusRing, "shrink-0", orderFilter === key ? pillOn : pillIdle)}
                 >
-                  {f.label}
+                  {Icon && <Icon size={16} aria-hidden="true" />}
+                  {label}
                 </button>
               ))}
             </div>
 
-            {/* Lista de Pedidos */}
+            {/* Lista de pedidos */}
             {filteredOrders.length === 0 ? (
-              <div className="text-center py-16 bg-[#170a18]/40 border border-white/[0.06] rounded-3xl p-8">
-                <Receipt className="mx-auto text-white/20 mb-3" size={40} />
-                <p className="text-white/60 text-sm font-sans">Nenhum pedido encontrado para o filtro selecionado.</p>
+              <div className={cn(panelCard, "px-6 py-12 text-center")}>
+                <Receipt className="mx-auto mb-3 text-white/30" size={36} aria-hidden="true" />
+                <p className="text-[15px] text-white/75">
+                  {todayOrders.length === 0 ? "Nenhum pedido hoje ainda." : "Nenhum pedido com o filtro selecionado."}
+                </p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <ul className="space-y-3">
                 {filteredOrders.map(order => {
                   const delivery = normalizeDeliveryMethod(order.deliveryMethod);
                   const payment = normalizePaymentMethod(order.paymentMethod);
@@ -977,108 +986,99 @@ export default function AdminPage() {
                   const next = nextOrderStatus(status);
                   const isOpen = status !== "done" && status !== "cancelled";
                   const isDelivery = delivery === "delivery";
+                  const PaymentIcon = payment === "pix" ? QrCode : payment === "card" ? CreditCard : payment === "cash" ? Banknote : Wallet;
                   const dateFormatted = new Date(order.createdAt).toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' });
 
                   return (
-                    <div 
-                      key={order._id}
-                      className="bg-[#2f1729] border-2 border-white/10 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-white/20 transition-all"
-                    >
-                      <div className="space-y-2 flex-1">
-                        <div className="flex items-center gap-2.5 flex-wrap">
-                          <span className="font-heading text-sm text-[#F0DF58] bg-[#F0DF58]/10 px-2 py-0.5 rounded-md border border-[#F0DF58]/20">
-                            #{order._id.slice(-6).toUpperCase()}
-                          </span>
-                          <span className="text-xs text-white/50 flex items-center gap-1">
-                            <Clock size={12} /> {dateFormatted}
-                          </span>
-                          <span className={cn("text-[11px] font-bold px-2.5 py-0.5 rounded-full border-2 uppercase", ORDER_STATUS_STYLES[status])}>
-                            {orderStatusLabel(status, delivery)}
-                          </span>
-                          <span className={cn(
-                            "text-[10px] font-bold px-2 py-0.5 rounded-full uppercase",
-                            isDelivery ? "bg-cyan-500/15 text-cyan-300 border border-cyan-500/30" : "bg-amber-500/15 text-amber-300 border border-amber-500/30"
-                          )}>
-                            {delivery ? DELIVERY_LABELS[delivery] : (order.deliveryMethod || "Retirada")}
-                          </span>
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/15 text-purple-300 border border-purple-500/30">
-                            💳 {payment ? PAYMENT_LABELS[payment] : (order.paymentMethod || "No balcão")}
-                          </span>
-                        </div>
-
-                        {/* Itens do Pedido */}
-                        <div className="flex flex-wrap gap-1.5 pt-1">
-                          {order.items?.map((item, idx) => (
-                            <span 
-                              key={idx}
-                              className="text-xs font-medium text-white/80 bg-white/[0.04] border border-white/5 px-2.5 py-1 rounded-lg"
-                            >
-                              {item}
-                            </span>
-                          ))}
-                        </div>
-
-                        {/* Endereço se entrega */}
-                        {isDelivery && order.address && (
-                          <div className="text-xs text-white/50 flex items-center gap-1.5 pt-1">
-                            <MapPin size={12} className="text-rose-400" />
-                            <span>{order.address.street}, {order.address.number || 'S/N'} - {order.address.neighborhood}</span>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Total do Pedido */}
-                      <div className="flex sm:flex-col items-center sm:items-end justify-between border-t sm:border-t-0 pt-3 sm:pt-0 border-white/5">
-                        <span className="text-[10px] font-bold uppercase text-white/40">Total</span>
-                        <span className="font-heading text-2xl font-bold text-[#F0DF58]">
-                          R$ {(Number(order.total) || 0).toFixed(2).replace('.', ',')}
+                    <li key={order._id} className={cn(panelCard, "p-4 sm:p-5", !isOpen && "border-white/5")}>
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                        <span className={cn("rounded-full border-2 px-3 py-0.5 text-xs font-bold", ORDER_STATUS_STYLES[status])}>
+                          {orderStatusLabel(status, delivery)}
+                        </span>
+                        <span className="font-heading text-xl leading-none text-white">#{order._id.slice(-6).toUpperCase()}</span>
+                        <span className="flex items-center gap-1 text-sm text-white/60">
+                          <Clock size={14} aria-hidden="true" /> {dateFormatted}
                         </span>
                       </div>
 
-                      {/* Ações de status */}
-                      {isOpen && (
-                        <div className="flex flex-wrap items-center gap-2 sm:flex-col sm:items-stretch">
-                          {cancelingOrderId === order._id ? (
-                            <>
-                              <button
-                                onClick={() => updateOrderStatus(order._id, "cancelled")}
-                                className="h-11 rounded-full border-2 border-[#120714] bg-[#F58220] px-4 text-sm font-bold text-[#120714]"
-                              >
-                                Confirmar cancelamento
-                              </button>
-                              <button
-                                onClick={() => setCancelingOrderId(null)}
-                                className="h-11 rounded-full border-2 border-white/20 px-4 text-sm font-bold text-white hover:border-white/40"
-                              >
-                                Voltar
-                              </button>
-                            </>
-                          ) : (
-                            <>
-                              {next && (
-                                <button
-                                  onClick={() => updateOrderStatus(order._id, next)}
-                                  aria-label={`Marcar como ${orderStatusLabel(next, delivery).toLowerCase()}`}
-                                  className="flex h-11 items-center justify-center gap-1.5 rounded-full border-2 border-[#120714] bg-[#F0DF58] px-4 font-heading text-lg uppercase text-[#120714] hover:bg-[#F8EEA6] transition-colors"
-                                >
-                                  {orderStatusLabel(next, delivery)} <ArrowRight size={16} strokeWidth={2.5} />
-                                </button>
-                              )}
-                              <button
-                                onClick={() => setCancelingOrderId(order._id)}
-                                aria-label="Cancelar pedido"
-                                className="h-11 rounded-full border-2 border-white/15 px-4 text-sm font-bold text-white/70 hover:border-[#F58220] hover:text-[#F58220] transition-colors"
-                              >
-                                Cancelar
-                              </button>
-                            </>
-                          )}
-                        </div>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        <span className={orderChip}>
+                          {isDelivery ? <Bike size={14} aria-hidden="true" /> : <Store size={14} aria-hidden="true" />}
+                          {delivery ? DELIVERY_LABELS[delivery] : (order.deliveryMethod || "Retirada")}
+                        </span>
+                        <span className={orderChip}>
+                          <PaymentIcon size={14} aria-hidden="true" />
+                          <span className="sr-only">Pagamento: </span>
+                          {payment ? PAYMENT_LABELS[payment] : (order.paymentMethod || "No balcão")}
+                        </span>
+                      </div>
+
+                      {/* Itens do pedido, separados por ponto */}
+                      <ul className="mt-3 flex flex-wrap gap-x-1.5 gap-y-1 text-[15px] leading-snug text-white/85">
+                        {order.items?.map((item, idx) => (
+                          <li key={idx} className="after:ml-1.5 after:text-white/30 after:content-['·'] last:after:content-none">
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+
+                      {isDelivery && order.address && (
+                        <p className="mt-2 flex items-start gap-1.5 text-sm text-white/60">
+                          <MapPin size={14} className="mt-0.5 shrink-0" aria-hidden="true" />
+                          <span>{order.address.street}, {order.address.number || 'S/N'} - {order.address.neighborhood}</span>
+                        </p>
                       )}
-                    </div>
+
+                      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t-2 border-white/10 pt-4">
+                        <p className="flex items-baseline gap-2">
+                          <span className="text-[13px] font-bold text-white/60">Total</span>
+                          <span className="font-heading text-[28px] leading-none text-[#F0DF58]">{formatBRL(Number(order.total) || 0)}</span>
+                        </p>
+
+                        {isOpen && (
+                          <div className="flex w-full flex-wrap gap-2 xs:w-auto">
+                            {cancelingOrderId === order._id ? (
+                              <>
+                                <button
+                                  onClick={() => updateOrderStatus(order._id, "cancelled")}
+                                  className={cn("h-11 flex-1 rounded-full border-2 border-[#120714] bg-[#F58220] px-4 text-sm font-bold text-[#120714] xs:flex-none", focusRing)}
+                                >
+                                  Confirmar cancelamento
+                                </button>
+                                <button
+                                  onClick={() => setCancelingOrderId(null)}
+                                  className={cn("h-11 flex-1 rounded-full border-2 border-white/20 px-4 text-sm font-bold text-white transition-colors hover:border-white/50 xs:flex-none", focusRing)}
+                                >
+                                  Voltar
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                {next && (
+                                  <button
+                                    onClick={() => updateOrderStatus(order._id, next)}
+                                    aria-label={`Marcar como ${orderStatusLabel(next, delivery).toLowerCase()}`}
+                                    className={cn(primaryBtn, focusRing, "h-11 flex-1 px-4 text-xl xs:flex-none")}
+                                  >
+                                    {orderStatusLabel(next, delivery)} <ArrowRight size={16} strokeWidth={2.5} aria-hidden="true" />
+                                  </button>
+                                )}
+                                <button
+                                  onClick={() => setCancelingOrderId(order._id)}
+                                  aria-label="Cancelar pedido"
+                                  className={cn("h-11 rounded-full border-2 border-white/20 px-4 text-sm font-bold text-white/75 transition-colors hover:border-[#F58220] hover:text-[#F58220]", focusRing)}
+                                >
+                                  Cancelar
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </li>
                   );
                 })}
-              </div>
+              </ul>
             )}
           </div>
         )}
@@ -1087,213 +1087,119 @@ export default function AdminPage() {
         {/* ======================= ABA: RELATÓRIOS & ANALYTICS ==================== */}
         {/* ========================================================================= */}
         {activeTab === "reports" && (
-          <div className="space-y-6 animate-in fade-in duration-200">
-            {/* Cabeçalho */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div>
-                <h2 className="font-sans text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight flex items-center gap-2.5">
-                  <BarChart3 className="text-[#F0DF58]" size={26} />
-                  Relatórios & Desempenho
-                </h2>
-                <p className="text-white/50 text-xs sm:text-sm font-sans mt-0.5">
-                  Métricas financeiras, itens mais pedidos e comportamento de vendas
-                </p>
-              </div>
+          <div className="space-y-5">
+            <PageHeader title="Relatórios & desempenho" hint="Faturamento, itens mais pedidos e formas de pagamento." />
 
-              {/* Período */}
-              <div className="flex items-center gap-1 bg-[#2f1729] p-1 rounded-2xl border-2 border-white/10">
+            <div role="group" aria-label="Período" className="grid grid-cols-3 gap-2 sm:inline-flex">
+              {([
+                ["today", "Hoje"],
+                ["week", "7 dias"],
+                ["month", "Mês"],
+              ] as const).map(([key, label]) => (
                 <button
-                  onClick={() => setReportPeriod("today")}
-                  className={cn(
-                    "px-4 py-1.5 min-h-11 lg:min-h-0 rounded-xl text-xs font-bold transition-all",
-                    reportPeriod === "today" ? "bg-[#F0DF58] text-[#120714]" : "text-white/60 hover:text-white"
-                  )}
+                  key={key}
+                  onClick={() => setReportPeriod(key)}
+                  aria-pressed={reportPeriod === key}
+                  className={cn(pillBase, focusRing, reportPeriod === key ? pillOn : pillIdle)}
                 >
-                  Hoje
+                  {label}
                 </button>
-                <button
-                  onClick={() => setReportPeriod("week")}
-                  className={cn(
-                    "px-4 py-1.5 min-h-11 lg:min-h-0 rounded-xl text-xs font-bold transition-all",
-                    reportPeriod === "week" ? "bg-[#F0DF58] text-[#120714]" : "text-white/60 hover:text-white"
-                  )}
-                >
-                  7 Dias
-                </button>
-                <button
-                  onClick={() => setReportPeriod("month")}
-                  className={cn(
-                    "px-4 py-1.5 min-h-11 lg:min-h-0 rounded-xl text-xs font-bold transition-all",
-                    reportPeriod === "month" ? "bg-[#F0DF58] text-[#120714]" : "text-white/60 hover:text-white"
-                  )}
-                >
-                  Mês
-                </button>
-              </div>
+              ))}
             </div>
 
-            {/* 4 Cards de Métricas Principais */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* Faturamento */}
-              <div className="bg-[#2f1729] border-2 border-white/10 p-5 rounded-3xl relative overflow-hidden">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase text-white/50">Faturamento Bruto</span>
-                  <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
-                    <DollarSign size={18} />
-                  </div>
-                </div>
-                <p className="font-heading text-4xl font-bold text-emerald-400 mt-2">
-                  R$ {reportMetrics.totalRevenue.toFixed(2).replace('.', ',')}
-                </p>
-                <span className="text-[11px] text-white/40 mt-1 block">Baseado em {reportMetrics.totalOrdersCount} pedidos</span>
-              </div>
-
-              {/* Ticket Médio */}
-              <div className="bg-[#2f1729] border-2 border-white/10 p-5 rounded-3xl relative overflow-hidden">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase text-white/50">Ticket Médio</span>
-                  <div className="p-2 rounded-xl bg-purple-500/10 text-purple-300">
-                    <TrendingUp size={18} />
-                  </div>
-                </div>
-                <p className="font-heading text-4xl font-bold text-white mt-2">
-                  R$ {reportMetrics.avgTicket.toFixed(2).replace('.', ',')}
-                </p>
-                <span className="text-[11px] text-white/40 mt-1 block">Média por cliente</span>
-              </div>
-
-              {/* Volume de Pedidos */}
-              <div className="bg-[#2f1729] border-2 border-white/10 p-5 rounded-3xl relative overflow-hidden">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase text-white/50">Total de Pedidos</span>
-                  <div className="p-2 rounded-xl bg-amber-500/10 text-amber-300">
-                    <ShoppingBag size={18} />
-                  </div>
-                </div>
-                <p className="font-heading text-4xl font-bold text-[#F0DF58] mt-2">
-                  {reportMetrics.totalOrdersCount}
-                </p>
-                <span className="text-[11px] text-white/40 mt-1 block">Pedidos concluídos</span>
-              </div>
-
-              {/* Taxa de Entrega */}
-              <div className="bg-[#2f1729] border-2 border-white/10 p-5 rounded-3xl relative overflow-hidden">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase text-white/50">Taxa Delivery</span>
-                  <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-300">
-                    <ArrowUpRight size={18} />
-                  </div>
-                </div>
-                <p className="font-heading text-4xl font-bold text-cyan-300 mt-2">
-                  {reportMetrics.totalOrdersCount > 0 
-                    ? `${Math.round((reportMetrics.deliveryCount / reportMetrics.totalOrdersCount) * 100)}%` 
-                    : "0%"}
-                </p>
-                <span className="text-[11px] text-white/40 mt-1 block">{reportMetrics.deliveryCount} entregas vs {reportMetrics.pickupCount} retiradas</span>
-              </div>
+            <div className="grid grid-cols-6 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <StatCard
+                label="Faturamento bruto"
+                value={formatBRL(reportMetrics.totalRevenue)}
+                note={`Baseado em ${plural(reportMetrics.totalOrdersCount, "pedido", "pedidos")}`}
+                gold
+                className="col-span-6 sm:col-span-1"
+              />
+              <StatCard
+                label="Ticket médio"
+                value={formatBRL(reportMetrics.avgTicket)}
+                note="Média por pedido"
+                className="col-span-3 sm:col-span-1"
+              />
+              <StatCard
+                label="Total de pedidos"
+                value={String(reportMetrics.totalOrdersCount)}
+                note={reportMetrics.cancelledCount > 0
+                  ? `${plural(reportMetrics.cancelledCount, "cancelado", "cancelados")} fora da conta`
+                  : "Sem contar cancelados"}
+                className="col-span-3 sm:col-span-1"
+              />
+              <StatCard
+                label="Pedidos para entrega"
+                value={reportMetrics.totalOrdersCount > 0
+                  ? `${Math.round((reportMetrics.deliveryCount / reportMetrics.totalOrdersCount) * 100)}%`
+                  : "0%"}
+                note={`${plural(reportMetrics.deliveryCount, "entrega", "entregas")} · ${plural(reportMetrics.pickupCount, "retirada", "retiradas")}`}
+                className="col-span-6 sm:col-span-1"
+              />
             </div>
 
-            {/* Painéis Gráficos e Distribuição */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-              {/* Ranking de Itens Mais Vendidos */}
-              <div className="bg-[#2f1729] border-2 border-white/10 p-5 rounded-3xl space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold uppercase text-white/90 flex items-center gap-2">
-                    <Award size={18} className="text-[#F0DF58]" />
-                    Top Complementos e Itens Mais Pedidos
-                  </h3>
-                  <span className="text-xs text-white/40">Frequência</span>
-                </div>
+            <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+              {/* Itens mais pedidos */}
+              <section aria-labelledby="report-top-items" className={cn(panelCard, "p-5")}>
+                <h3 id="report-top-items" className="font-heading text-[28px] uppercase leading-none text-white">Mais pedidos</h3>
+                <p className="mt-1 text-[13px] text-white/60">Em quantos pedidos cada item apareceu</p>
 
                 {reportMetrics.topItems.length === 0 ? (
-                  <p className="text-white/40 text-xs text-center py-6">Nenhum dado de pedido registrado ainda.</p>
+                  <p className="py-8 text-center text-[15px] text-white/60">Nenhum pedido no período.</p>
                 ) : (
-                  <div className="space-y-3">
+                  <ol className="mt-4 space-y-3">
                     {reportMetrics.topItems.map((item, idx) => {
                       const maxCount = reportMetrics.topItems[0]?.count || 1;
                       const pct = Math.round((item.count / maxCount) * 100);
 
                       return (
-                        <div key={item.name} className="space-y-1">
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="font-semibold text-white/90 flex items-center gap-2">
-                              <span className="w-5 text-[#F0DF58] font-bold">#{idx + 1}</span>
-                              {item.name}
+                        <li key={item.name}>
+                          <div className="flex items-baseline justify-between gap-3 text-sm">
+                            <span className="flex min-w-0 items-baseline gap-2 font-semibold text-white/90">
+                              <span className="w-6 shrink-0 font-heading text-lg leading-none text-[#F0DF58]">{idx + 1}</span>
+                              <span className="truncate">{item.name}</span>
                             </span>
-                            <span className="text-white/50">{item.count} pedidos</span>
+                            <span className="shrink-0 text-white/60">{plural(item.count, "pedido", "pedidos")}</span>
                           </div>
-                          <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
-                            <div 
-                              className="h-full bg-[#F0DF58] rounded-full transition-all duration-500" 
-                              style={{ width: `${pct}%` }}
-                            />
+                          <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-white/10">
+                            <div className="h-full rounded-full bg-[#F0DF58]" style={{ width: `${pct}%` }} />
                           </div>
-                        </div>
+                        </li>
                       );
                     })}
-                  </div>
+                  </ol>
                 )}
-              </div>
+              </section>
 
-              {/* Formas de Pagamento e Entregas */}
-              <div className="bg-[#2f1729] border-2 border-white/10 p-5 rounded-3xl space-y-5">
-                <div>
-                  <h3 className="text-sm font-bold uppercase text-white/90 mb-3 flex items-center gap-2">
-                    <CreditCard size={18} className="text-emerald-400" />
-                    Divisão por Forma de Pagamento
-                  </h3>
+              {/* Formas de pagamento */}
+              <section aria-labelledby="report-payments" className={cn(panelCard, "p-5")}>
+                <h3 id="report-payments" className="font-heading text-[28px] uppercase leading-none text-white">Divisão por forma de pagamento</h3>
+                <p className="mt-1 text-[13px] text-white/60">Retiradas pagas no balcão ficam fora desta divisão</p>
 
-                  <div className="space-y-2.5">
-                    {/* Pix */}
-                    <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center justify-between">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
-                          <QrCode size={16} />
+                <ul className="mt-4 space-y-2">
+                  {([
+                    ["pix", "Pix", QrCode],
+                    ["card", "Cartão", CreditCard],
+                    ["cash", "Dinheiro", Banknote],
+                  ] as const).map(([key, label, Icon]) => {
+                    const m = reportMetrics[key];
+                    const share = reportMetrics.totalRevenue > 0 ? Math.round((m.revenue / reportMetrics.totalRevenue) * 100) : 0;
+                    return (
+                      <li key={key} className="flex items-center gap-3 rounded-2xl border-2 border-white/10 p-3">
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#3a1d33] text-white/85">
+                          <Icon size={18} aria-hidden="true" />
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-bold text-white">{label}</p>
+                          <p className="text-[13px] text-white/60">{plural(m.count, "pedido", "pedidos")} · {share}%</p>
                         </div>
-                        <div>
-                          <p className="text-xs font-bold text-white">Pix</p>
-                          <p className="text-[10px] text-white/40">{reportMetrics.pix.count} pedidos</p>
-                        </div>
-                      </div>
-                      <span className="font-heading text-lg text-emerald-400 font-bold">
-                        R$ {reportMetrics.pix.revenue.toFixed(2).replace('.', ',')}
-                      </span>
-                    </div>
-
-                    {/* Cartão */}
-                    <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center justify-between">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-xl bg-purple-500/10 text-purple-300 flex items-center justify-center">
-                          <CreditCard size={16} />
-                        </div>
-                        <div>
-                          <p className="text-xs font-bold text-white">Cartão</p>
-                          <p className="text-[10px] text-white/40">{reportMetrics.card.count} pedidos</p>
-                        </div>
-                      </div>
-                      <span className="font-heading text-lg text-white font-bold">
-                        R$ {reportMetrics.card.revenue.toFixed(2).replace('.', ',')}
-                      </span>
-                    </div>
-
-                    {/* Dinheiro */}
-                    <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center justify-between">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center">
-                          <Wallet size={16} />
-                        </div>
-                        <div>
-                          <p className="text-xs font-bold text-white">Dinheiro</p>
-                          <p className="text-[10px] text-white/40">{reportMetrics.cash.count} pedidos</p>
-                        </div>
-                      </div>
-                      <span className="font-heading text-lg text-amber-400 font-bold">
-                        R$ {reportMetrics.cash.revenue.toFixed(2).replace('.', ',')}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                        <span className="whitespace-nowrap font-heading text-2xl leading-none text-white">{formatBRL(m.revenue)}</span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </section>
             </div>
           </div>
         )}
@@ -1302,51 +1208,29 @@ export default function AdminPage() {
         {/* ======================= ABA: VISÃO GERAL ================================ */}
         {/* ========================================================================= */}
         {activeTab === "overview" && (
-          <div className="space-y-6 animate-in fade-in duration-200">
-            <div>
-              <h2 className="font-sans text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight flex items-center gap-2.5">
-                <Home className="text-[#F0DF58]" size={26} />
-                Visão Geral do Negócio
-              </h2>
-              <p className="text-white/50 text-xs sm:text-sm font-sans mt-0.5">
-                Resumo rápido de operações e atalhos de gestão
-              </p>
-            </div>
+          <div className="space-y-5">
+            <PageHeader title="Visão geral" hint="Como está o dia na loja." />
 
-            {/* Ações Rápidas em Cards Grandes */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <button
-                onClick={() => setActiveTab("menu")}
-                className="bg-[#2f1729] border-2 border-white/10 hover:border-[#F0DF58]/40 p-6 rounded-3xl text-left transition-all group"
-              >
-                <div className="w-12 h-12 rounded-2xl bg-[#F0DF58]/10 text-[#F0DF58] flex items-center justify-center mb-4 transition-transform">
-                  <Box size={24} />
-                </div>
-                <h3 className="font-heading text-xl uppercase text-white">Gestão do Cardápio</h3>
-                <p className="text-white/50 text-xs mt-1">Gerencie preços, estoque e fotos dos {stats.total} itens cadastrados.</p>
-              </button>
-
-              <button
-                onClick={() => setActiveTab("orders")}
-                className="bg-[#2f1729] border-2 border-white/10 hover:border-emerald-500/40 p-6 rounded-3xl text-left transition-all group"
-              >
-                <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-4 transition-transform">
-                  <LayoutDashboard size={24} />
-                </div>
-                <h3 className="font-heading text-xl uppercase text-white">Pedidos do Dia</h3>
-                <p className="text-white/50 text-xs mt-1">Monitore {todayOrders.length} pedidos em tempo real com total e endereços.</p>
-              </button>
-
-              <button
-                onClick={() => setActiveTab("reports")}
-                className="bg-[#2f1729] border-2 border-white/10 hover:border-cyan-500/40 p-6 rounded-3xl text-left transition-all group"
-              >
-                <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 text-cyan-300 flex items-center justify-center mb-4 transition-transform">
-                  <BarChart3 size={24} />
-                </div>
-                <h3 className="font-heading text-xl uppercase text-white">Relatórios & Vendas</h3>
-                <p className="text-white/50 text-xs mt-1">Consulte faturamento, ticket médio e ingredientes mais vendidos.</p>
-              </button>
+            <div className="grid grid-cols-1 gap-3 xl:grid-cols-3">
+              <OverviewTile
+                label="Pedidos em aberto"
+                value={String(openOrdersCount)}
+                hint={openOrdersCount > 0 ? "Toque para ver e avançar os pedidos" : "Nada esperando agora"}
+                highlight={openOrdersCount > 0}
+                onClick={() => { setOrderFilter(openOrdersCount > 0 ? "open" : "all"); setActiveTab("orders"); }}
+              />
+              <OverviewTile
+                label="Faturamento hoje"
+                value={formatBRL(todayMetrics.totalRevenue)}
+                hint={`${plural(todayMetrics.totalOrdersCount, "pedido", "pedidos")} hoje`}
+                onClick={() => { setReportPeriod("today"); setActiveTab("reports"); }}
+              />
+              <OverviewTile
+                label="Itens desativados"
+                value={String(stats.inactive)}
+                hint={stats.inactive > 0 ? `De ${stats.total} itens, ocultos para o cliente` : `Todos os ${stats.total} itens aparecem no cardápio`}
+                onClick={() => { setSelectedCategory("all"); setStatusFilter(stats.inactive > 0 ? "inactive" : "all"); setActiveTab("menu"); }}
+              />
             </div>
           </div>
         )}

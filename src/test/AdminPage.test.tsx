@@ -1,7 +1,9 @@
 import { describe, it, expect, beforeEach, afterEach, vi, type MockInstance } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import AdminPage from "@/pages/AdminPage";
+
+const withText = (text: string) => (_: string, el: Element | null) => el?.textContent === text;
 
 describe("AdminPage - Painel Administrativo", () => {
   beforeEach(() => {
@@ -64,6 +66,18 @@ describe("AdminPage - Painel Administrativo", () => {
     fireEvent.change(searchInput, { target: { value: "Banana" } });
     fireEvent.click(screen.getByRole("button", { name: /limpar busca/i }));
     expect(searchInput).toHaveValue("");
+  });
+
+  it("a visão geral mostra os números do dia e leva à aba certa", async () => {
+    render(
+      <BrowserRouter>
+        <AdminPage />
+      </BrowserRouter>
+    );
+
+    fireEvent.click((await screen.findAllByText(/visão geral/i))[0]);
+    fireEvent.click(await screen.findByRole("button", { name: /pedidos em aberto/i }));
+    expect(await screen.findByText(/faturamento hoje/i)).toBeInTheDocument();
   });
 
   it("opens 'Novo Item' modal and adds an item", async () => {
@@ -178,9 +192,10 @@ describe("AdminPage - Painel Administrativo", () => {
       await openOrdersTab();
 
       expect(screen.getByText("Rua das Flores, 42 - Centro")).toBeInTheDocument();
-      expect(screen.getByText(/💳 Cartão/)).toBeInTheDocument();
-      expect(screen.getByText(/💳 Dinheiro/)).toBeInTheDocument();
-      expect(screen.queryByText(/💳 card/)).not.toBeInTheDocument();
+      expect(screen.getByText(withText("Pagamento: Cartão"))).toBeInTheDocument();
+      expect(screen.getByText(withText("Pagamento: Dinheiro"))).toBeInTheDocument();
+      expect(screen.queryByText(withText("Pagamento: card"))).not.toBeInTheDocument();
+      expect(screen.queryByText(/💳|🛵|🛍️/)).not.toBeInTheDocument();
     });
 
     it("mostra pagamento no balcão para retirada sem forma de pagamento", async () => {
@@ -192,8 +207,8 @@ describe("AdminPage - Painel Administrativo", () => {
       });
       await openOrdersTab();
 
-      expect(screen.getByText(/💳 No balcão/)).toBeInTheDocument();
-      expect(screen.queryByText(/💳 Pix/)).not.toBeInTheDocument();
+      expect(screen.getByText(withText("Pagamento: No balcão"))).toBeInTheDocument();
+      expect(screen.queryByText(withText("Pagamento: Pix"))).not.toBeInTheDocument();
     });
 
     it("filtra por entrega e por forma de pagamento", async () => {
@@ -262,9 +277,11 @@ describe("AdminPage - Painel Administrativo", () => {
       fireEvent.click((await screen.findAllByText(/relatórios/i))[0]);
       await screen.findByText(/faturamento bruto/i);
 
-      expect(screen.getByText(/Baseado em 1 pedidos/i)).toBeInTheDocument();
+      expect(screen.getByText("Baseado em 1 pedido")).toBeInTheDocument();
+      expect(within(screen.getByRole("group", { name: /faturamento bruto/i })).getByText("R$ 25,00")).toBeInTheDocument();
       fireEvent.click(screen.getByRole("button", { name: /7 dias/i }));
-      expect(screen.getByText(/Baseado em 2 pedidos/i)).toBeInTheDocument();
+      expect(screen.getByText("Baseado em 2 pedidos")).toBeInTheDocument();
+      expect(within(screen.getByRole("group", { name: /faturamento bruto/i })).getByText("R$ 65,00")).toBeInTheDocument();
     });
   });
 
